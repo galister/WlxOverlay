@@ -19,7 +19,6 @@ public class LaserPointer : BaseOverlay
     
     private string myPose;
     private float length;
-    private Vector3 color;
 
     private static readonly Vector3[] ModeColors = {
         new(0, 0.37f, 0.5f),
@@ -46,8 +45,6 @@ public class LaserPointer : BaseOverlay
         WidthInMeters = 0.002f;
         ShowHideBinding = false;
     }
-
-    private float angle = 0f;
 
     public override void Initialize()
     {

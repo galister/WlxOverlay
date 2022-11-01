@@ -12,7 +12,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
     private GL Gl = null!;
     private IWindow _window = null!;
 
-    public static GlShader BlendShader;
+    public static GlShader BlendShader = null!;
 
     public GlGraphicsEngine()
     {

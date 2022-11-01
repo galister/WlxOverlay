@@ -945,7 +945,7 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="obj">The object to compare with.</param>
         /// <returns>Whether or not the vector and the object are equal.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Vector2 other && Equals(other);
         }

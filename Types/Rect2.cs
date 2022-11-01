@@ -404,7 +404,7 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="obj">The other object to compare.</param>
         /// <returns>Whether or not the rect and the other object are exactly equal.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Rect2 other && Equals(other);
         }

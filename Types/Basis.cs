@@ -1157,7 +1157,7 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="obj">The object to compare with.</param>
         /// <returns>Whether or not the basis matrix and the object are exactly equal.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Basis other && Equals(other);
         }

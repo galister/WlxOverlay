@@ -20,17 +20,8 @@ public abstract class InteractableOverlay : BaseOverlay
     /// Transforms overlay UV (square) to texture UV (rect) 
     /// </summary>
     protected Transform2D InvInteractionTransform;
-    
-    protected Vector2 activeRatio { get; private set; }
-    private Vector2 interactiveSize { get; set; }
 
-    private VROverlayIntersectionMaskPrimitive_t _intersectionMask;
-    private uint _intersectionRectSize;
-
-    protected InteractableOverlay(string key) : base(key)
-    {
-        _intersectionRectSize = (uint)Marshal.SizeOf(typeof(IntersectionMaskRectangle_t));
-    }
+    protected InteractableOverlay(string key) : base(key) { }
     
     protected void UpdateInteractionTransform()
     {

@@ -44,13 +44,13 @@ public class Font : IDisposable
         
         var err = FT_Load_Glyph(ftFace, chIdx, FT_LOAD_DEFAULT);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not Load_Glyph for {(char)ch}: {err}");
+            throw new ApplicationException($"Could not Load_Glyph for {ch}: {err}");
 
         var ftFaceRec = (FT_FaceRec*)ftFace;
         
         err = FT_Get_Glyph((IntPtr)ftFaceRec->glyph, out var glyph);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not Get_Glyph for {(char)ch}: {err}");
+            throw new ApplicationException($"Could not Get_Glyph for {ch}: {err}");
 
         FT_Glyph_To_Bitmap(ref glyph, FT_Render_Mode.FT_RENDER_MODE_NORMAL, ref _nullVector, true);
         var bitmapGlyph = (FT_BitmapGlyphRec*)glyph;

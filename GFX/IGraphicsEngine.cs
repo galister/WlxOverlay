@@ -4,7 +4,7 @@ namespace X11Overlay.GFX;
 
 public static class GraphicsEngine
 {
-    public static IGraphicsEngine Instance;
+    public static IGraphicsEngine Instance = null!;
     public static bool Ready = false;
 }
 

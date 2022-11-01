@@ -602,7 +602,7 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="obj">The object to compare with.</param>
         /// <returns>Whether or not the transform and the object are exactly equal.</returns>
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
             return obj is Transform2D other && Equals(other);
         }

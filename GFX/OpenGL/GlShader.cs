@@ -10,8 +10,8 @@ public class GlShader : IDisposable
         {
             _gl = gl;
 
-            uint vertex = LoadShader(ShaderType.VertexShader, vertexPath);
-            uint fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
+            var vertex = LoadShader(ShaderType.VertexShader, vertexPath);
+            var fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
             _handle = _gl.CreateProgram();
             _gl.AttachShader(_handle, vertex);
             _gl.AttachShader(_handle, fragment);
