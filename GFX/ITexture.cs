@@ -10,12 +10,6 @@ public interface ITexture : IDisposable
 
     public uint GetWidth();
     public uint GetHeight();
-    
-    public void Clear(Vector3 color);
-    public void Clear(Vector3 color, int xOffset, int yOffset, uint width, uint height);
-
-    public void Draw(ITexture overlay, int xOffset, int yOffset);
-    public void Draw(ITexture overlay, int xOffset, int yOffset, uint width, uint height);
 
     public bool IsDynamic();
 }
