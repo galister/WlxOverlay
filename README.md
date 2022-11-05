@@ -19,7 +19,7 @@ Features:
   - Volume rocker
   - Toggles for screens / keyboard
 
-# Requirements
+# Dependencies
 
 The following libraries are needed:
 - libX11.so
@@ -32,6 +32,11 @@ The following libraries are needed:
 - dotnet >= 6
 - [xshm-cap](https://github.com/galister/xshm-cap) (included as binary, feel free to build yourself)
 
+On Arch Linux:
+```
+pacman -S libx11 libxcb libxtst dotnet
+```
+
 # How to Build
 
 The project uses the standard dotnet build pipeline.
@@ -43,11 +48,11 @@ dotnet build
 ```
 
 Then, run with:
-
 ```
 cd bin/debug/net6.0
 ./X11Overlay
 ```
+(Start SteamVR before running this.)
 
 # SteamVR bindings:
 Default bindings are provided for Index Controllers. Some notes to create your own:
