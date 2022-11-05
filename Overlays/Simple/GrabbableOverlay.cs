@@ -128,25 +128,30 @@ public class GrabbableOverlay : InteractableOverlay
         }
         else
         {
-            var dot = vRela.Normalized().Dot(tHmd.basis.z);
-            var zDist = lookPoint.Length();
-
-            var yDist = Mathf.Abs(Transform.origin.y - InputManager.HmdTransform.origin.y);
-            var xAngle = Mathf.Asin(yDist / lookPoint.Length());
-            
             Vector3 upDirection;
-            if (dot < -float.Epsilon) // facing downwards
+            if (Mathf.Abs(tHmd.basis.x.Dot(Vector3.Up)) > 0.2f)
+                upDirection = tHmd.basis.y;
+            else
             {
-                var upPoint = InputManager.HmdTransform.origin + zDist / Mathf.Cos(xAngle) * Vector3.Up;
-                upDirection = (upPoint - Transform.origin).Normalized();
+                var dot = vRela.Normalized().Dot(tHmd.basis.z);
+                var zDist = lookPoint.Length();
+
+                var yDist = Mathf.Abs(Transform.origin.y - InputManager.HmdTransform.origin.y);
+                var xAngle = Mathf.Asin(yDist / lookPoint.Length());
+
+                if (dot < -float.Epsilon) // facing downwards
+                {
+                    var upPoint = InputManager.HmdTransform.origin + zDist / Mathf.Cos(xAngle) * Vector3.Up;
+                    upDirection = (upPoint - Transform.origin).Normalized();
+                }
+                else if (dot > float.Epsilon) // facing upwards
+                {
+                    var downPoint = InputManager.HmdTransform.origin + zDist / Mathf.Cos(xAngle) * Vector3.Down;
+                    upDirection = (Transform.origin - downPoint).Normalized();
+                }
+                else // perfectly upright
+                    upDirection = Vector3.Up;
             }
-            else if (dot > float.Epsilon) // facing upwards
-            {
-                var downPoint = InputManager.HmdTransform.origin + zDist / Mathf.Cos(xAngle) * Vector3.Down;
-                upDirection = (Transform.origin - downPoint).Normalized();
-            }
-            else // perfectly upright
-                upDirection = Vector3.Up;
 
             Transform = Transform.LookingAt(lookPoint, upDirection).ScaledLocal(LocalScale);
         }
