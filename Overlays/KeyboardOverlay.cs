@@ -22,7 +22,7 @@ public class KeyboardOverlay : GrabbableOverlay
         _instance = this;
 
         SpawnPosition = Vector3.Forward + Vector3.Down * 0.5f;
-        WidthInMeters = 0.65f;
+        WidthInMeters = 0.8f;
         ShowHideBinding = true;
         WantVisible = true;
 
