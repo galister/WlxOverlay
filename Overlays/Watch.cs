@@ -169,8 +169,9 @@ public class Watch : InteractableOverlay
         base.AfterInput(batteryStateUpdated);
         
         var controller = InputManager.PoseState["LeftHand"];
+        var tgt = controller.TranslatedLocal(Vector3.Right).TranslatedLocal(_localPosition);
+        Transform = controller.TranslatedLocal(_localPosition).LookingAt(tgt.origin, -controller.basis.y);
 
-        Transform = controller.TranslatedLocal(_localPosition);
         UploadTransform();
         
         if (batteryStateUpdated)
