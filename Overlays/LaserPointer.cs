@@ -159,8 +159,8 @@ public class LaserPointer : BaseOverlay
         _pointerHits.Clear();
 
         
-        controller.origin.CopyTo(ref _params.vSource);
-        (-controller.basis.z).CopyTo(ref _params.vDirection);
+        controller.origin.CopyTo(ref IntersectionParams.vSource);
+        (-controller.basis.z).CopyTo(ref IntersectionParams.vDirection);
         
         foreach (var overlay in targets)
             if (ComputeIntersection(overlay, out var hitData))
@@ -192,18 +192,16 @@ public class LaserPointer : BaseOverlay
         }
     }
 
-    private VROverlayIntersectionParams_t _params = new() { eOrigin = ETrackingUniverseOrigin.TrackingUniverseStanding };
-    private VROverlayIntersectionResults_t _results;
     private bool ComputeIntersection(InteractableOverlay target, out PointerHit hitData)
     {
-        var wasHit = OpenVR.Overlay.ComputeOverlayIntersection(target.Handle, ref _params, ref _results);
-        if (!wasHit || !target.TryTransformToLocal((Vector2)_results.vUVs, out var localUv))
+        var wasHit = OpenVR.Overlay.ComputeOverlayIntersection(target.Handle, ref IntersectionParams, ref IntersectionResults);
+        if (!wasHit || !target.TryTransformToLocal((Vector2)IntersectionResults.vUVs, out var localUv))
         {
             hitData = null!;
             return false;
         }
         
-        hitData = new PointerHit(this, target, _results, localUv);
+        hitData = new PointerHit(this, target, IntersectionResults, localUv);
         return wasHit;
     }
 

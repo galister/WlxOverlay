@@ -27,14 +27,13 @@ public class ScreenOverlay : GrabbableOverlay
         var centerPoint = hmd.TranslatedLocal(SpawnPosition);
 
         LocalScale = new Vector3(2, -2, 2);
+        SnapUpright = true;
 
         Transform = hmd.LookingAt(centerPoint.origin, hmd.basis.y * hmd.basis.Inverse()).ScaledLocal(LocalScale);
         Transform.origin = centerPoint.origin;
 
         _capture = new XScreenCapture(_screen);
         Texture = _capture.Texture;
-
-        //Curvature = 0.25f;
 
         UpdateInteractionTransform();
         UploadCurvature();
@@ -149,14 +148,14 @@ public class ScreenOverlay : GrabbableOverlay
 
     protected internal override void OnClickWhileHeld()
     {
-        // TODO high quality overlays
+        CurveWhenUpright = !CurveWhenUpright;
         
         base.OnClickWhileHeld();
     }
 
     protected internal override void OnAltClickWhileHeld()
-    {
-        // TODO toggle curvature
+    { 
+        // TODO high quality overlays
         
         base.OnAltClickWhileHeld();
     }

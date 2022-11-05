@@ -1,6 +1,5 @@
 using OVRSharp;
 using Valve.VR;
-using X11Overlay.Core;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 
@@ -24,7 +23,10 @@ public class BaseOverlay : Overlay
     private bool _textureUploaded;
     
     protected Vector3 LocalScale = Vector3.One;
-    protected HmdMatrix34_t HmdMatrix;
+    
+    protected static HmdMatrix34_t HmdMatrix;
+    protected static VROverlayIntersectionParams_t IntersectionParams = new() { eOrigin = ETrackingUniverseOrigin.TrackingUniverseStanding };
+    protected static VROverlayIntersectionResults_t IntersectionResults;
 
     private const string Prefix = "X11Overlay_";
 
@@ -70,6 +72,7 @@ public class BaseOverlay : Overlay
         if (Texture == null)
         {
             Console.WriteLine($"Not showing {Key}: No texture set.");
+            WantVisible = false;
             return;
         }
 
@@ -80,8 +83,6 @@ public class BaseOverlay : Overlay
             UploadTexture();
             _textureUploaded = true;
         }
-
-        Console.WriteLine($"Showing {Key}");
         
         Visible = true;
         base.Show();
@@ -91,14 +92,6 @@ public class BaseOverlay : Overlay
     {
         Visible = false;
         base.Hide();
-    }
-
-    public void LookAtHmd()
-    {
-        var myOrigin = Transform.origin;
-        var target = Transform.Translated(myOrigin - InputManager.HmdTransform.origin).origin;
-
-        Transform = Transform.LookingAt(target, InputManager.HmdTransform.basis.y).ScaledLocal(LocalScale);
     }
     
     internal protected virtual void AfterInput(bool batteryStateUpdated) { }
@@ -148,18 +141,5 @@ public class BaseOverlay : Overlay
         var err = OpenVR.Overlay.SetOverlayColor(Handle, color.x, color.y, color.z);
         if (err != EVROverlayError.None)
             Console.WriteLine($"[Err] SetOverlayColor {color}: " + OpenVR.Overlay.GetOverlayErrorNameFromEnum(err));
-    }
-
-    protected void UploadBounds(float uMin, float uMax, float vMin, float vMax)
-    {
-        var bounds = new VRTextureBounds_t
-        {
-            uMin = uMin,
-            uMax = uMax,
-            vMin = vMin,
-            vMax = vMax
-        };
-
-        TextureBounds = bounds;
     }
 }

@@ -24,6 +24,9 @@ public class GrabbableOverlay : InteractableOverlay
     /// Near distance beyond which the overlay will be placed back at SpawnPosition on Show()
     /// </summary>
     private const float NearResetDistance = 0.2f;
+
+    protected bool SnapUpright;
+    protected bool CurveWhenUpright;
     
     /// <summary>
     /// Default spawn point, relative to HMD
@@ -64,8 +67,7 @@ public class GrabbableOverlay : InteractableOverlay
     protected internal void OnGrabHeld()
     {
         Transform.origin = PrimaryPointer!.Transform.TranslatedLocal(_grabOffset).origin;
-        LookAtHmd();
-        UploadTransform();
+        OnOrientationChanged();
     }
 
     protected internal void OnDropped()
@@ -92,21 +94,53 @@ public class GrabbableOverlay : InteractableOverlay
             return;
         
         LocalScale *= Vector3.One - Vector3.One * Mathf.Pow(value, 3) * 2;
-        OnGrabHeld();
     }
 
     protected internal void OnScrollDistance(float value)
     {
-        var t = Transform.TranslatedLocal(Vector3.Forward * (Mathf.Pow(value, 3)));
+        var pushDir = (Transform.origin - PrimaryPointer!.Transform.origin).Normalized();
+        var newTrans = Transform.Translated(pushDir * Mathf.Pow(value, 3));
         
-        var newGrabOffset = PrimaryPointer!.Transform.AffineInverse() * t.origin;
-        var distance = (t.origin - InputManager.HmdTransform.origin).Length();
+        var newGrabOffset = PrimaryPointer!.Transform.AffineInverse() * newTrans.origin;
+        var distance = (newTrans.origin - InputManager.HmdTransform.origin).Length();
         
         if (distance < 0.3f && value < 0
             || distance > 10f && value > 0)
             return;
 
         _grabOffset = newGrabOffset;
-        OnGrabHeld();
+    }
+    
+    private void OnOrientationChanged()
+    {
+        var lookPoint = Transform.Translated(Transform.origin - InputManager.HmdTransform.origin).origin;
+
+        var a = lookPoint.Length();
+        var beta = Mathf.Asin(Transform.origin.y - InputManager.HmdTransform.origin.y / lookPoint.Length());
+        var upPoint = InputManager.HmdTransform.origin + a / Mathf.Cos(beta) * Vector3.Up;
+        var upDirection = (upPoint - Transform.origin).Normalized();
+
+        if (SnapUpright && upDirection.Dot(Vector3.Up) > 0.9f)
+        {
+            lookPoint.y = Transform.origin.y;
+            Transform = Transform.LookingAt(lookPoint, Vector3.Up).ScaledLocal(LocalScale);
+
+            if (CurveWhenUpright)
+            {
+                Curvature = 0.2f;
+                UploadCurvature();
+                UploadTransform();
+                return;
+            }
+        }
+        else
+            Transform = Transform.LookingAt(lookPoint, upDirection).ScaledLocal(LocalScale);
+
+        if (Curvature > float.Epsilon)
+        {
+            Curvature = 0;
+            UploadCurvature();
+        }
+        UploadTransform();
     }
 }

@@ -99,29 +99,28 @@ public abstract class InteractableOverlay : BaseOverlay
         return true;
     }
 
-    private HmdVector2_t _vector2;
-    protected Transform3D CurvedSurfaceTransformFromUv(Vector2 uv)
+    protected Transform3D CurvedSurfaceTransformFromUv(Vector2 localUv)
     {
-        var xFormedUv = InteractionTransform * uv;
-        xFormedUv.CopyTo(ref _vector2);
+        var ovrUv = InteractionTransform * localUv - new Vector2(0.5f, 0.5f);
+        var width = WidthInMeters * LocalScale.x;
+        var halfWidth = width * 0.5f;
         
-        var err = OpenVR.Overlay.GetTransformForOverlayCoordinates(Handle, ETrackingUniverseOrigin.TrackingUniverseStanding, _vector2, ref HmdMatrix);
-        if (err != EVROverlayError.None)
-            Console.WriteLine("[Err] GetTransformForOverlayCoordinates: " + OpenVR.Overlay.GetOverlayErrorNameFromEnum(err));
+        var tCursor =  Transform.TranslatedLocal(new Vector3(halfWidth * ovrUv.x, halfWidth * ovrUv.y, 0));
 
-        var transform = HmdMatrix.ToTransform3D();
         if (Mathf.Abs(Curvature) < float.Epsilon)
-            return transform;
-
-        var uvFromCenter = xFormedUv - new Vector2(0.5f, 0.5f);
-
-        var curveFactor = Mathf.Sin(uvFromCenter.Length() * (WidthInMeters * Curvature / Transform.basis.x.Length()) * Mathf.Pi);
-        transform = transform.TranslatedLocal(Vector3.Back * curveFactor);
+            return tCursor;
         
-        Console.WriteLine($"CurveFactor: {curveFactor:F}");
+        var theta = Mathf.Pi * 4f * Curvature;
+        var r = width / theta;
+        var halfTheta = theta / 2f;
         
-        var sphereOrigin = Transform.TranslatedLocal(Vector3.Back * WidthInMeters * Curvature / Transform.basis.x.Length()).origin;
+        var tOrigin = Transform.TranslatedLocal(Vector3.Back * r);
+        tOrigin.origin.y = tCursor.origin.y;
 
-        return transform;
+        var offsetAngle = ovrUv.x * halfTheta;
+        tCursor = tOrigin.RotatedLocal(Vector3.Up, -offsetAngle)
+            .TranslatedLocal(Vector3.Forward * r);
+        
+        return tCursor;
     }
 }
