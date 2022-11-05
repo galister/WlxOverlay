@@ -58,7 +58,7 @@ public class GrabbableOverlay : InteractableOverlay
         
         PrimaryPointer = hitData.pointer;
         
-        _grabOffset = Transform.origin - hitData.pointer.Transform.origin;
+        _grabOffset = PrimaryPointer.Transform.AffineInverse() * Transform.origin;
     }
 
     protected internal void OnGrabHeld()
@@ -99,7 +99,7 @@ public class GrabbableOverlay : InteractableOverlay
     {
         var t = Transform.TranslatedLocal(Vector3.Forward * (Mathf.Pow(value, 3)));
         
-        var newGrabOffset = t.origin - PrimaryPointer!.Transform.origin;
+        var newGrabOffset = PrimaryPointer!.Transform.AffineInverse() * t.origin;
         var distance = (t.origin - InputManager.HmdTransform.origin).Length();
         
         if (distance < 0.3f && value < 0
