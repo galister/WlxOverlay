@@ -72,7 +72,6 @@ public abstract class InteractableOverlay : BaseOverlay
     protected internal virtual void OnPointerDown(PointerHit hitData)
     {
         EnsurePrimary(hitData.pointer);
-        
     }
 
     protected internal virtual void OnPointerUp(PointerHit hitData)

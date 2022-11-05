@@ -48,7 +48,7 @@ public class GrabbableOverlay : InteractableOverlay
         var globalRef = InputManager.HmdTransform.TranslatedLocal(_savedSpawnPosition);
         
         Transform.origin = globalRef.origin;
-        Transform = Transform.LookingAt(InputManager.HmdTransform.origin, Transform.basis.y);
+        OnOrientationChanged();
         
         base.Show();
     }
@@ -72,9 +72,7 @@ public class GrabbableOverlay : InteractableOverlay
 
     protected internal void OnDropped()
     {
-        var globalRef = InputManager.HmdTransform.TranslatedLocal(SpawnPosition);
-        
-        _savedSpawnPosition = (Transform.origin - globalRef.origin) * globalRef;
+        _savedSpawnPosition = InputManager.HmdTransform.AffineInverse() * Transform.origin;
     }
     
     protected internal virtual void OnClickWhileHeld()
@@ -146,7 +144,6 @@ public class GrabbableOverlay : InteractableOverlay
             {
                 var downPoint = InputManager.HmdTransform.origin + zDist / Mathf.Cos(xAngle) * Vector3.Down;
                 upDirection = (Transform.origin - downPoint).Normalized();
-                
             }
             else // perfectly upright
                 upDirection = Vector3.Up;
