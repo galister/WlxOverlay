@@ -1,7 +1,7 @@
 using X11Overlay.Core;
-using X11Overlay.Types;
+using X11Overlay.Numerics;
 
-namespace X11Overlay.Overlays;
+namespace X11Overlay.Overlays.Simple;
 
 /// <summary>
 /// An interactable overlay that exists in world space and can be moved by grabbing.
@@ -43,10 +43,8 @@ public class GrabbableOverlay : InteractableOverlay
             _savedSpawnPosition = SpawnPosition;
 
         var globalRef = InputManager.HmdTransform.TranslatedLocal(_savedSpawnPosition);
-
-        if ((Transform.origin - SpawnPosition).Length() > 10f)
-            Transform.origin = globalRef.origin;
-
+        
+        Transform.origin = globalRef.origin;
         Transform = Transform.LookingAt(InputManager.HmdTransform.origin, Transform.basis.y);
         
         base.Show();
@@ -65,7 +63,7 @@ public class GrabbableOverlay : InteractableOverlay
 
     protected internal void OnGrabHeld()
     {
-        Transform.origin = PrimaryPointer!.Transform.Translated(_grabOffset).origin;
+        Transform.origin = PrimaryPointer!.Transform.TranslatedLocal(_grabOffset).origin;
         LookAtHmd();
         UploadTransform();
     }

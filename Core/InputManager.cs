@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 using Valve.VR;
+using X11Overlay.Numerics;
 using X11Overlay.Types;
 
 namespace X11Overlay.Core;
@@ -15,6 +16,7 @@ public class InputManager
     public static readonly Dictionary<string, bool[]> BooleanState = new();
     public static readonly Dictionary<string, Vector2[]> Vector2State = new();
     public static readonly Dictionary<string, Transform3D> PoseState = new();
+    public static readonly List<BatteryStatus> BatteryStates = new();
 
     public static Transform3D HmdTransform;
 
@@ -59,15 +61,7 @@ public class InputManager
             Environment.Exit(1);
         }
         Console.WriteLine("IVRInput: pass");
-        
-        OpenVR.GetGenericInterface(OpenVR.IVRCompositor_Version, ref error);
-        if (error != EVRInitError.None)
-        {
-            Console.WriteLine(OpenVR.GetStringForHmdError(error));
-            Environment.Exit(1);
-        }
-        Console.WriteLine("IVRCompositor: pass");
-        
+
         Instance.LoadActionSets();
     }
 
@@ -211,6 +205,66 @@ public class InputManager
             }
         }
     }
+
+    private readonly uint[] _deviceIds = new uint[OpenVR.k_unMaxTrackedDeviceCount];
+    public void UpdateBatteryStates()
+    {
+        var numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.Controller, _deviceIds, 0);
+        var lastErr = ETrackedPropertyError.TrackedProp_Success;
+        
+        BatteryStates.Clear();
+            
+        for (var i = 0U; i < numDevs; i++)
+        {
+            var bs = new BatteryStatus();
+            
+            bs.SoC = OpenVR.System.GetFloatTrackedDeviceProperty(_deviceIds[i],
+                ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float, ref lastErr);
+            if (TryPrintError(lastErr, "GetFloatTrackedDeviceProperty(Prop_DeviceBatteryPercentage_Float)"))
+                continue;
+            
+            bs.Charging = OpenVR.System.GetBoolTrackedDeviceProperty(_deviceIds[i],
+                ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool, ref lastErr);
+            if (TryPrintError(lastErr, "GetBoolTrackedDeviceProperty(Prop_DeviceIsCharging_Bool)"))
+                continue;
+
+            bs.Role = OpenVR.System.GetControllerRoleForTrackedDeviceIndex(_deviceIds[i]);
+            BatteryStates.Add(bs);
+        }
+        
+        numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.GenericTracker, _deviceIds, 0);
+        
+        for (var i = 0U; i < numDevs; i++)
+        {
+            var bs = new BatteryStatus();
+            
+            bs.SoC = OpenVR.System.GetFloatTrackedDeviceProperty(_deviceIds[i],
+                ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float, ref lastErr);
+            if (TryPrintError(lastErr, "GetFloatTrackedDeviceProperty(Prop_DeviceBatteryPercentage_Float)"))
+                continue;
+            
+            bs.Charging = OpenVR.System.GetBoolTrackedDeviceProperty(_deviceIds[i],
+                ETrackedDeviceProperty.Prop_DeviceIsCharging_Bool, ref lastErr);
+            if (TryPrintError(lastErr, "GetBoolTrackedDeviceProperty(Prop_DeviceIsCharging_Bool)"))
+                continue;
+
+            bs.Role = ETrackedControllerRole.OptOut;
+
+            BatteryStates.Add(bs);
+        }
+        
+        BatteryStates.Sort((a, b) => a.Role.CompareTo(b.Role));
+    }
+
+    private bool TryPrintError(ETrackedPropertyError err, string message)
+    {
+        if (err != ETrackedPropertyError.TrackedProp_Success)
+        {
+            Console.WriteLine("[Err] " + err + " while " + message);
+            return true;
+        }
+        return false;
+    }
 }
 
 public class OpenVrInputAction
@@ -233,6 +287,13 @@ public class OpenVrInputAction
         if (err != EVRInputError.None) 
             Console.WriteLine($"GetActionHandle {Path}: {err}");
     }
+}
+
+public struct BatteryStatus
+{
+    public float SoC;
+    public bool Charging;
+    public ETrackedControllerRole Role;
 }
 
 public enum OpenVrInputActionType

@@ -1,5 +1,5 @@
 using X11Overlay.GFX;
-using X11Overlay.Types;
+using X11Overlay.Numerics;
 
 namespace X11Overlay.UI;
 
@@ -8,15 +8,26 @@ namespace X11Overlay.UI;
 /// </summary>
 public class Panel : Control
 {
-    public Vector3 BgColor;
+    private Vector3 _bgColor;
+
+    public Vector3 BgColor
+    {
+        get => _bgColor;
+        set
+        {
+            _bgColor = value;
+            Dirty = true;
+            Canvas?.MarkDirty();
+        }
+    }
 
     public Panel(int x, int y, uint w, uint h) : base(x, y, w, h)
     {
-        BgColor = Canvas.CurrentBgColor;
+        _bgColor = Canvas.CurrentBgColor;
     }
 
-    public override void Render(ITexture canvasTex)
+    public override void Render()
     {
-        canvasTex.Clear(BgColor, X, Y, Width, Height);
+        GraphicsEngine.UiRenderer.DrawColor(BgColor, X, Y, Width, Height);
     }
 }

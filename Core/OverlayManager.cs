@@ -1,6 +1,8 @@
 using OVRSharp;
 using Valve.VR;
+using X11Overlay.Numerics;
 using X11Overlay.Overlays;
+using X11Overlay.Overlays.Simple;
 
 namespace X11Overlay.Core;
 
@@ -14,11 +16,16 @@ public class OverlayManager : Application
         return Instance = new OverlayManager();
     }
     
+    public readonly float DisplayFrequency;
+    public readonly float FrameTime;
+    
     private readonly List<BaseOverlay> _overlays = new();
     private readonly List<InteractableOverlay> _interactables = new();
     private readonly List<LaserPointer> _pointers = new();
-
     private bool _showHideState = false;
+
+    private float _secondsSinceLastVsync;
+    private ulong _frameCounter;
     
     public OverlayManager() : base(ApplicationType.Overlay)
     {
@@ -32,6 +39,21 @@ public class OverlayManager : Application
             Environment.Exit(1);
         }
         Console.WriteLine("IVROverlay: pass");
+        
+        OpenVR.GetGenericInterface(OpenVR.IVRCompositor_Version, ref error);
+        if (error != EVRInitError.None)
+        {
+            Console.WriteLine(OpenVR.GetStringForHmdError(error));
+            Environment.Exit(1);
+        }
+        Console.WriteLine("IVRCompositor: pass");
+
+        var err = new ETrackedPropertyError();
+        DisplayFrequency = OpenVR.System.GetFloatTrackedDeviceProperty(OpenVR.k_unTrackedDeviceIndex_Hmd,
+            ETrackedDeviceProperty.Prop_DisplayFrequency_Float, ref err);
+        FrameTime = Mathf.Floor(1000f / DisplayFrequency) * 0.001f;
+
+        Console.WriteLine($"HMD running @ {DisplayFrequency} Hz");
 
         InputManager.Initialize();
     }
@@ -59,18 +81,30 @@ public class OverlayManager : Application
         _showHideState = !_showHideState;
         foreach (var overlay in _overlays.Where(x => x.ShowHideBinding))
         {
-            overlay.WantVisible = _showHideState;
             if (!_showHideState && overlay.Visible)
                 overlay.Hide();
+            else if (_showHideState && !overlay.Visible && overlay.WantVisible)
+                overlay.Show();
+                
         }
     }
+    
+    private DateTime _nextBatteryUpdate = DateTime.MinValue;
     
     public void Update()
     {
         InputManager.Instance.UpdateInput();
+        var batterStateUpdated = false;
+        
+        if (_nextBatteryUpdate < DateTime.UtcNow)
+        {
+            InputManager.Instance.UpdateBatteryStates();
+            _nextBatteryUpdate = DateTime.UtcNow.AddSeconds(10);
+            batterStateUpdated = true;
+        }
         
         foreach (var o in _overlays) 
-            o.AfterInput();
+            o.AfterInput(batterStateUpdated);
 
         foreach (var pointer in _pointers)
             pointer.TestInteractions(_interactables);
@@ -78,10 +112,18 @@ public class OverlayManager : Application
     
     public void Render()
     {
-        foreach (var o in _overlays.Where(o => o.WantVisible && !o.Visible))
+        foreach (var o in _overlays.Where(o => !o.Visible && o.WantVisible && !o.ShowHideBinding)) 
             o.Show();
 
         foreach (var o in _overlays.Where(o => o.Visible)) 
             o.Render();
+    }
+
+    public void WaitForEndOfFrame()
+    {
+        OpenVR.System.GetTimeSinceLastVsync(ref _secondsSinceLastVsync, ref _frameCounter);
+        var wait = TimeSpan.FromSeconds(FrameTime - _secondsSinceLastVsync);
+        if (wait.Ticks > 0)
+            Thread.Sleep(wait);
     }
 }

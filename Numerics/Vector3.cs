@@ -1,13 +1,34 @@
+// Copyright (c) 2007-2022 Juan Linietsky, Ariel Manzur.
+// Copyright (c) 2014-2022 Godot Engine contributors (cf. AUTHORS.md).
+//
+// Permission is hereby granted, free of charge, to any person obtaining a copy
+// of this software and associated documentation files (the "Software"), to deal
+// in the Software without restriction, including without limitation the rights
+// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+// copies of the Software, and to permit persons to whom the Software is
+// furnished to do so, subject to the following conditions:
+//
+// The above copyright notice and this permission notice shall be included in all
+// copies or substantial portions of the Software.
+//
+// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+// SOFTWARE.
+
 using System.Runtime.InteropServices;
 
-namespace X11Overlay.Types;
+namespace X11Overlay.Numerics;
 
     /// <summary>
-    /// 2-element structure that can be used to represent positions in 2D space or any other pair of numeric values.
+    /// 3-element structure that can be used to represent positions in 3D space or any other pair of numeric values.
     /// </summary>
     [Serializable]
     [StructLayout(LayoutKind.Sequential)]
-    public struct Vector2 : IEquatable<Vector2>
+    public struct Vector3 : IEquatable<Vector3>
     {
         /// <summary>
         /// Enumerated index values for the axes.
@@ -22,7 +43,11 @@ namespace X11Overlay.Types;
             /// <summary>
             /// The vector's Y axis.
             /// </summary>
-            Y
+            Y,
+            /// <summary>
+            /// The vector's Z axis.
+            /// </summary>
+            Z
         }
 
         /// <summary>
@@ -36,14 +61,20 @@ namespace X11Overlay.Types;
         public float y;
 
         /// <summary>
+        /// The vector's Z component. Also accessible by using the index position <c>[2]</c>.
+        /// </summary>
+        public float z;
+
+        /// <summary>
         /// Access vector components using their index.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException">
-        /// <paramref name="index"/> is not 0 or 1.
+        /// <paramref name="index"/> is not 0, 1 or 2.
         /// </exception>
         /// <value>
         /// <c>[0]</c> is equivalent to <see cref="x"/>,
-        /// <c>[1]</c> is equivalent to <see cref="y"/>.
+        /// <c>[1]</c> is equivalent to <see cref="y"/>,
+        /// <c>[2]</c> is equivalent to <see cref="z"/>.
         /// </value>
         public float this[int index]
         {
@@ -55,6 +86,8 @@ namespace X11Overlay.Types;
                         return x;
                     case 1:
                         return y;
+                    case 2:
+                        return z;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(index));
                 }
@@ -69,6 +102,9 @@ namespace X11Overlay.Types;
                     case 1:
                         y = value;
                         return;
+                    case 2:
+                        z = value;
+                        return;
                     default:
                         throw new ArgumentOutOfRangeException(nameof(index));
                 }
@@ -78,10 +114,11 @@ namespace X11Overlay.Types;
         /// <summary>
         /// Helper method for deconstruction into a tuple.
         /// </summary>
-        public void Deconstruct(out float x, out float y)
+        public void Deconstruct(out float x, out float y, out float z)
         {
             x = this.x;
             y = this.y;
+            z = this.z;
         }
 
         internal void Normalize()
@@ -90,13 +127,14 @@ namespace X11Overlay.Types;
 
             if (lengthsq == 0)
             {
-                x = y = 0f;
+                x = y = z = 0f;
             }
             else
             {
                 float length = Mathf.Sqrt(lengthsq);
                 x /= length;
                 y /= length;
+                z /= length;
             }
         }
 
@@ -104,58 +142,27 @@ namespace X11Overlay.Types;
         /// Returns a new vector with all components in absolute values (i.e. positive).
         /// </summary>
         /// <returns>A vector with <see cref="Mathf.Abs(float)"/> called on each component.</returns>
-        public Vector2 Abs()
+        public Vector3 Abs()
         {
-            return new Vector2(Mathf.Abs(x), Mathf.Abs(y));
+            return new Vector3(Mathf.Abs(x), Mathf.Abs(y), Mathf.Abs(z));
         }
 
         /// <summary>
-        /// Returns this vector's angle with respect to the X axis, or (1, 0) vector, in radians.
-        ///
-        /// Equivalent to the result of <see cref="Mathf.Atan2(float, float)"/> when
-        /// called with the vector's <see cref="y"/> and <see cref="x"/> as parameters: <c>Mathf.Atan2(v.y, v.x)</c>.
-        /// </summary>
-        /// <returns>The angle of this vector, in radians.</returns>
-        public float Angle()
-        {
-            return Mathf.Atan2(y, x);
-        }
-
-        /// <summary>
-        /// Returns the angle to the given vector, in radians.
+        /// Returns the unsigned minimum angle to the given vector, in radians.
         /// </summary>
         /// <param name="to">The other vector to compare this vector to.</param>
-        /// <returns>The angle between the two vectors, in radians.</returns>
-        public float AngleTo(Vector2 to)
+        /// <returns>The unsigned angle between the two vectors, in radians.</returns>
+        public float AngleTo(Vector3 to)
         {
-            return Mathf.Atan2(Cross(to), Dot(to));
+            return Mathf.Atan2(Cross(to).Length(), Dot(to));
         }
 
         /// <summary>
-        /// Returns the angle between the line connecting the two points and the X axis, in radians.
-        /// </summary>
-        /// <param name="to">The other vector to compare this vector to.</param>
-        /// <returns>The angle between the two vectors, in radians.</returns>
-        public float AngleToPoint(Vector2 to)
-        {
-            return Mathf.Atan2(y - to.y, x - to.x);
-        }
-
-        /// <summary>
-        /// Returns the aspect ratio of this vector, the ratio of <see cref="x"/> to <see cref="y"/>.
-        /// </summary>
-        /// <returns>The <see cref="x"/> component divided by the <see cref="y"/> component.</returns>
-        public float Aspect()
-        {
-            return x / y;
-        }
-
-        /// <summary>
-        /// Returns the vector "bounced off" from a plane defined by the given normal.
+        /// Returns this vector "bounced off" from a plane defined by the given normal.
         /// </summary>
         /// <param name="normal">The normal vector defining the plane to bounce off. Must be normalized.</param>
         /// <returns>The bounced vector.</returns>
-        public Vector2 Bounce(Vector2 normal)
+        public Vector3 Bounce(Vector3 normal)
         {
             return -Reflect(normal);
         }
@@ -164,9 +171,9 @@ namespace X11Overlay.Types;
         /// Returns a new vector with all components rounded up (towards positive infinity).
         /// </summary>
         /// <returns>A vector with <see cref="Mathf.Ceil"/> called on each component.</returns>
-        public Vector2 Ceil()
+        public Vector3 Ceil()
         {
-            return new Vector2(Mathf.Ceil(x), Mathf.Ceil(y));
+            return new Vector3(Mathf.Ceil(x), Mathf.Ceil(y), Mathf.Ceil(z));
         }
 
         /// <summary>
@@ -177,12 +184,13 @@ namespace X11Overlay.Types;
         /// <param name="min">The vector with minimum allowed values.</param>
         /// <param name="max">The vector with maximum allowed values.</param>
         /// <returns>The vector with all components clamped.</returns>
-        public Vector2 Clamp(Vector2 min, Vector2 max)
+        public Vector3 Clamp(Vector3 min, Vector3 max)
         {
-            return new Vector2
+            return new Vector3
             (
                 Mathf.Clamp(x, min.x, max.x),
-                Mathf.Clamp(y, min.y, max.y)
+                Mathf.Clamp(y, min.y, max.y),
+                Mathf.Clamp(z, min.z, max.z)
             );
         }
 
@@ -190,10 +198,15 @@ namespace X11Overlay.Types;
         /// Returns the cross product of this vector and <paramref name="with"/>.
         /// </summary>
         /// <param name="with">The other vector.</param>
-        /// <returns>The cross product value.</returns>
-        public float Cross(Vector2 with)
+        /// <returns>The cross product vector.</returns>
+        public Vector3 Cross(Vector3 with)
         {
-            return (x * with.y) - (y * with.x);
+            return new Vector3
+            (
+                (y * with.z) - (z * with.y),
+                (z * with.x) - (x * with.z),
+                (x * with.y) - (y * with.x)
+            );
         }
 
         /// <summary>
@@ -205,12 +218,13 @@ namespace X11Overlay.Types;
         /// <param name="postB">A vector after <paramref name="b"/>.</param>
         /// <param name="weight">A value on the range of 0.0 to 1.0, representing the amount of interpolation.</param>
         /// <returns>The interpolated vector.</returns>
-        public Vector2 CubicInterpolate(Vector2 b, Vector2 preA, Vector2 postB, float weight)
+        public Vector3 CubicInterpolate(Vector3 b, Vector3 preA, Vector3 postB, float weight)
         {
-            return new Vector2
+            return new Vector3
             (
                 Mathf.CubicInterpolate(x, b.x, preA.x, postB.x, weight),
-                Mathf.CubicInterpolate(y, b.y, preA.y, postB.y, weight)
+                Mathf.CubicInterpolate(y, b.y, preA.y, postB.y, weight),
+                Mathf.CubicInterpolate(z, b.z, preA.z, postB.z, weight)
             );
         }
 
@@ -228,12 +242,13 @@ namespace X11Overlay.Types;
         /// <param name="preAT"></param>
         /// <param name="postBT"></param>
         /// <returns>The interpolated vector.</returns>
-        public Vector2 CubicInterpolateInTime(Vector2 b, Vector2 preA, Vector2 postB, float weight, float t, float preAT, float postBT)
+        public Vector3 CubicInterpolateInTime(Vector3 b, Vector3 preA, Vector3 postB, float weight, float t, float preAT, float postBT)
         {
-            return new Vector2
+            return new Vector3
             (
                 Mathf.CubicInterpolateInTime(x, b.x, preA.x, postB.x, weight, t, preAT, postBT),
-                Mathf.CubicInterpolateInTime(y, b.y, preA.y, postB.y, weight, t, preAT, postBT)
+                Mathf.CubicInterpolateInTime(y, b.y, preA.y, postB.y, weight, t, preAT, postBT),
+                Mathf.CubicInterpolateInTime(z, b.z, preA.z, postB.z, weight, t, preAT, postBT)
             );
         }
 
@@ -246,7 +261,7 @@ namespace X11Overlay.Types;
         /// <param name="end">The destination vector.</param>
         /// <param name="t">A value on the range of 0.0 to 1.0, representing the amount of interpolation.</param>
         /// <returns>The interpolated vector.</returns>
-        public Vector2 BezierInterpolate(Vector2 control1, Vector2 control2, Vector2 end, float t)
+        public Vector3 BezierInterpolate(Vector3 control1, Vector3 control2, Vector3 end, float t)
         {
             // Formula from Wikipedia article on Bezier curves
             float omt = 1 - t;
@@ -263,9 +278,9 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="to">The other vector to point towards.</param>
         /// <returns>The direction from this vector to <paramref name="to"/>.</returns>
-        public Vector2 DirectionTo(Vector2 to)
+        public Vector3 DirectionTo(Vector3 to)
         {
-            return new Vector2(to.x - x, to.y - y).Normalized();
+            return new Vector3(to.x - x, to.y - y, to.z - z).Normalized();
         }
 
         /// <summary>
@@ -275,19 +290,20 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="to">The other vector to use.</param>
         /// <returns>The squared distance between the two vectors.</returns>
-        public float DistanceSquaredTo(Vector2 to)
+        public float DistanceSquaredTo(Vector3 to)
         {
-            return (x - to.x) * (x - to.x) + (y - to.y) * (y - to.y);
+            return (to - this).LengthSquared();
         }
 
         /// <summary>
         /// Returns the distance between this vector and <paramref name="to"/>.
         /// </summary>
+        /// <seealso cref="DistanceSquaredTo(Vector3)"/>
         /// <param name="to">The other vector to use.</param>
         /// <returns>The distance between the two vectors.</returns>
-        public float DistanceTo(Vector2 to)
+        public float DistanceTo(Vector3 to)
         {
-            return Mathf.Sqrt((x - to.x) * (x - to.x) + (y - to.y) * (y - to.y));
+            return (to - this).Length();
         }
 
         /// <summary>
@@ -295,27 +311,27 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="with">The other vector to use.</param>
         /// <returns>The dot product of the two vectors.</returns>
-        public float Dot(Vector2 with)
+        public float Dot(Vector3 with)
         {
-            return (x * with.x) + (y * with.y);
+            return (x * with.x) + (y * with.y) + (z * with.z);
         }
 
         /// <summary>
         /// Returns a new vector with all components rounded down (towards negative infinity).
         /// </summary>
         /// <returns>A vector with <see cref="Mathf.Floor"/> called on each component.</returns>
-        public Vector2 Floor()
+        public Vector3 Floor()
         {
-            return new Vector2(Mathf.Floor(x), Mathf.Floor(y));
+            return new Vector3(Mathf.Floor(x), Mathf.Floor(y), Mathf.Floor(z));
         }
 
         /// <summary>
-        /// Returns the inverse of this vector. This is the same as <c>new Vector2(1 / v.x, 1 / v.y)</c>.
+        /// Returns the inverse of this vector. This is the same as <c>new Vector3(1 / v.x, 1 / v.y, 1 / v.z)</c>.
         /// </summary>
         /// <returns>The inverse of this vector.</returns>
-        public Vector2 Inverse()
+        public Vector3 Inverse()
         {
-            return new Vector2(1 / x, 1 / y);
+            return new Vector3(1 / x, 1 / y, 1 / z);
         }
 
         /// <summary>
@@ -334,7 +350,11 @@ namespace X11Overlay.Types;
         /// <returns>The length of this vector.</returns>
         public float Length()
         {
-            return Mathf.Sqrt((x * x) + (y * y));
+            float x2 = x * x;
+            float y2 = y * y;
+            float z2 = z * z;
+
+            return Mathf.Sqrt(x2 + y2 + z2);
         }
 
         /// <summary>
@@ -345,7 +365,11 @@ namespace X11Overlay.Types;
         /// <returns>The squared length of this vector.</returns>
         public float LengthSquared()
         {
-            return (x * x) + (y * y);
+            float x2 = x * x;
+            float y2 = y * y;
+            float z2 = z * z;
+
+            return x2 + y2 + z2;
         }
 
         /// <summary>
@@ -355,12 +379,13 @@ namespace X11Overlay.Types;
         /// <param name="to">The destination vector for interpolation.</param>
         /// <param name="weight">A value on the range of 0.0 to 1.0, representing the amount of interpolation.</param>
         /// <returns>The resulting vector of the interpolation.</returns>
-        public Vector2 Lerp(Vector2 to, float weight)
+        public Vector3 Lerp(Vector3 to, float weight)
         {
-            return new Vector2
+            return new Vector3
             (
                 Mathf.Lerp(x, to.x, weight),
-                Mathf.Lerp(y, to.y, weight)
+                Mathf.Lerp(y, to.y, weight),
+                Mathf.Lerp(z, to.z, weight)
             );
         }
 
@@ -369,16 +394,15 @@ namespace X11Overlay.Types;
         /// this vector and <paramref name="to"/> by the vector amount <paramref name="weight"/>.
         /// </summary>
         /// <param name="to">The destination vector for interpolation.</param>
-        /// <param name="weight">
-        /// A vector with components on the range of 0.0 to 1.0, representing the amount of interpolation.
-        /// </param>
+        /// <param name="weight">A vector with components on the range of 0.0 to 1.0, representing the amount of interpolation.</param>
         /// <returns>The resulting vector of the interpolation.</returns>
-        public Vector2 Lerp(Vector2 to, Vector2 weight)
+        public Vector3 Lerp(Vector3 to, Vector3 weight)
         {
-            return new Vector2
+            return new Vector3
             (
                 Mathf.Lerp(x, to.x, weight.x),
-                Mathf.Lerp(y, to.y, weight.y)
+                Mathf.Lerp(y, to.y, weight.y),
+                Mathf.Lerp(z, to.z, weight.z)
             );
         }
 
@@ -387,9 +411,9 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="length">The length to limit to.</param>
         /// <returns>The vector with its length limited.</returns>
-        public Vector2 LimitLength(float length = 1.0f)
+        public Vector3 LimitLength(float length = 1.0f)
         {
-            Vector2 v = this;
+            Vector3 v = this;
             float l = Length();
 
             if (l > 0 && length < l)
@@ -403,22 +427,22 @@ namespace X11Overlay.Types;
 
         /// <summary>
         /// Returns the axis of the vector's highest value. See <see cref="Axis"/>.
-        /// If both components are equal, this method returns <see cref="Axis.X"/>.
+        /// If all components are equal, this method returns <see cref="Axis.X"/>.
         /// </summary>
         /// <returns>The index of the highest axis.</returns>
         public Axis MaxAxisIndex()
         {
-            return x < y ? Axis.Y : Axis.X;
+            return x < y ? (y < z ? Axis.Z : Axis.Y) : (x < z ? Axis.Z : Axis.X);
         }
 
         /// <summary>
         /// Returns the axis of the vector's lowest value. See <see cref="Axis"/>.
-        /// If both components are equal, this method returns <see cref="Axis.Y"/>.
+        /// If all components are equal, this method returns <see cref="Axis.Z"/>.
         /// </summary>
         /// <returns>The index of the lowest axis.</returns>
         public Axis MinAxisIndex()
         {
-            return x < y ? Axis.X : Axis.Y;
+            return x < y ? (x < z ? Axis.X : Axis.Z) : (y < z ? Axis.Y : Axis.Z);
         }
 
         /// <summary>
@@ -427,10 +451,10 @@ namespace X11Overlay.Types;
         /// <param name="to">The vector to move towards.</param>
         /// <param name="delta">The amount to move towards by.</param>
         /// <returns>The resulting vector.</returns>
-        public Vector2 MoveToward(Vector2 to, float delta)
+        public Vector3 MoveToward(Vector3 to, float delta)
         {
-            Vector2 v = this;
-            Vector2 vd = to - v;
+            Vector3 v = this;
+            Vector3 vd = to - v;
             float len = vd.Length();
             if (len <= delta || len < float.Epsilon)
                 return to;
@@ -442,11 +466,25 @@ namespace X11Overlay.Types;
         /// Returns the vector scaled to unit length. Equivalent to <c>v / v.Length()</c>.
         /// </summary>
         /// <returns>A normalized version of the vector.</returns>
-        public Vector2 Normalized()
+        public Vector3 Normalized()
         {
-            Vector2 v = this;
+            Vector3 v = this;
             v.Normalize();
             return v;
+        }
+
+        /// <summary>
+        /// Returns the outer product with <paramref name="with"/>.
+        /// </summary>
+        /// <param name="with">The other vector.</param>
+        /// <returns>A <see cref="Basis"/> representing the outer product matrix.</returns>
+        public Basis Outer(Vector3 with)
+        {
+            return new Basis(
+                x * with.x, x * with.y, x * with.z,
+                y * with.x, y * with.y, y * with.z,
+                z * with.x, z * with.y, z * with.z
+            );
         }
 
         /// <summary>
@@ -457,11 +495,12 @@ namespace X11Overlay.Types;
         /// <returns>
         /// A vector with each component <see cref="Mathf.PosMod(float, float)"/> by <paramref name="mod"/>.
         /// </returns>
-        public Vector2 PosMod(float mod)
+        public Vector3 PosMod(float mod)
         {
-            Vector2 v;
+            Vector3 v;
             v.x = Mathf.PosMod(x, mod);
             v.y = Mathf.PosMod(y, mod);
+            v.z = Mathf.PosMod(z, mod);
             return v;
         }
 
@@ -473,11 +512,12 @@ namespace X11Overlay.Types;
         /// <returns>
         /// A vector with each component <see cref="Mathf.PosMod(float, float)"/> by <paramref name="modv"/>'s components.
         /// </returns>
-        public Vector2 PosMod(Vector2 modv)
+        public Vector3 PosMod(Vector3 modv)
         {
-            Vector2 v;
+            Vector3 v;
             v.x = Mathf.PosMod(x, modv.x);
             v.y = Mathf.PosMod(y, modv.y);
+            v.z = Mathf.PosMod(z, modv.z);
             return v;
         }
 
@@ -486,7 +526,7 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="onNormal">The vector to project onto.</param>
         /// <returns>The projected vector.</returns>
-        public Vector2 Project(Vector2 onNormal)
+        public Vector3 Project(Vector3 onNormal)
         {
             return onNormal * (Dot(onNormal) / onNormal.LengthSquared());
         }
@@ -496,7 +536,7 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="normal">The normal vector defining the plane to reflect from. Must be normalized.</param>
         /// <returns>The reflected vector.</returns>
-        public Vector2 Reflect(Vector2 normal)
+        public Vector3 Reflect(Vector3 normal)
         {
 #if DEBUG
             if (!normal.IsNormalized())
@@ -504,21 +544,25 @@ namespace X11Overlay.Types;
                 throw new ArgumentException("Argument is not normalized.", nameof(normal));
             }
 #endif
-            return (2 * Dot(normal) * normal) - this;
+            return (2.0f * Dot(normal) * normal) - this;
         }
 
         /// <summary>
-        /// Rotates this vector by <paramref name="angle"/> radians.
+        /// Rotates this vector around a given <paramref name="axis"/> vector by <paramref name="angle"/> (in radians).
+        /// The <paramref name="axis"/> vector must be a normalized vector.
         /// </summary>
+        /// <param name="axis">The vector to rotate around. Must be normalized.</param>
         /// <param name="angle">The angle to rotate by, in radians.</param>
         /// <returns>The rotated vector.</returns>
-        public Vector2 Rotated(float angle)
+        public Vector3 Rotated(Vector3 axis, float angle)
         {
-            float sine = Mathf.Sin(angle);
-            float cosi = Mathf.Cos(angle);
-            return new Vector2(
-                x * cosi - y * sine,
-                x * sine + y * cosi);
+#if DEBUG
+            if (!axis.IsNormalized())
+            {
+                throw new ArgumentException("Argument is not normalized.", nameof(axis));
+            }
+#endif
+            return new Basis(axis, angle) * this;
         }
 
         /// <summary>
@@ -526,9 +570,9 @@ namespace X11Overlay.Types;
         /// with halfway cases rounded towards the nearest multiple of two.
         /// </summary>
         /// <returns>The rounded vector.</returns>
-        public Vector2 Round()
+        public Vector3 Round()
         {
-            return new Vector2(Mathf.Round(x), Mathf.Round(y));
+            return new Vector3(Mathf.Round(x), Mathf.Round(y), Mathf.Round(z));
         }
 
         /// <summary>
@@ -537,12 +581,30 @@ namespace X11Overlay.Types;
         /// by calling <see cref="Mathf.Sign(float)"/> on each component.
         /// </summary>
         /// <returns>A vector with all components as either <c>1</c>, <c>-1</c>, or <c>0</c>.</returns>
-        public Vector2 Sign()
+        public Vector3 Sign()
         {
-            Vector2 v;
+            Vector3 v;
             v.x = Mathf.Sign(x);
             v.y = Mathf.Sign(y);
+            v.z = Mathf.Sign(z);
             return v;
+        }
+
+        /// <summary>
+        /// Returns the signed angle to the given vector, in radians.
+        /// The sign of the angle is positive in a counter-clockwise
+        /// direction and negative in a clockwise direction when viewed
+        /// from the side specified by the <paramref name="axis"/>.
+        /// </summary>
+        /// <param name="to">The other vector to compare this vector to.</param>
+        /// <param name="axis">The reference axis to use for the angle sign.</param>
+        /// <returns>The signed angle between the two vectors, in radians.</returns>
+        public float SignedAngleTo(Vector3 to, Vector3 axis)
+        {
+            Vector3 crossTo = Cross(to);
+            float unsignedAngle = Mathf.Atan2(crossTo.Length(), Dot(to));
+            float sign = crossTo.Dot(axis);
+            return (sign < 0) ? -unsignedAngle : unsignedAngle;
         }
 
         /// <summary>
@@ -551,12 +613,12 @@ namespace X11Overlay.Types;
         ///
         /// This method also handles interpolating the lengths if the input vectors
         /// have different lengths. For the special case of one or both input vectors
-        /// having zero length, this method behaves like <see cref="Lerp(Vector2, float)"/>.
+        /// having zero length, this method behaves like <see cref="Lerp(Vector3, float)"/>.
         /// </summary>
         /// <param name="to">The destination vector for interpolation.</param>
         /// <param name="weight">A value on the range of 0.0 to 1.0, representing the amount of interpolation.</param>
         /// <returns>The resulting vector of the interpolation.</returns>
-        public Vector2 Slerp(Vector2 to, float weight)
+        public Vector3 Slerp(Vector3 to, float weight)
         {
             float startLengthSquared = LengthSquared();
             float endLengthSquared = to.LengthSquared();
@@ -568,7 +630,7 @@ namespace X11Overlay.Types;
             float startLength = Mathf.Sqrt(startLengthSquared);
             float resultLength = Mathf.Lerp(startLength, Mathf.Sqrt(endLengthSquared), weight);
             float angle = AngleTo(to);
-            return Rotated(angle * weight) * (resultLength / startLength);
+            return Rotated(Cross(to).Normalized(), angle * weight) * (resultLength / startLength);
         }
 
         /// <summary>
@@ -576,7 +638,7 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="normal">The normal vector defining the plane to slide on.</param>
         /// <returns>The slid vector.</returns>
-        public Vector2 Slide(Vector2 normal)
+        public Vector3 Slide(Vector3 normal)
         {
             return this - (normal * Dot(normal));
         }
@@ -587,206 +649,216 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="step">A vector value representing the step size to snap to.</param>
         /// <returns>The snapped vector.</returns>
-        public Vector2 Snapped(Vector2 step)
+        public Vector3 Snapped(Vector3 step)
         {
-            return new Vector2(Mathf.Snapped(x, step.x), Mathf.Snapped(y, step.y));
-        }
-
-        /// <summary>
-        /// Returns a perpendicular vector rotated 90 degrees counter-clockwise
-        /// compared to the original, with the same length.
-        /// </summary>
-        /// <returns>The perpendicular vector.</returns>
-        public Vector2 Orthogonal()
-        {
-            return new Vector2(y, -x);
+            return new Vector3
+            (
+                Mathf.Snapped(x, step.x),
+                Mathf.Snapped(y, step.y),
+                Mathf.Snapped(z, step.z)
+            );
         }
 
         // Constants
-        private static readonly Vector2 _zero = new Vector2(0, 0);
-        private static readonly Vector2 _one = new Vector2(1, 1);
-        private static readonly Vector2 _inf = new Vector2(Mathf.Inf, Mathf.Inf);
+        private static readonly Vector3 _zero = new Vector3(0, 0, 0);
+        private static readonly Vector3 _one = new Vector3(1, 1, 1);
+        private static readonly Vector3 _inf = new Vector3(Mathf.Inf, Mathf.Inf, Mathf.Inf);
 
-        private static readonly Vector2 _up = new Vector2(0, -1);
-        private static readonly Vector2 _down = new Vector2(0, 1);
-        private static readonly Vector2 _right = new Vector2(1, 0);
-        private static readonly Vector2 _left = new Vector2(-1, 0);
+        private static readonly Vector3 _up = new Vector3(0, 1, 0);
+        private static readonly Vector3 _down = new Vector3(0, -1, 0);
+        private static readonly Vector3 _right = new Vector3(1, 0, 0);
+        private static readonly Vector3 _left = new Vector3(-1, 0, 0);
+        private static readonly Vector3 _forward = new Vector3(0, 0, -1);
+        private static readonly Vector3 _back = new Vector3(0, 0, 1);
 
         /// <summary>
         /// Zero vector, a vector with all components set to <c>0</c>.
         /// </summary>
-        /// <value>Equivalent to <c>new Vector2(0, 0)</c>.</value>
-        public static Vector2 Zero { get { return _zero; } }
+        /// <value>Equivalent to <c>new Vector3(0, 0, 0)</c>.</value>
+        public static Vector3 Zero { get { return _zero; } }
         /// <summary>
         /// One vector, a vector with all components set to <c>1</c>.
         /// </summary>
-        /// <value>Equivalent to <c>new Vector2(1, 1)</c>.</value>
-        public static Vector2 One { get { return _one; } }
+        /// <value>Equivalent to <c>new Vector3(1, 1, 1)</c>.</value>
+        public static Vector3 One { get { return _one; } }
         /// <summary>
         /// Infinity vector, a vector with all components set to <see cref="Mathf.Inf"/>.
         /// </summary>
-        /// <value>Equivalent to <c>new Vector2(Mathf.Inf, Mathf.Inf)</c>.</value>
-        public static Vector2 Inf { get { return _inf; } }
+        /// <value>Equivalent to <c>new Vector3(Mathf.Inf, Mathf.Inf, Mathf.Inf)</c>.</value>
+        public static Vector3 Inf { get { return _inf; } }
 
         /// <summary>
-        /// Up unit vector. Y is down in 2D, so this vector points -Y.
+        /// Up unit vector.
         /// </summary>
-        /// <value>Equivalent to <c>new Vector2(0, -1)</c>.</value>
-        public static Vector2 Up { get { return _up; } }
+        /// <value>Equivalent to <c>new Vector3(0, 1, 0)</c>.</value>
+        public static Vector3 Up { get { return _up; } }
         /// <summary>
-        /// Down unit vector. Y is down in 2D, so this vector points +Y.
+        /// Down unit vector.
         /// </summary>
-        /// <value>Equivalent to <c>new Vector2(0, 1)</c>.</value>
-        public static Vector2 Down { get { return _down; } }
+        /// <value>Equivalent to <c>new Vector3(0, -1, 0)</c>.</value>
+        public static Vector3 Down { get { return _down; } }
         /// <summary>
-        /// Right unit vector. Represents the direction of right.
+        /// Right unit vector. Represents the local direction of right,
+        /// and the global direction of east.
         /// </summary>
-        /// <value>Equivalent to <c>new Vector2(1, 0)</c>.</value>
-        public static Vector2 Right { get { return _right; } }
+        /// <value>Equivalent to <c>new Vector3(1, 0, 0)</c>.</value>
+        public static Vector3 Right { get { return _right; } }
         /// <summary>
-        /// Left unit vector. Represents the direction of left.
+        /// Left unit vector. Represents the local direction of left,
+        /// and the global direction of west.
         /// </summary>
-        /// <value>Equivalent to <c>new Vector2(-1, 0)</c>.</value>
-        public static Vector2 Left { get { return _left; } }
+        /// <value>Equivalent to <c>new Vector3(-1, 0, 0)</c>.</value>
+        public static Vector3 Left { get { return _left; } }
+        /// <summary>
+        /// Forward unit vector. Represents the local direction of forward,
+        /// and the global direction of north.
+        /// </summary>
+        /// <value>Equivalent to <c>new Vector3(0, 0, -1)</c>.</value>
+        public static Vector3 Forward { get { return _forward; } }
+        /// <summary>
+        /// Back unit vector. Represents the local direction of back,
+        /// and the global direction of south.
+        /// </summary>
+        /// <value>Equivalent to <c>new Vector3(0, 0, 1)</c>.</value>
+        public static Vector3 Back { get { return _back; } }
 
         /// <summary>
-        /// Constructs a new <see cref="Vector2"/> with the given components.
+        /// Constructs a new <see cref="Vector3"/> with the given components.
         /// </summary>
         /// <param name="x">The vector's X component.</param>
         /// <param name="y">The vector's Y component.</param>
-        public Vector2(float x, float y)
+        /// <param name="z">The vector's Z component.</param>
+        public Vector3(float x, float y, float z)
         {
             this.x = x;
             this.y = y;
+            this.z = z;
         }
 
         /// <summary>
-        /// Creates a unit Vector2 rotated to the given angle. This is equivalent to doing
-        /// <c>Vector2(Mathf.Cos(angle), Mathf.Sin(angle))</c> or <c>Vector2.Right.Rotated(angle)</c>.
-        /// </summary>
-        /// <param name="angle">Angle of the vector, in radians.</param>
-        /// <returns>The resulting vector.</returns>
-        public static Vector2 FromAngle(float angle)
-        {
-            return new Vector2(Mathf.Cos(angle), Mathf.Sin(angle));
-        }
-
-        /// <summary>
-        /// Adds each component of the <see cref="Vector2"/>
-        /// with the components of the given <see cref="Vector2"/>.
+        /// Adds each component of the <see cref="Vector3"/>
+        /// with the components of the given <see cref="Vector3"/>.
         /// </summary>
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>The added vector.</returns>
-        public static Vector2 operator +(Vector2 left, Vector2 right)
+        public static Vector3 operator +(Vector3 left, Vector3 right)
         {
             left.x += right.x;
             left.y += right.y;
+            left.z += right.z;
             return left;
         }
 
         /// <summary>
-        /// Subtracts each component of the <see cref="Vector2"/>
-        /// by the components of the given <see cref="Vector2"/>.
+        /// Subtracts each component of the <see cref="Vector3"/>
+        /// by the components of the given <see cref="Vector3"/>.
         /// </summary>
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>The subtracted vector.</returns>
-        public static Vector2 operator -(Vector2 left, Vector2 right)
+        public static Vector3 operator -(Vector3 left, Vector3 right)
         {
             left.x -= right.x;
             left.y -= right.y;
+            left.z -= right.z;
             return left;
         }
 
         /// <summary>
-        /// Returns the negative value of the <see cref="Vector2"/>.
-        /// This is the same as writing <c>new Vector2(-v.x, -v.y)</c>.
+        /// Returns the negative value of the <see cref="Vector3"/>.
+        /// This is the same as writing <c>new Vector3(-v.x, -v.y, -v.z)</c>.
         /// This operation flips the direction of the vector while
         /// keeping the same magnitude.
         /// With floats, the number zero can be either positive or negative.
         /// </summary>
         /// <param name="vec">The vector to negate/flip.</param>
         /// <returns>The negated/flipped vector.</returns>
-        public static Vector2 operator -(Vector2 vec)
+        public static Vector3 operator -(Vector3 vec)
         {
             vec.x = -vec.x;
             vec.y = -vec.y;
+            vec.z = -vec.z;
             return vec;
         }
 
         /// <summary>
-        /// Multiplies each component of the <see cref="Vector2"/>
+        /// Multiplies each component of the <see cref="Vector3"/>
         /// by the given <see cref="float"/>.
         /// </summary>
         /// <param name="vec">The vector to multiply.</param>
         /// <param name="scale">The scale to multiply by.</param>
         /// <returns>The multiplied vector.</returns>
-        public static Vector2 operator *(Vector2 vec, float scale)
+        public static Vector3 operator *(Vector3 vec, float scale)
         {
             vec.x *= scale;
             vec.y *= scale;
+            vec.z *= scale;
             return vec;
         }
 
         /// <summary>
-        /// Multiplies each component of the <see cref="Vector2"/>
+        /// Multiplies each component of the <see cref="Vector3"/>
         /// by the given <see cref="float"/>.
         /// </summary>
         /// <param name="scale">The scale to multiply by.</param>
         /// <param name="vec">The vector to multiply.</param>
         /// <returns>The multiplied vector.</returns>
-        public static Vector2 operator *(float scale, Vector2 vec)
+        public static Vector3 operator *(float scale, Vector3 vec)
         {
             vec.x *= scale;
             vec.y *= scale;
+            vec.z *= scale;
             return vec;
         }
 
         /// <summary>
-        /// Multiplies each component of the <see cref="Vector2"/>
-        /// by the components of the given <see cref="Vector2"/>.
+        /// Multiplies each component of the <see cref="Vector3"/>
+        /// by the components of the given <see cref="Vector3"/>.
         /// </summary>
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>The multiplied vector.</returns>
-        public static Vector2 operator *(Vector2 left, Vector2 right)
+        public static Vector3 operator *(Vector3 left, Vector3 right)
         {
             left.x *= right.x;
             left.y *= right.y;
+            left.z *= right.z;
             return left;
         }
 
         /// <summary>
-        /// Multiplies each component of the <see cref="Vector2"/>
+        /// Divides each component of the <see cref="Vector3"/>
         /// by the given <see cref="float"/>.
         /// </summary>
         /// <param name="vec">The dividend vector.</param>
         /// <param name="divisor">The divisor value.</param>
         /// <returns>The divided vector.</returns>
-        public static Vector2 operator /(Vector2 vec, float divisor)
+        public static Vector3 operator /(Vector3 vec, float divisor)
         {
             vec.x /= divisor;
             vec.y /= divisor;
+            vec.z /= divisor;
             return vec;
         }
 
         /// <summary>
-        /// Divides each component of the <see cref="Vector2"/>
-        /// by the components of the given <see cref="Vector2"/>.
+        /// Divides each component of the <see cref="Vector3"/>
+        /// by the components of the given <see cref="Vector3"/>.
         /// </summary>
         /// <param name="vec">The dividend vector.</param>
         /// <param name="divisorv">The divisor vector.</param>
         /// <returns>The divided vector.</returns>
-        public static Vector2 operator /(Vector2 vec, Vector2 divisorv)
+        public static Vector3 operator /(Vector3 vec, Vector3 divisorv)
         {
             vec.x /= divisorv.x;
             vec.y /= divisorv.y;
+            vec.z /= divisorv.z;
             return vec;
         }
 
         /// <summary>
-        /// Gets the remainder of each component of the <see cref="Vector2"/>
+        /// Gets the remainder of each component of the <see cref="Vector3"/>
         /// with the components of the given <see cref="float"/>.
         /// This operation uses truncated division, which is often not desired
         /// as it does not work well with negative numbers.
@@ -795,39 +867,41 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <example>
         /// <code>
-        /// GD.Print(new Vector2(10, -20) % 7); // Prints "(3, -6)"
+        /// GD.Print(new Vector3(10, -20, 30) % 7); // Prints "(3, -6, 2)"
         /// </code>
         /// </example>
         /// <param name="vec">The dividend vector.</param>
         /// <param name="divisor">The divisor value.</param>
         /// <returns>The remainder vector.</returns>
-        public static Vector2 operator %(Vector2 vec, float divisor)
+        public static Vector3 operator %(Vector3 vec, float divisor)
         {
             vec.x %= divisor;
             vec.y %= divisor;
+            vec.z %= divisor;
             return vec;
         }
 
         /// <summary>
-        /// Gets the remainder of each component of the <see cref="Vector2"/>
-        /// with the components of the given <see cref="Vector2"/>.
+        /// Gets the remainder of each component of the <see cref="Vector3"/>
+        /// with the components of the given <see cref="Vector3"/>.
         /// This operation uses truncated division, which is often not desired
         /// as it does not work well with negative numbers.
-        /// Consider using <see cref="PosMod(Vector2)"/> instead
+        /// Consider using <see cref="PosMod(Vector3)"/> instead
         /// if you want to handle negative numbers.
         /// </summary>
         /// <example>
         /// <code>
-        /// GD.Print(new Vector2(10, -20) % new Vector2(7, 8)); // Prints "(3, -4)"
+        /// GD.Print(new Vector3(10, -20, 30) % new Vector3(7, 8, 9)); // Prints "(3, -4, 3)"
         /// </code>
         /// </example>
         /// <param name="vec">The dividend vector.</param>
         /// <param name="divisorv">The divisor vector.</param>
         /// <returns>The remainder vector.</returns>
-        public static Vector2 operator %(Vector2 vec, Vector2 divisorv)
+        public static Vector3 operator %(Vector3 vec, Vector3 divisorv)
         {
             vec.x %= divisorv.x;
             vec.y %= divisorv.y;
+            vec.z %= divisorv.z;
             return vec;
         }
 
@@ -839,7 +913,7 @@ namespace X11Overlay.Types;
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>Whether or not the vectors are exactly equal.</returns>
-        public static bool operator ==(Vector2 left, Vector2 right)
+        public static bool operator ==(Vector3 left, Vector3 right)
         {
             return left.Equals(right);
         }
@@ -852,87 +926,103 @@ namespace X11Overlay.Types;
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>Whether or not the vectors are not equal.</returns>
-        public static bool operator !=(Vector2 left, Vector2 right)
+        public static bool operator !=(Vector3 left, Vector3 right)
         {
             return !left.Equals(right);
         }
 
         /// <summary>
-        /// Compares two <see cref="Vector2"/> vectors by first checking if
+        /// Compares two <see cref="Vector3"/> vectors by first checking if
         /// the X value of the <paramref name="left"/> vector is less than
         /// the X value of the <paramref name="right"/> vector.
         /// If the X values are exactly equal, then it repeats this check
-        /// with the Y values of the two vectors.
+        /// with the Y values of the two vectors, and then with the Z values.
         /// This operator is useful for sorting vectors.
         /// </summary>
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>Whether or not the left is less than the right.</returns>
-        public static bool operator <(Vector2 left, Vector2 right)
+        public static bool operator <(Vector3 left, Vector3 right)
         {
             if (left.x == right.x)
             {
+                if (left.y == right.y)
+                {
+                    return left.z < right.z;
+                }
                 return left.y < right.y;
             }
             return left.x < right.x;
         }
 
         /// <summary>
-        /// Compares two <see cref="Vector2"/> vectors by first checking if
+        /// Compares two <see cref="Vector3"/> vectors by first checking if
         /// the X value of the <paramref name="left"/> vector is greater than
         /// the X value of the <paramref name="right"/> vector.
         /// If the X values are exactly equal, then it repeats this check
-        /// with the Y values of the two vectors.
+        /// with the Y values of the two vectors, and then with the Z values.
         /// This operator is useful for sorting vectors.
         /// </summary>
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>Whether or not the left is greater than the right.</returns>
-        public static bool operator >(Vector2 left, Vector2 right)
+        public static bool operator >(Vector3 left, Vector3 right)
         {
             if (left.x == right.x)
             {
+                if (left.y == right.y)
+                {
+                    return left.z > right.z;
+                }
                 return left.y > right.y;
             }
             return left.x > right.x;
         }
 
         /// <summary>
-        /// Compares two <see cref="Vector2"/> vectors by first checking if
+        /// Compares two <see cref="Vector3"/> vectors by first checking if
         /// the X value of the <paramref name="left"/> vector is less than
         /// or equal to the X value of the <paramref name="right"/> vector.
         /// If the X values are exactly equal, then it repeats this check
-        /// with the Y values of the two vectors.
+        /// with the Y values of the two vectors, and then with the Z values.
         /// This operator is useful for sorting vectors.
         /// </summary>
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>Whether or not the left is less than or equal to the right.</returns>
-        public static bool operator <=(Vector2 left, Vector2 right)
+        public static bool operator <=(Vector3 left, Vector3 right)
         {
             if (left.x == right.x)
             {
-                return left.y <= right.y;
+                if (left.y == right.y)
+                {
+                    return left.z <= right.z;
+                }
+                return left.y < right.y;
             }
             return left.x < right.x;
         }
 
         /// <summary>
-        /// Compares two <see cref="Vector2"/> vectors by first checking if
+        /// Compares two <see cref="Vector3"/> vectors by first checking if
         /// the X value of the <paramref name="left"/> vector is greater than
         /// or equal to the X value of the <paramref name="right"/> vector.
         /// If the X values are exactly equal, then it repeats this check
-        /// with the Y values of the two vectors.
+        /// with the Y values of the two vectors, and then with the Z values.
         /// This operator is useful for sorting vectors.
         /// </summary>
         /// <param name="left">The left vector.</param>
         /// <param name="right">The right vector.</param>
         /// <returns>Whether or not the left is greater than or equal to the right.</returns>
-        public static bool operator >=(Vector2 left, Vector2 right)
+        public static bool operator >=(Vector3 left, Vector3 right)
         {
             if (left.x == right.x)
             {
-                return left.y >= right.y;
+                if (left.y == right.y)
+                {
+                    return left.z >= right.z;
+                }
+                return left.y > right.y;
             }
             return left.x > right.x;
         }
@@ -947,7 +1037,7 @@ namespace X11Overlay.Types;
         /// <returns>Whether or not the vector and the object are equal.</returns>
         public override bool Equals(object? obj)
         {
-            return obj is Vector2 other && Equals(other);
+            return obj is Vector3 other && Equals(other);
         }
 
         /// <summary>
@@ -957,9 +1047,9 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="other">The other vector.</param>
         /// <returns>Whether or not the vectors are exactly equal.</returns>
-        public bool Equals(Vector2 other)
+        public bool Equals(Vector3 other)
         {
-            return x == other.x && y == other.y;
+            return x == other.x && y == other.y && z == other.z;
         }
 
         /// <summary>
@@ -968,35 +1058,35 @@ namespace X11Overlay.Types;
         /// </summary>
         /// <param name="other">The other vector to compare.</param>
         /// <returns>Whether or not the vectors are approximately equal.</returns>
-        public bool IsEqualApprox(Vector2 other)
+        public bool IsEqualApprox(Vector3 other)
         {
-            return Mathf.IsEqualApprox(x, other.x) && Mathf.IsEqualApprox(y, other.y);
+            return Mathf.IsEqualApprox(x, other.x) && Mathf.IsEqualApprox(y, other.y) && Mathf.IsEqualApprox(z, other.z);
         }
 
         /// <summary>
-        /// Serves as the hash function for <see cref="Vector2"/>.
+        /// Serves as the hash function for <see cref="Vector3"/>.
         /// </summary>
         /// <returns>A hash code for this vector.</returns>
         public override int GetHashCode()
         {
-            return y.GetHashCode() ^ x.GetHashCode();
+            return y.GetHashCode() ^ x.GetHashCode() ^ z.GetHashCode();
         }
 
         /// <summary>
-        /// Converts this <see cref="Vector2"/> to a string.
+        /// Converts this <see cref="Vector3"/> to a string.
         /// </summary>
         /// <returns>A string representation of this vector.</returns>
         public override string ToString()
         {
-            return $"({x}, {y})";
+            return $"({x}, {y}, {z})";
         }
 
         /// <summary>
-        /// Converts this <see cref="Vector2"/> to a string with the given <paramref name="format"/>.
+        /// Converts this <see cref="Vector3"/> to a string with the given <paramref name="format"/>.
         /// </summary>
         /// <returns>A string representation of this vector.</returns>
         public string ToString(string format)
         {
-            return $"({x.ToString(format)}, {y.ToString(format)})";
+            return $"({x.ToString(format)}, {y.ToString(format)}, {z.ToString(format)})";
         }
     }

@@ -9,10 +9,12 @@ namespace X11Overlay.GFX.OpenGL;
 
 public sealed class GlGraphicsEngine : IGraphicsEngine
 {
-    private GL Gl = null!;
+    private GL _gl = null!;
     private IWindow _window = null!;
 
-    public static GlShader BlendShader = null!;
+    public static GlShader SpriteShader = null!;
+    public static GlShader ColorShader = null!;
+    public static GlShader FontShader = null!;
 
     public GlGraphicsEngine()
     {
@@ -32,10 +34,11 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         options.Size = new Vector2D<int>(800, 600);
         options.Title = "X11Overlay";
         options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Default, new APIVersion(4, 5));
-        options.VSync = false;
-        options.UpdatesPerSecond = 90;
-        options.FramesPerSecond = 45;
-        
+        options.FramesPerSecond = OverlayManager.Instance.DisplayFrequency;
+        options.UpdatesPerSecond = options.FramesPerSecond;
+        options.IsEventDriven = false;
+        options.VideoMode = new VideoMode(30);
+
         GlfwWindowing.Use();
         
         _window = Window.Create(options);
@@ -46,31 +49,38 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
 
     private void OnLoad()
     {
-        Gl = GL.GetApi(_window.GLContext);
-        Gl.Enable(EnableCap.Texture2D);
+        _gl = GL.GetApi(_window.GLContext);
+        _gl.Enable(EnableCap.Texture2D);
+        _gl.Enable(EnableCap.Blend);
 
-        Console.WriteLine($"GL Context initialized: {Gl.GetError()}");
-        GraphicsEngine.Ready = true;
+        Console.WriteLine($"GL Context initialized: {_gl.GetError()}");
 
-        BlendShader = new GlShader(Gl, "Shaders/blend.vert", "Shaders/blend.frag");
+        SpriteShader = new GlShader(_gl, "Shaders/common.vert", "Shaders/sprite.frag");
+        ColorShader = new GlShader(_gl, "Shaders/common.vert", "Shaders/color.frag");
+        FontShader = new GlShader(_gl, "Shaders/common.vert", "Shaders/font.frag");
+
+        GraphicsEngine.UiRenderer = new GlUiRenderer(_gl);
     }
 
     private void OnRender(double _)
     {
         OverlayManager.Instance.Update();
         OverlayManager.Instance.Render();
+        
+        // Use this instead of vsync to prevent glfw from using up the entire CPU core
+        OverlayManager.Instance.WaitForEndOfFrame();
     }
 
     public ITexture TextureFromFile(string path, GraphicsFormat internalFormat = GraphicsFormat.RGBA8)
     {
         var internalFmt = GraphicsFormatAsInternal(internalFormat);
-        return new GlTexture(Gl, path, internalFmt);
+        return new GlTexture(_gl, path, internalFmt);
     }
 
     public ITexture EmptyTexture(uint width, uint height, GraphicsFormat internalFormat = GraphicsFormat.RGBA8, bool dynamic = false)
     {
         var internalFmt = GraphicsFormatAsInternal(internalFormat);
-        return new GlTexture(Gl, width, height, internalFmt, dynamic);
+        return new GlTexture(_gl, width, height, internalFmt, dynamic);
     }
 
     public ITexture TextureFromRaw(uint width, uint height, GraphicsFormat inputFormat, IntPtr data,
@@ -80,7 +90,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         {
             var internalFmt = GraphicsFormatAsInternal(internalFormat);
             var (pixelFmt, pixelType) = GraphicsFormatAsInput(inputFormat);
-            return new GlTexture(Gl, data.ToPointer(), width, height, pixelFmt, pixelType, internalFmt);
+            return new GlTexture(_gl, data.ToPointer(), width, height, pixelFmt, pixelType, internalFmt);
         }
     }
     
@@ -91,7 +101,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         var (pixelFmt, pixelType) = GraphicsFormatAsInput(inputFormat);
         fixed (void* ptr = &data[0])
         {
-            return new GlTexture(Gl, ptr, width, height, pixelFmt, pixelType, internalFmt);
+            return new GlTexture(_gl, ptr, width, height, pixelFmt, pixelType, internalFmt);
         }
     }
 

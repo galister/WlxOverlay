@@ -2,9 +2,9 @@ using OVRSharp;
 using Valve.VR;
 using X11Overlay.Core;
 using X11Overlay.GFX;
-using X11Overlay.Types;
+using X11Overlay.Numerics;
 
-namespace X11Overlay.Overlays;
+namespace X11Overlay.Overlays.Simple;
 
 public class BaseOverlay : Overlay
 {
@@ -33,8 +33,22 @@ public class BaseOverlay : Overlay
         
     }
 
+    public void ToggleVisible()
+    {
+        if (Visible)
+        {
+            Hide();
+            WantVisible = false;
+        }
+        else
+        {
+            Show();
+            WantVisible = true;
+        }
+    }
+    
     /// <summary>
-    /// Runs when before the showing for the first time.
+    /// Runs before the showing for the first time.
     /// </summary>
     public virtual void Initialize()
     {
@@ -73,7 +87,7 @@ public class BaseOverlay : Overlay
         base.Show();
     }
 
-    public new void Hide()
+    public new virtual void Hide()
     {
         Visible = false;
         base.Hide();
@@ -87,7 +101,7 @@ public class BaseOverlay : Overlay
         Transform = Transform.LookingAt(target, InputManager.HmdTransform.basis.y).ScaledLocal(LocalScale);
     }
     
-    internal protected virtual void AfterInput() { }
+    internal protected virtual void AfterInput(bool batteryStateUpdated) { }
     
     internal protected virtual void Render()
     {

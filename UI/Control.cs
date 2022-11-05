@@ -2,12 +2,17 @@ namespace X11Overlay.UI;
 
 public abstract class Control
 {
-    public int X;
-    public int Y;
-    public uint Width;
-    public uint Height;
+    public readonly int X;
+    public readonly int Y;
 
-    public Control(int x, int y, uint w, uint h)
+    public readonly uint Width;
+    public readonly uint Height;
+
+    protected bool Dirty = true;
+
+    protected Canvas? Canvas;
+
+    protected Control(int x, int y, uint w, uint h)
     {
         X = x;
         Y = y;
@@ -15,5 +20,12 @@ public abstract class Control
         Height = h;
     }
 
-    public abstract void Render(ITexture canvasTex);
+    public virtual void SetCanvas(Canvas canvas)
+    {
+        Canvas = canvas;
+    }
+
+    public virtual void Update() { }
+
+    public abstract void Render();
 }

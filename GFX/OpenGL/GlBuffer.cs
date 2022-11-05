@@ -17,11 +17,24 @@ public class GlBuffer<TDataType> : IDisposable
 
         _handle = _gl.GenBuffer();
         Bind();
+        _gl.GetError().AssertNone();
         fixed (void* d = data)
         {
             _gl.BufferData(bufferType, (nuint) (data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
         }
+        _gl.GetError().AssertNone();
     }
+
+    public unsafe void Data(Span<TDataType> data)
+    {
+        Bind();
+        _gl.GetError().AssertNone();
+        fixed (void* d = data)
+        {
+            _gl.BufferData(_bufferType, (nuint) (data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
+        }
+        _gl.GetError().AssertNone();
+    } 
 
     public void Bind()
     {

@@ -1,8 +1,7 @@
-using System.Runtime.InteropServices;
 using Valve.VR;
-using X11Overlay.Types;
+using X11Overlay.Numerics;
 
-namespace X11Overlay.Overlays;
+namespace X11Overlay.Overlays.Simple;
 
 /// <summary>
 /// Base class for all overlays supporting pointer events.
@@ -68,7 +67,6 @@ public abstract class InteractableOverlay : BaseOverlay
     {
         if (PrimaryPointer?.Hand == hand)
             PrimaryPointer = null;
-
     }
 
     protected internal virtual void OnPointerDown(PointerHit hitData)
@@ -87,19 +85,33 @@ public abstract class InteractableOverlay : BaseOverlay
         
     }
 
+    public bool TryTransformToLocal(Vector2 uvIn, out Vector2 uvOut)
+    {
+        var uv = InvInteractionTransform * uvIn;
+        if (uv.x is < 0f or > 1f
+            || uv.y is < 0f or > 1f)
+        {
+            uvOut = default;
+            return false;
+        }
+
+        uvOut = uv;
+        return true;
+    }
+
     private HmdVector2_t _vector2;
-    protected (Vector3 origin, Vector3 center) CurvedSurfacePositionFromUv(Vector2 uv)
+    protected Transform3D CurvedSurfaceTransformFromUv(Vector2 uv)
     {
         var xFormedUv = InteractionTransform * uv;
         xFormedUv.CopyTo(ref _vector2);
         
         var err = OpenVR.Overlay.GetTransformForOverlayCoordinates(Handle, ETrackingUniverseOrigin.TrackingUniverseStanding, _vector2, ref HmdMatrix);
         if (err != EVROverlayError.None)
-            Console.WriteLine($"[Err] GetTransformForOverlayCoordinates: " + OpenVR.Overlay.GetOverlayErrorNameFromEnum(err));
+            Console.WriteLine("[Err] GetTransformForOverlayCoordinates: " + OpenVR.Overlay.GetOverlayErrorNameFromEnum(err));
 
         var transform = HmdMatrix.ToTransform3D();
         if (Mathf.Abs(Curvature) < float.Epsilon)
-            return (transform.origin, Transform.basis.z);
+            return transform;
 
         var uvFromCenter = xFormedUv - new Vector2(0.5f, 0.5f);
 
@@ -110,6 +122,6 @@ public abstract class InteractableOverlay : BaseOverlay
         
         var sphereOrigin = Transform.TranslatedLocal(Vector3.Back * WidthInMeters * Curvature / Transform.basis.x.Length()).origin;
 
-        return (transform.origin, sphereOrigin);
+        return transform;
     }
 }

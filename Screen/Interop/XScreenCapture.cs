@@ -1,40 +1,56 @@
 using System.Runtime.InteropServices;
 using X11Overlay.GFX;
-using X11Overlay.Types;
+using X11Overlay.Numerics;
 
 namespace X11Overlay.Screen.Interop
 {
     public class XScreenCapture : IDisposable
     {
-        private readonly IntPtr xShmHandle;
-        private readonly uint maxBytes;
-        private uint width, height;
-        public ITexture? texture { get; }
+        private readonly int _screen;
+        private readonly uint _maxBytes, _width, _height;
+
+        private IntPtr _xShmHandle;
+        public readonly ITexture? Texture;
 
         public XScreenCapture(int screen)
         {
-            (width, height) = GetScreenSize(screen);
-            maxBytes = 4U * width * height;
-            if (maxBytes == 0)
+            _screen = screen;
+            (_width, _height) = GetScreenSize(screen);
+            _maxBytes = 4U * _width * _height;
+            if (_maxBytes == 0)
                 return;
+            Texture = GraphicsEngine.Instance.EmptyTexture(_width, _height, GraphicsFormat.RGB8, true);
+        }
 
-            xShmHandle = xshm_cap_start(screen);
-            
-            texture = GraphicsEngine.Instance.EmptyTexture(width, height, GraphicsFormat.RGB8, true);
+        public void Suspend()
+        {
+            if (_xShmHandle != IntPtr.Zero)
+                xshm_cap_end(_xShmHandle);
+            _xShmHandle = IntPtr.Zero;
+        }
+
+        public void Resume()
+        {
+            _xShmHandle = xshm_cap_start(_screen);
+        }
+
+        public bool Running()
+        {
+            return _xShmHandle != IntPtr.Zero;
         }
 
         public void Tick()
         {
-            if (xShmHandle == IntPtr.Zero) return;
+            if (_xShmHandle == IntPtr.Zero) return;
             
-            var bytes = (int) xshm_grab_bgra32(xShmHandle);
-            if (bytes != maxBytes)
+            var bytes = (int) xshm_grab_bgra32(_xShmHandle);
+            if (bytes != _maxBytes)
             {
                 Console.WriteLine($"Unexpected buffer size: {bytes}");
                 return;
             }
 
-            var pixBuf = xshm_pixel_buffer(xShmHandle);
+            var pixBuf = xshm_pixel_buffer(_xShmHandle);
                 
             if (pixBuf == IntPtr.Zero)
             {
@@ -42,34 +58,34 @@ namespace X11Overlay.Screen.Interop
                 return;
             }
             
-            texture!.LoadRawPixels(pixBuf, GraphicsFormat.BGRA8);
+            Texture!.LoadRawPixels(pixBuf, GraphicsFormat.BGRA8);
         }
 
         public void Dispose()
         {
-            if (xShmHandle != IntPtr.Zero)
-                xshm_cap_end(xShmHandle);
+            if (_xShmHandle != IntPtr.Zero)
+                xshm_cap_end(_xShmHandle);
             
-            texture?.Dispose();
+            Texture?.Dispose();
         }
 
         public void MoveMouse(Vector2 uv)
         {
-            if (xShmHandle == IntPtr.Zero)
+            if (_xShmHandle == IntPtr.Zero)
                 return;
 
             var to = MouseCoordinatesFromUv(uv);
-            xshm_mouse_move(xShmHandle, to.x, to.y);
+            xshm_mouse_move(_xShmHandle, to.x, to.y);
         }
 
         public void SendMouse(Vector2 uv, XcbMouseButton button, bool pressed)
         {
-            if (xShmHandle == IntPtr.Zero)
+            if (_xShmHandle == IntPtr.Zero)
                 return;
             
             var to = MouseCoordinatesFromUv(uv);
             //Debug.Log($"Mouse: {button} {(pressed ? "down" : "up")} at {to}");
-            xshm_mouse_event(xShmHandle, to.x, to.y, (byte) button, pressed ? 1 : 0);
+            xshm_mouse_event(_xShmHandle, to.x, to.y, (byte) button, pressed ? 1 : 0);
         }
 
         public static void SendKey(int keyCode, bool pressed)
@@ -80,7 +96,7 @@ namespace X11Overlay.Screen.Interop
         public Vector2Int GetMousePosition()
         {
             var vec = new Vector2Int();
-            xshm_mouse_position(xShmHandle, ref vec);
+            xshm_mouse_position(_xShmHandle, ref vec);
             return vec;
         }
 
@@ -91,8 +107,8 @@ namespace X11Overlay.Screen.Interop
 
         private (short x, short y) MouseCoordinatesFromUv(Vector2 uv)
         {
-            var x = (short)(uv.x * width);
-            var y = (short)((1 - uv.y) * height);
+            var x = (short)(uv.x * _width);
+            var y = (short)((1 - uv.y) * _height);
             return (x, y);
         }
 

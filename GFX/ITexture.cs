@@ -1,5 +1,5 @@
 using X11Overlay.GFX;
-using X11Overlay.Types;
+using X11Overlay.Numerics;
 
 namespace X11Overlay;
 

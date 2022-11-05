@@ -1,7 +1,7 @@
-using Valve.VR;
 using X11Overlay.Core;
 using X11Overlay.GFX;
-using X11Overlay.Types;
+using X11Overlay.Numerics;
+using X11Overlay.Overlays.Simple;
 
 namespace X11Overlay.Overlays;
 
@@ -11,7 +11,7 @@ namespace X11Overlay.Overlays;
 public class DesktopCursor : BaseOverlay
 {
     public static DesktopCursor Instance = null!;
-    private bool _visibleThisFrame = false;
+    private bool _visibleThisFrame;
     
     public DesktopCursor() : base("Cursor")
     {
@@ -20,7 +20,7 @@ public class DesktopCursor : BaseOverlay
         
         Instance = this;
         ZOrder = 66;
-        WidthInMeters = 0.02f;
+        WidthInMeters = 0.01f;
         ShowHideBinding = false;
     }
 
@@ -30,18 +30,16 @@ public class DesktopCursor : BaseOverlay
         
         var controllerTip = InputManager.HmdTransform;
         var centerPoint = controllerTip.TranslatedLocal(Vector3.Forward);
-        
-        
+
         Transform = controllerTip.LookingAt(centerPoint.origin, Vector3.Up);
         Transform.origin = centerPoint.origin;
         
         base.Initialize();
     }
 
-    public void MoveTo(Vector3 origin, Vector3 center)
+    public void MoveTo(Transform3D moveToTransform)
     {
-        Transform.origin = origin;
-        LookAtHmd();
+        Transform = moveToTransform;
         _visibleThisFrame = true;
         
         if (!Visible)

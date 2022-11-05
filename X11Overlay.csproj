@@ -16,10 +16,10 @@
       <PackageReference Include="Silk.NET.OpenGL" Version="2.16.0" />
       <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.16.0" />
       <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
+      <PackageReference Include="YamlDotNet" Version="12.0.2" />
     </ItemGroup>
 
     <ItemGroup>
-      <Folder Include="Resources" />
       <Folder Include="Screen\Interop" />
     </ItemGroup>
 
@@ -28,6 +28,12 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
       <Content Include="actions_binding_knuckles.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Shaders\color.frag">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <Content Include="Shaders\font.frag">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
       <None Remove="Resources\actions.json" />
@@ -45,20 +51,40 @@
       </Content>
       <None Remove="Screen\Interop\libxshm_cap.so" />
       <None Remove="Resources\FreeSans.otf" />
-      <Content Include="Resources\FreeSans.otf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="libopenvr_api.so" />
       <Content Include="libopenvr_api.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
       <None Remove="Shaders\blend.frag" />
-      <Content Include="Shaders\blend.frag">
+      <None Remove="Shaders\blend.vert" />
+      <None Remove="Resources\FreeSansBold.otf" />
+      <None Remove="Shaders\common.vert1" />
+      <None Include="Shaders\common.vert">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Remove="Shaders\sprite.frag" />
+      <Content Include="Shaders\sprite.frag">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Remove="Shaders\blend.vert" />
-      <Content Include="Shaders\blend.vert">
+      <None Remove="Resources\LiberationSans-Regular.ttf" />
+      <Content Include="Resources\LiberationSans-Regular.ttf">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Resources\LiberationSans-Bold.ttf" />
+      <Content Include="Resources\LiberationSans-Bold.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Resources\LiberationMono-Regular.ttf" />
+      <Content Include="Resources\LiberationMono-Regular.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Resources\LiberationMono-Bold.ttf" />
+      <Content Include="Resources\LiberationMono-Bold.ttf">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
+      <None Remove="Resources\keyboard.yaml" />
+      <Content Include="Resources\keyboard.yaml">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
     </ItemGroup>
 

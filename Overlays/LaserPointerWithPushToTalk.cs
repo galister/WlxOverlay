@@ -10,13 +10,11 @@ public class LaserPointerWithPushToTalk : LaserPointer
     public string? PttCommandOn;
     public string? PttCommandOff;
 
-    public LaserPointerWithPushToTalk(LeftRight hand) : base(hand)
-    {
-    }
+    public LaserPointerWithPushToTalk(LeftRight hand) : base(hand) { }
 
-    protected internal override void AfterInput()
+    protected internal override void AfterInput(bool batteryStateUpdated)
     {
-        base.AfterInput();
+        base.AfterInput(batteryStateUpdated);
 
         if (AltClickNow && !AltClickBefore)
             Ptt(true);

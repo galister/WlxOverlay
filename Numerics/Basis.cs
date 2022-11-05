@@ -19,10 +19,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Numerics;
 using System.Runtime.InteropServices;
 
-namespace X11Overlay.Types;
+namespace X11Overlay.Numerics;
 
     /// <summary>
     /// Specifies which order Euler angle rotations should be in.

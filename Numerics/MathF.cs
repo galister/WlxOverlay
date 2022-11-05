@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace X11Overlay.Types;
+namespace X11Overlay.Numerics;
 
     /// <summary>
     /// Provides constants and static methods for common mathematical functions.
@@ -737,7 +737,7 @@ namespace X11Overlay.Types;
         /// <summary>
         /// Returns the square root of <paramref name="s"/>, where <paramref name="s"/> is a non-negative number.
         ///
-        /// If you need negative inputs, use <see cref="System.Numerics.Complex"/>.
+        /// If you need negative inputs, use <see cref="System.Math.Complex"/>.
         /// </summary>
         /// <param name="s">The input number. Must not be negative.</param>
         /// <returns>The square root of <paramref name="s"/>.</returns>

@@ -1,6 +1,7 @@
 using X11Overlay.Core;
+using X11Overlay.Numerics;
+using X11Overlay.Overlays.Simple;
 using X11Overlay.Screen.Interop;
-using X11Overlay.Types;
 
 namespace X11Overlay.Overlays;
 
@@ -23,7 +24,7 @@ public class ScreenOverlay : GrabbableOverlay
     public override void Initialize()
     {
         var hmd = InputManager.HmdTransform;
-        var centerPoint = hmd.TranslatedLocal(Vector3.Forward);
+        var centerPoint = hmd.TranslatedLocal(SpawnPosition);
 
         LocalScale = new Vector3(2, -2, 2);
 
@@ -31,11 +32,9 @@ public class ScreenOverlay : GrabbableOverlay
         Transform.origin = centerPoint.origin;
 
         _capture = new XScreenCapture(_screen);
-        Texture = _capture.texture;
+        Texture = _capture.Texture;
 
         //Curvature = 0.25f;
-
-        //myFont = new Font("FreeSans", 96);
 
         UpdateInteractionTransform();
         UploadCurvature();
@@ -43,9 +42,22 @@ public class ScreenOverlay : GrabbableOverlay
         base.Initialize();
     }
 
+    public override void Show()
+    {
+        base.Show();
+        _capture?.Resume();
+    }
+
+    public override void Hide()
+    {
+        base.Hide();
+        _capture?.Suspend();
+    }
+
+
     protected internal override void Render()
     {
-        if (_capture == null)
+        if (_capture == null || !_capture.Running())
             return;
         
         _capture.Tick();
@@ -60,8 +72,8 @@ public class ScreenOverlay : GrabbableOverlay
         {
             var uv = new Vector2(mouse.X / (float)w, mouse.Y / (float)h);
 
-            var (origin, center) = CurvedSurfacePositionFromUv(uv);
-            DesktopCursor.Instance.MoveTo(origin, center);
+            var moveToTransform = CurvedSurfaceTransformFromUv(uv);
+            DesktopCursor.Instance.MoveTo(moveToTransform);
         }
 
         base.Render();
@@ -72,7 +84,7 @@ public class ScreenOverlay : GrabbableOverlay
     {
         if (PrimaryPointer == hitData.pointer && _freezeCursor < DateTime.UtcNow)
         {
-            var adjustedUv = InvInteractionTransform * hitData.uv;
+            var adjustedUv = hitData.uv;
             adjustedUv.y = 1 - adjustedUv.y;
             _capture?.MoveMouse(adjustedUv);
             
@@ -96,8 +108,8 @@ public class ScreenOverlay : GrabbableOverlay
     {
         var click = hitData.modifier switch
         {
-            PointerMode.Alt => XcbMouseButton.Right,
-            PointerMode.Alt2 => XcbMouseButton.Middle,
+            PointerMode.Shift => XcbMouseButton.Right,
+            PointerMode.Alt => XcbMouseButton.Middle,
             _ => XcbMouseButton.Left
         };
 
@@ -113,13 +125,13 @@ public class ScreenOverlay : GrabbableOverlay
             return;
 
 
-        if (hitData.modifier == PointerMode.Alt2)
+        if (hitData.modifier == PointerMode.Alt)
         {
             // super fast scroll, 1 click per frame
         }
         else
         {
-            var millis = hitData.modifier == PointerMode.Alt ? 50 : 100;
+            var millis = hitData.modifier == PointerMode.Shift ? 50 : 100;
             _nextScroll = DateTime.UtcNow.AddMilliseconds((1 - Mathf.Abs(value)) * millis);
         }
 

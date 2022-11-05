@@ -4,9 +4,16 @@ namespace X11Overlay.GFX.OpenGL;
 
 public static class GlExtensions
 {
-    public static void Assert(this GLEnum actual, GLEnum expected)
+    public static void AssertNone(this GLEnum error)
     {
-        if (actual != expected)
-            throw new ApplicationException($"Expected {expected} but got {actual}");
+        if (error != GLEnum.None)
+            throw new ApplicationException($"[Err] {error}");
     }
+    
+    public static void Assert(this GLEnum error, GLEnum expected)
+    {
+        if (error != expected)
+            throw new ApplicationException($"[Err] Expected {expected}, but got {error}");
+    }
+    
 }

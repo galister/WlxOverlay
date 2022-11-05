@@ -1,0 +1,113 @@
+---
+
+# This file contains all data needed to generate the keyboard.
+# You can create any layout, as long as:
+# - All keys are rectangular with 1 unit of height.
+# This means:
+# - We're limited to the flat & boring ANSI enter key.
+# - Numpad + and Enter might not look so great.
+
+# Not used for anything right now
+name: "en-us_iso_60"
+
+# How many units of key size in each row? 1 = standard letter key size
+row_size: 15
+
+# Specifies the size of each key. The sum of any given row must equal RowSize
+key_sizes:
+    - [1,   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2    ]
+    - [1.5,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.5 ]
+    - [1.75,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.25  ]
+    - [2.25,    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.75   ]
+    - [1.25, 1.25, 1.25, 6.25, 1.25, 1.25, 1.25, 1.25]
+
+# The main (blue) layout of the keyboard.
+# Accepted are:
+# - xorg key names (see `xmodmap -pke`)
+# - ExecCommands (defined below)
+# - Macros (defined below)
+# - ~ (null) will leave an empty space with the corresponding size from key_sizes
+main_layout:
+    - ["grave", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "minus", "equal", "BackSpace"]
+    - ["Tab", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "bracketleft", "bracketright", "backslash"]
+    - ["XF86Favorites", "a", "s", "d", "f", "g", "h", "j", "k", "l", "semicolon", "apostrophe", "Return"]
+    - ["Shift_L", "z", "x", "c", "v", "b", "n", "m", "comma", "period", "slash", "Shift_R"]
+    - ["Control_L", "Super_L", "Alt_L", "space", "Meta_R", "Menu", "Control_R", "STT"]
+
+# Allow usage of the shift (orange) layout. Lets you control shift state using hand rotation, for faster typing. 
+# Activates when backhand is facing upwards.
+use_shift_layout: true
+
+# The shift keys present on the keyboard, as shown in `xmodmap -pke`.
+# Used to eliminate conflicts while using shift layout.
+shift_keys: [ "Shift_L", "Shift_R" ]
+
+# The alt (purple) layout of the keyboard. 
+# Activates when palm is facing upwards.
+# Accepted values are the same as for MainLayout.
+use_alt_layout: true
+alt_layout:
+    - ["Escape", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "Delete"]
+    - ["Tab", "Home", "Up", "End", "Prior", ~, ~, ~, "KP_7", "KP_8", "KP_9", "Num_Lock", ~, "Insert"]
+    - ["KILL", "Left", "Down", "Right", "Next", ~, ~, ~, "KP_4", "KP_5", "KP_6", "KP_Subtract", "KP_Enter"]
+    - ["Shift_L", "Print", "Scroll_Lock", "Pause", ~, ~, ~, ~, "KP_1", "KP_2", "KP_3", "KP_Add"]
+    - ["Control_L", "Super_L", "Alt_L", ~, "KP_0", "KP_Divide", "KP_Multiply", "KP_Decimal"]
+
+# Shell commands to be used in a layout.
+# Value is an array of string arguments.
+exec_commands:
+    STT: [ "whisper_stt", "--lang", "en" ]
+
+# Series of keypresses to be used in a layout.
+# Format: keyName [DOWN|UP]
+# keyName must be a valid key from `xmodmap -pke`
+# DOWN|UP: can be omitted for an implicit "keyName DOWN, keyName UP"
+macros:
+    KILL: [ "Super_L DOWN", "Control_L DOWN", "Escape", "Control_L UP", "Super_L UP" ]
+
+# Custom labels to use.
+# Key: element of MainLayout / AltLayout
+# Value: Array of strings. 0th element is the upper row, 1st element is lower row. both are optional.
+labels:
+    "1":            ["1", "!"]
+    "2":            ["2", "@"]
+    "3":            ["3", "#"]
+    "4":            ["4", "$"]
+    "5":            ["5", "%"]
+    "6":            ["6", "^"]
+    "7":            ["7", "&"]
+    "8":            ["8", "*"]
+    "9":            ["9", "("]
+    "0":            ["0", ")"]
+    "Escape":       ["Esc"]
+    "Prior":        ["PgUp"]
+    "Next":         ["PgDn"]
+    "Print":        ["PrScn"]
+    "Scroll_Lock":  ["ScrLk"]
+    "space":        []
+    "Delete":       ["Del"]
+    "grave":        ["`", "~"]
+    "minus":        ["-", "_"]
+    "equal":        ["=", "+"]
+    "Left":         ["Left"]
+    "Right":        ["Right"]
+    "Up":           ["Up"]
+    "Down":         ["Down"]
+    "BackSpace":    ["BS"]
+    "Control_L":    ["Ctrl"]
+    "Control_R":    ["Ctrl"]
+    "semicolon":    [" ;",  ":"]
+    "apostrophe":   [" '",  "\""]
+    "comma":        [" ,",  "<"]
+    "period":       [" .",  ">"]
+    "slash":        [" /",  "?"]
+    "backslash":    [" \\", "|"]
+    "bracketleft":  [" [",  "{"]
+    "bracketright": [" ]",  "}"]
+    "KP_Divide":    [" /"]
+    "KP_Add":       [" +"]
+    "KP_Multiply":  [" *"]
+    "KP_Decimal":   [" ."]
+    "KP_Subtract":  [" -"]
+    "XF86Favorites": ["Rofi"]
+

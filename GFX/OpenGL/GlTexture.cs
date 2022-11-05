@@ -1,31 +1,29 @@
-using System.Numerics;
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using Vector3 = X11Overlay.Types.Vector3;
+using X11Overlay.Numerics;
 
 namespace X11Overlay.GFX.OpenGL;
 
 
     public class GlTexture : ITexture
     {
-        private readonly uint _handle;
-        private readonly GlBuffer<byte>? _pixelUnpackBuffer;
+        internal readonly uint Handle;
         
         private readonly GL _gl;
         
         public uint Width { get; private set; }
         public uint Height { get; private set; }
-        
-        
+
+        private bool _dynamic = false;
 
         public InternalFormat InternalFormat { get; private set; }
 
         public unsafe GlTexture(GL gl, string path, InternalFormat internalFormat = InternalFormat.Rgba8)
         {
             _gl = gl;
-            _handle = _gl.GenTexture();
-            _gl.GetError().Assert(GLEnum.None);
+            Handle = _gl.GenTexture();
+            _gl.GetError().AssertNone();
             
             Bind();
 
@@ -41,7 +39,7 @@ namespace X11Overlay.GFX.OpenGL;
                         fixed (void* data = accessor.GetRowSpan(y))
                         {
                             gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, maxY - y, (uint) accessor.Width, 1, PixelFormat.Rgba, PixelType.UnsignedByte, data);
-                            _gl.GetError().Assert(GLEnum.None);
+                            _gl.GetError().AssertNone();
                         }
                     }
                 });
@@ -53,30 +51,27 @@ namespace X11Overlay.GFX.OpenGL;
         public unsafe GlTexture(GL gl, uint width, uint height, InternalFormat internalFormat = InternalFormat.Rgba8, bool dynamic = false)
         {
             _gl = gl;
+            _dynamic = dynamic;
             
-            _handle = _gl.GenTexture();
-            _gl.GetError().Assert(GLEnum.None);
+            Handle = _gl.GenTexture();
+            _gl.GetError().AssertNone();
             
             Bind();
 
             //Reserve enough memory from the gpu for the whole image
             Allocate(internalFormat, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
             SetParameters();
-
-            if (dynamic)
-            {
-                _pixelUnpackBuffer = new GlBuffer<byte>(gl, null, BufferTargetARB.PixelUnpackBuffer);
-                _gl.BindBuffer(BufferTargetARB.PixelUnpackBuffer, 0);
-            }
         }
 
         public unsafe GlTexture(GL gl, void* data, uint width, uint height, PixelFormat pixelFormat = PixelFormat.Rgba, PixelType pixelType = PixelType.UnsignedByte, InternalFormat internalFormat = InternalFormat.Rgba8)
         {
             _gl = gl;
-            _handle = _gl.GenTexture();
-            _gl.GetError().Assert(GLEnum.None);
+            Handle = _gl.GenTexture();
+            _gl.GetError().AssertNone();
             Bind();
 
+            _gl.PixelStore( GLEnum.PackAlignment, 1 );
+            _gl.PixelStore( GLEnum.UnpackAlignment, 1 );
             //We want the ability to create a texture using data generated from code aswell.
             //Setting the data of a texture.
             Allocate(internalFormat, width, height, 0, pixelFormat, pixelType, data);
@@ -104,20 +99,20 @@ namespace X11Overlay.GFX.OpenGL;
             InternalFormat = internalFormat;
             
             _gl.TexImage2D(TextureTarget.Texture2D, 0, (int) internalFormat, width, height, 0, pixelFormat, pixelType, data);
-            _gl.GetError().Assert(GLEnum.None);
+            _gl.GetError().AssertNone();
         }
 
         public void Bind(TextureUnit textureSlot = TextureUnit.Texture0)
         {
             //When we bind a texture we can choose which textureslot we can bind it to.
             _gl.ActiveTexture(textureSlot);
-            _gl.BindTexture(TextureTarget.Texture2D, _handle);
+            _gl.BindTexture(TextureTarget.Texture2D, Handle);
         }
 
         public void Dispose()
         {
             //In order to dispose we need to delete the opengl handle for the texure.
-            _gl.DeleteTexture(_handle);
+            _gl.DeleteTexture(Handle);
         }
 
         public unsafe void LoadRawPixels(IntPtr ptr, GraphicsFormat graphicsFormat)
@@ -128,23 +123,32 @@ namespace X11Overlay.GFX.OpenGL;
             Bind();
             
             _gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, Width, Height, pf, pt, d);
+            _gl.GetError().AssertNone();
         }
 
+        public void Begin()
+        {
+        }
+
+        public void End()
+        {
+            
+        }
+        
         public void Draw(ITexture overlay, int xOffset, int yOffset)
         {
             Draw(overlay, xOffset, yOffset, overlay.GetWidth(), overlay.GetHeight());
         }
+        
         public unsafe void Draw(ITexture overlay, int xOffset, int yOffset, uint width, uint height)
         {
-            if (_pixelUnpackBuffer == null)
-            {
-                Console.WriteLine("Cannot render on a non-dynamic texture!");
-                return;
-            }
 
-            var pubHandle = _gl.CreateFramebuffer();
-            _gl.BindFramebuffer(FramebufferTarget.Framebuffer, pubHandle);
-            _gl.Viewport(xOffset, yOffset, width, height);
+            //var fbo = new GlFramebuffer(_gl, Width, Height);
+            //fbo.Bind();
+            //fbo.Texture(_handle);
+            
+            _gl.Viewport(0, 0, Width, Height);
+            _gl.GetError().AssertNone();
 
             var verts = new Vertex[]
             {
@@ -167,24 +171,33 @@ namespace X11Overlay.GFX.OpenGL;
             var vao = new GlVertexArray<Vertex, uint>(_gl, vbo, ebo);
             
             vao.VertexAttributePointer(0, 3, VertexAttribPointerType.Float, 5, 0);
+            _gl.GetError().AssertNone();
             vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 5, 3);
+            _gl.GetError().AssertNone();
 
             vao.Bind();
-            var shader = GlGraphicsEngine.BlendShader;
+            var shader = GlGraphicsEngine.FontShader;
             shader.Use();
-            ((GlTexture)overlay).Bind(TextureUnit.Texture0);
+            ((GlTexture)overlay).Bind();
             shader.SetUniform("mainTex", 0);
             
             
             _gl.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
             _gl.ColorMask(true, true, true, false);
             
-            
-            
             _gl.DrawElements(PrimitiveType.Triangles, (uint)indices.Length, DrawElementsType.UnsignedInt, null);
+            _gl.GetError().AssertNone();
             
+            //_pixelUnpackBuffer.Bind();
+            //_gl.MapBuffer(BufferTargetARB.PixelUnpackBuffer, BufferAccessARB.WriteOnly);
+            //_gl.GetError().AssertNone();
+            //_gl.BindBuffer(BufferTargetARB.PixelUnpackBuffer, 0);
+            //_gl.GetError().AssertNone();
+
+            _gl.BindBuffer(BufferTargetARB.ElementArrayBuffer, 0);
+            _gl.BindBuffer(BufferTargetARB.ArrayBuffer, 0);
+            _gl.BindVertexArray(0);
             _gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
-            _gl.DeleteFramebuffer(pubHandle);
         }
 
         public void Clear(Vector3 color)
@@ -197,7 +210,7 @@ namespace X11Overlay.GFX.OpenGL;
             
             var arr = new[] { color.x, color.y, color.z };
             Bind();
-            _gl.ClearTexSubImage(_handle, 0, xOffset, yOffset, 0, width, height, 0, PixelFormat.Rgb, PixelType.Float, (ReadOnlySpan<float>)arr);
+            _gl.ClearTexSubImage(Handle, 0, xOffset, yOffset, 0, width, height, 0, PixelFormat.Rgb, PixelType.Float, (ReadOnlySpan<float>)arr);
         }
 
         public uint GetWidth()
@@ -212,12 +225,12 @@ namespace X11Overlay.GFX.OpenGL;
 
         public IntPtr GetNativeTexturePtr()
         {
-            return (IntPtr) _handle;
+            return (IntPtr) Handle;
         }
 
         public bool IsDynamic()
         {
-            return _pixelUnpackBuffer != null;
+            return _dynamic;
         }
     }
     

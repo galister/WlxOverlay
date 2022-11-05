@@ -1,7 +1,8 @@
 using Valve.VR;
 using X11Overlay.Core;
 using X11Overlay.GFX;
-using X11Overlay.Types;
+using X11Overlay.Numerics;
+using X11Overlay.Overlays.Simple;
 
 namespace X11Overlay.Overlays;
 
@@ -61,7 +62,7 @@ public class LaserPointer : BaseOverlay
         base.Initialize();
     }
 
-    protected internal override void AfterInput()
+    protected internal override void AfterInput(bool batteryStateUpdated)
     {
         controller = InputManager.PoseState[myPose];
         EvaluateInput();
@@ -138,7 +139,8 @@ public class LaserPointer : BaseOverlay
         
         Mode = dot switch
         {
-            < -0.5f => PointerMode.Alt,
+            //< -0.4f => PointerMode.Shift,
+            > 0.7f => PointerMode.Alt,
             _ => PointerMode.Normal
         };
     }
@@ -195,7 +197,13 @@ public class LaserPointer : BaseOverlay
     private bool ComputeIntersection(InteractableOverlay target, out PointerHit hitData)
     {
         var wasHit = OpenVR.Overlay.ComputeOverlayIntersection(target.Handle, ref _params, ref _results);
-        hitData = wasHit ? new PointerHit(this, target, _results) : null!;
+        if (!wasHit || !target.TryTransformToLocal((Vector2)_results.vUVs, out var localUv))
+        {
+            hitData = null!;
+            return false;
+        }
+        
+        hitData = new PointerHit(this, target, _results, localUv);
         return wasHit;
     }
 
@@ -274,25 +282,16 @@ public class PointerHit
     public Vector3 normal;
     public PointerMode modifier;
 
-    public PointerHit(LaserPointer p, InteractableOverlay o, VROverlayIntersectionResults_t h)
+    public PointerHit(LaserPointer p, InteractableOverlay o, VROverlayIntersectionResults_t h, Vector2 localUv)
     {
         overlay = o;
         pointer = p;
         hand = p.Hand;
         modifier = p.Mode;
         distance = h.fDistance;
-        uv = new Vector2(h.vUVs.v0, h.vUVs.v1);
+        uv = localUv;
         normal = h.vNormal.ToVector3();
         point = h.vPoint.ToVector3();
-    }
-
-    public void UpdateFrom(PointerHit p)
-    {
-        modifier = p.modifier;
-        distance = p.distance;
-        normal = p.normal;
-        point = p.point;
-        uv = p.uv;
     }
 
     public override string ToString()
@@ -304,9 +303,8 @@ public class PointerHit
 public enum PointerMode : uint
 {
     Normal,
+    Shift,
     Alt,
-    Alt2,
-    Neutral,
 }
 
 public enum LeftRight : uint
