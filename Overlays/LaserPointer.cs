@@ -16,7 +16,7 @@ public class LaserPointer : BaseOverlay
     public PointerMode Mode { get; private set; }
     public GrabbableOverlay? GrabbedTarget;
 
-    private Transform3D controller;
+    public Transform3D HandTransform;
     
     private string myPose;
     private float length;
@@ -64,7 +64,7 @@ public class LaserPointer : BaseOverlay
 
     protected internal override void AfterInput(bool batteryStateUpdated)
     {
-        controller = InputManager.PoseState[myPose];
+        HandTransform = InputManager.PoseState[myPose];
         EvaluateInput();
         
         if (_showHideNow && !_showHideBefore)
@@ -77,7 +77,7 @@ public class LaserPointer : BaseOverlay
         length = _lastHit?.distance ?? 25f;
         var hmd = InputManager.HmdTransform;
         
-        Transform = controller
+        Transform = HandTransform
             .TranslatedLocal(Vector3.Forward * (length * 0.5f))
             .RotatedLocal(Vector3.Right, RotationOffset);
         
@@ -85,10 +85,10 @@ public class LaserPointer : BaseOverlay
         Transform = Transform.ScaledLocal(new Vector3(1, length / WidthInMeters, 1));
         
         // billboard towards hmd
-        var viewDirection = hmd.origin - controller.origin;
+        var viewDirection = hmd.origin - HandTransform.origin;
 
-        var x1 = controller.basis.y.Dot(viewDirection);
-        var x2 = controller.basis.x.Dot(viewDirection);
+        var x1 = HandTransform.basis.y.Dot(viewDirection);
+        var x2 = HandTransform.basis.x.Dot(viewDirection);
 
         var pies = (x1 - 1) * -0.5f * Mathf.Pi;
         if (x2 < 0)
@@ -135,7 +135,7 @@ public class LaserPointer : BaseOverlay
     private void RecalculateModifier()
     {
         var hmdUp = InputManager.HmdTransform.basis.y;
-        var dot = hmdUp.Dot(controller.basis.x) * (1 - 2 * (int)Hand);
+        var dot = hmdUp.Dot(HandTransform.basis.x) * (1 - 2 * (int)Hand);
         
         Mode = dot switch
         {
@@ -159,8 +159,8 @@ public class LaserPointer : BaseOverlay
         _pointerHits.Clear();
 
         
-        controller.origin.CopyTo(ref IntersectionParams.vSource);
-        (-controller.basis.z).CopyTo(ref IntersectionParams.vDirection);
+        HandTransform.origin.CopyTo(ref IntersectionParams.vSource);
+        (-HandTransform.basis.z).CopyTo(ref IntersectionParams.vDirection);
         
         foreach (var overlay in targets)
             if (ComputeIntersection(overlay, out var hitData))

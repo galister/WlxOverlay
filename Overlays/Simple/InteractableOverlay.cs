@@ -102,17 +102,15 @@ public abstract class InteractableOverlay : BaseOverlay
     protected Transform3D CurvedSurfaceTransformFromUv(Vector2 localUv)
     {
         var ovrUv = InteractionTransform * localUv - new Vector2(0.5f, 0.5f);
-        var width = WidthInMeters * LocalScale.x;
-        var halfWidth = width * 0.5f;
         
-        var tCursor =  Transform.TranslatedLocal(new Vector3(halfWidth * ovrUv.x, halfWidth * ovrUv.y, 0));
+        var tCursor =  Transform.TranslatedLocal(new Vector3(WidthInMeters * ovrUv.x, WidthInMeters * ovrUv.y, 0));
 
         if (Mathf.Abs(Curvature) < float.Epsilon)
             return tCursor;
         
         var theta = Mathf.Pi * 4f * Curvature;
-        var r = width / theta;
         var halfTheta = theta / 2f;
+        var r = WidthInMeters * 2 / theta;
         
         var tOrigin = Transform.TranslatedLocal(Vector3.Back * r);
         tOrigin.origin.y = tCursor.origin.y;

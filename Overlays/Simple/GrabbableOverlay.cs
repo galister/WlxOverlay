@@ -61,12 +61,12 @@ public class GrabbableOverlay : InteractableOverlay
         
         PrimaryPointer = hitData.pointer;
         
-        _grabOffset = PrimaryPointer.Transform.AffineInverse() * Transform.origin;
+        _grabOffset = PrimaryPointer.HandTransform.AffineInverse() * Transform.origin;
     }
 
     protected internal void OnGrabHeld()
     {
-        Transform.origin = PrimaryPointer!.Transform.TranslatedLocal(_grabOffset).origin;
+        Transform.origin = PrimaryPointer!.HandTransform.TranslatedLocal(_grabOffset).origin;
         OnOrientationChanged();
     }
 
@@ -98,11 +98,9 @@ public class GrabbableOverlay : InteractableOverlay
 
     protected internal void OnScrollDistance(float value)
     {
-        var pushDir = (Transform.origin - PrimaryPointer!.Transform.origin).Normalized();
-        var newTrans = Transform.Translated(pushDir * Mathf.Pow(value, 3));
-        
-        var newGrabOffset = PrimaryPointer!.Transform.AffineInverse() * newTrans.origin;
-        var distance = (newTrans.origin - InputManager.HmdTransform.origin).Length();
+        var newGrabOffset = _grabOffset + _grabOffset.Normalized() * Mathf.Pow(value, 3);
+
+        var distance = newGrabOffset.Length();
         
         if (distance < 0.3f && value < 0
             || distance > 10f && value > 0)
@@ -113,14 +111,11 @@ public class GrabbableOverlay : InteractableOverlay
     
     private void OnOrientationChanged()
     {
-        var lookPoint = Transform.Translated(Transform.origin - InputManager.HmdTransform.origin).origin;
+        var tHmd = InputManager.HmdTransform;
+        var vRela = Transform.origin - tHmd.origin;
+        var lookPoint = Transform.Translated(vRela).origin;
 
-        var a = lookPoint.Length();
-        var beta = Mathf.Asin(Transform.origin.y - InputManager.HmdTransform.origin.y / lookPoint.Length());
-        var upPoint = InputManager.HmdTransform.origin + a / Mathf.Cos(beta) * Vector3.Up;
-        var upDirection = (upPoint - Transform.origin).Normalized();
-
-        if (SnapUpright && upDirection.Dot(Vector3.Up) > 0.9f)
+        if (SnapUpright)
         {
             lookPoint.y = Transform.origin.y;
             Transform = Transform.LookingAt(lookPoint, Vector3.Up).ScaledLocal(LocalScale);
@@ -134,7 +129,30 @@ public class GrabbableOverlay : InteractableOverlay
             }
         }
         else
+        {
+            var dot = vRela.Normalized().Dot(tHmd.basis.z);
+            var zDist = lookPoint.Length();
+
+            var yDist = Mathf.Abs(Transform.origin.y - InputManager.HmdTransform.origin.y);
+            var xAngle = Mathf.Asin(yDist / lookPoint.Length());
+            
+            Vector3 upDirection;
+            if (dot < -float.Epsilon) // facing downwards
+            {
+                var upPoint = InputManager.HmdTransform.origin + zDist / Mathf.Cos(xAngle) * Vector3.Up;
+                upDirection = (upPoint - Transform.origin).Normalized();
+            }
+            else if (dot > float.Epsilon) // facing upwards
+            {
+                var downPoint = InputManager.HmdTransform.origin + zDist / Mathf.Cos(xAngle) * Vector3.Down;
+                upDirection = (Transform.origin - downPoint).Normalized();
+                
+            }
+            else // perfectly upright
+                upDirection = Vector3.Up;
+
             Transform = Transform.LookingAt(lookPoint, upDirection).ScaledLocal(LocalScale);
+        }
 
         if (Curvature > float.Epsilon)
         {

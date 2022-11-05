@@ -27,7 +27,7 @@ public class ScreenOverlay : GrabbableOverlay
         var centerPoint = hmd.TranslatedLocal(SpawnPosition);
 
         LocalScale = new Vector3(2, -2, 2);
-        SnapUpright = true;
+        CurveWhenUpright = true;
 
         Transform = hmd.LookingAt(centerPoint.origin, hmd.basis.y * hmd.basis.Inverse()).ScaledLocal(LocalScale);
         Transform.origin = centerPoint.origin;
@@ -148,7 +148,7 @@ public class ScreenOverlay : GrabbableOverlay
 
     protected internal override void OnClickWhileHeld()
     {
-        CurveWhenUpright = !CurveWhenUpright;
+        SnapUpright = !SnapUpright;
         
         base.OnClickWhileHeld();
     }
