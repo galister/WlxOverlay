@@ -34,7 +34,6 @@ public class Watch : InteractableOverlay
         
         WidthInMeters = 0.125f;
         ShowHideBinding = false;
-        WantVisible = true;
         ZOrder = 67;
 
         // 400 x 200
@@ -185,7 +184,22 @@ public class Watch : InteractableOverlay
         Transform = controller.TranslatedLocal(_localPosition).LookingAt(tgt.origin, -controller.basis.y);
 
         UploadTransform();
-        
+
+        var toHmd = (InputManager.HmdTransform.origin - Transform.origin).Normalized();
+        var alpha = MathF.Log(0.7f, Transform.basis.z.Dot(toHmd)) - 1f;
+        alpha = Mathf.Clamp(alpha, 0f, 1f);
+        if (alpha < float.Epsilon)
+        {
+            if (Visible) 
+                Hide();
+        }
+        else
+        {
+            Alpha = alpha;
+            if (!Visible)
+                Show();
+        }
+
         if (batteryStateUpdated)
             OnBatteryStatesUpdated();
     }
