@@ -12,6 +12,9 @@ public class LabelCentered : Label
     
     public override void Render()
     {
+        if (Text == null)
+            return;
+        
         if (Dirty)
         {
             _textWidth = Text.Sum(x => Font.GetTexture(x)?.AdvX ?? 0);

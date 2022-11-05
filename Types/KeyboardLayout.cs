@@ -1,21 +1,23 @@
 using System.Diagnostics;
 using System.Text.RegularExpressions;
-using YamlDotNet.Serialization;
-using YamlDotNet.Serialization.NamingConventions;
+
+#pragma warning disable CS8618
+// ReSharper disable ClassNeverInstantiated.Global
+// ReSharper disable FieldCanBeMadeReadOnly.Global
+// ReSharper disable CollectionNeverUpdated.Global
+// ReSharper disable MemberCanBePrivate.Global
+// ReSharper disable UnassignedField.Global
 
 namespace X11Overlay.Types;
 
 public class KeyboardLayout
 {
-    private static readonly IDeserializer YamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
-    
     public static KeyboardLayout Instance;
-    public static bool IsValid;
     
     public static bool Load()
     {
         var yaml = File.ReadAllText("Resources/keyboard.yaml");
-        Instance = YamlDeserializer.Deserialize<KeyboardLayout>(yaml);
+        Instance = Config.YamlDeserializer.Deserialize<KeyboardLayout>(yaml);
         return Instance.LoadAndCheckConfig();
     }
     
@@ -41,7 +43,7 @@ public class KeyboardLayout
     public string[] LabelForKey(string key, bool shift = false)
     {
         if (Labels.TryGetValue(key, out var label))
-            return label;
+            return label!;
 
         if (key.Length == 1)
             return new [] { shift ? key.ToUpperInvariant() : key.ToLowerInvariant() };
@@ -93,7 +95,7 @@ public class KeyboardLayout
         return l;
     }
 
-    public bool LoadAndCheckConfig()
+    private bool LoadAndCheckConfig()
     {
         var regex = new Regex(@"^keycode +(\d+) = (.+)$", RegexOptions.Compiled | RegexOptions.Multiline);
         var output = Process.Start(

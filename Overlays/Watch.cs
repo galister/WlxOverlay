@@ -2,6 +2,7 @@ using X11Overlay.Core;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 using X11Overlay.Overlays.Simple;
+using X11Overlay.Types;
 using X11Overlay.UI;
 
 namespace X11Overlay.Overlays;
@@ -22,7 +23,7 @@ public class Watch : InteractableOverlay
     private readonly BaseOverlay _keyboard;
     private readonly BaseOverlay[] _screens;
     
-    public Watch(string? altTimezone1, string? altTimezone2, BaseOverlay keyboard, IEnumerable<BaseOverlay> screens) : base("Watch")
+    public Watch(BaseOverlay keyboard, IEnumerable<BaseOverlay> screens) : base("Watch")
     {
         if (_instance != null)
             throw new InvalidOperationException("Can't have more than one Watch!");
@@ -54,12 +55,12 @@ public class Watch : InteractableOverlay
 
         Font? b24Pt = null;
         
-        if (altTimezone1 != null)
+        if (Config.Instance.AltTimezone1 != null)
         {
             
             Canvas.CurrentFgColor = HexColor.FromRgb("#99BBAA");
-            var tz = TimeZoneInfo.FindSystemTimeZoneById(altTimezone1);
-            var tzDisplay = altTimezone1.Split('/').Last();
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(Config.Instance.AltTimezone1);
+            var tzDisplay = Config.Instance.AltTimezone1.Split('/').Last();
             
             Canvas.CurrentFont = b14Pt;
             _canvas.AddControl(new Label(tzDisplay, 210, 137, 200, 50));
@@ -68,11 +69,11 @@ public class Watch : InteractableOverlay
             _canvas.AddControl(new DateTimeLabel("HH:mm", tz, 210, 107, 200, 50));
         }
         
-        if (altTimezone2 != null)
+        if (Config.Instance.AltTimezone2 != null)
         {
             Canvas.CurrentFgColor = HexColor.FromRgb("#AA99BB");
-            var tz = TimeZoneInfo.FindSystemTimeZoneById(altTimezone2);
-            var tzDisplay = altTimezone2.Split('/').Last();
+            var tz = TimeZoneInfo.FindSystemTimeZoneById(Config.Instance.AltTimezone2);
+            var tzDisplay = Config.Instance.AltTimezone2.Split('/').Last();
 
             Canvas.CurrentFont = b14Pt;
             _canvas.AddControl(new Label(tzDisplay, 210, 82, 200, 50));
@@ -93,9 +94,20 @@ public class Watch : InteractableOverlay
         _canvas.AddControl(new Label("Vol", 334, 94, 50, 30));
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#505050");
+
+        var psiUp = Runner.StartInfoFromArgs(Config.Instance.VolumeUpCmd);
+        if (psiUp != null)
+            _canvas.AddControl(new Button("+", 327, 116, 46, 32)
+            {
+                PointerDown = () => Runner.TryStart(psiUp)
+            });
         
-        _canvas.AddControl(new Button("+", 327, 116, 46, 32));
-        _canvas.AddControl(new Button("-", 327, 52, 46, 32));
+        var psiDn = Runner.StartInfoFromArgs(Config.Instance.VolumeDnCmd);
+        if (psiDn != null)
+            _canvas.AddControl(new Button("-", 327, 52, 46, 32)
+            {
+                PointerDown = () => Runner.TryStart(psiDn)
+            });
         
         // Bottom row
         

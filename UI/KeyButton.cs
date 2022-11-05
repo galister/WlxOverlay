@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 using X11Overlay.Screen.Interop;
@@ -99,15 +98,8 @@ public class KeyButton : ButtonBase
 
         if (KeyboardLayout.Instance.ExecCommands.TryGetValue(key, out var argv))
         {
-            var psi = new ProcessStartInfo
-            {
-                UseShellExecute = true,
-                FileName = argv[0],
-            };
-            foreach (var arg in argv.Skip(1)) 
-                psi.ArgumentList.Add(arg);
-
-            return (() => Process.Start(psi), null);
+            var psi = Runner.StartInfoFromArgs(argv);
+            return (psi != null ? () => Runner.TryStart(psi) : null, null);
         }
         Console.WriteLine($"[Err] No action found for key: {key}");
         return (null, null);

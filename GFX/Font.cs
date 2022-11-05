@@ -120,7 +120,7 @@ public class Font : IDisposable
 
 public class Glyph
 {
-    public ITexture Texture;
+    public ITexture Texture = null!;
     public int Left;
     public int Top;
     public int BearX;

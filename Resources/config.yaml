@@ -1,0 +1,25 @@
+---
+
+# the main configuration file for X11Overlay
+
+# additional timezones to display, other than your local time. optional.
+alt_timezone1: Asia/Tokyo
+alt_timezone2: America/Chicago
+
+# shell commands to execute by the volume rocker. array of args.
+volume_up_cmd: [ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%" ]
+volume_dn_cmd: [ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%" ]
+
+# enable push-to-talk (or other arbitrary command) on the left hand 
+# activates on left hand AltClick. use ~ (null) for no action
+# this should work if you're using a simple PulseAudio / PipeWire setup
+left_use_ptt: true
+left_ptt_dn_cmd: [ "pactl", "set-source-mute", "@DEFAULT_SOURCE@", "0" ]
+left_ptt_up_cmd: [ "pactl", "set-source-mute", "@DEFAULT_SOURCE@", "1" ]
+
+# enable push-to-talk (or other arbitrary command) on the right hand 
+# activates on right hand AltClick. use ~ (null) for no action
+right_use_ptt: false
+right_ptt_dn_cmd: [ "ptt", "B2_source", "on" ]
+right_ptt_up_cmd: [ "ptt", "B2_source", "off" ]
+

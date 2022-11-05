@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using X11Overlay.Types;
 
 namespace X11Overlay.Overlays;
 
@@ -7,10 +8,16 @@ namespace X11Overlay.Overlays;
 /// </summary>
 public class LaserPointerWithPushToTalk : LaserPointer
 {
-    public string? PttCommandOn;
-    public string? PttCommandOff;
-
-    public LaserPointerWithPushToTalk(LeftRight hand) : base(hand) { }
+    private readonly ProcessStartInfo?[] _processStartInfos = new ProcessStartInfo[2];
+    
+    public LaserPointerWithPushToTalk(LeftRight hand) : base(hand)
+    {
+        var dnCmd = hand == LeftRight.Left ? Config.Instance.LeftPttDnCmd : Config.Instance.RightPttDnCmd;
+        var upCmd = hand == LeftRight.Left ? Config.Instance.LeftPttUpCmd : Config.Instance.RightPttUpCmd;
+        
+        _processStartInfos[0] = Runner.StartInfoFromArgs(dnCmd);
+        _processStartInfos[1] = Runner.StartInfoFromArgs(upCmd);
+    }
 
     protected internal override void AfterInput(bool batteryStateUpdated)
     {
@@ -25,15 +32,8 @@ public class LaserPointerWithPushToTalk : LaserPointer
     
     private void Ptt(bool on)
     {
-        var cmd = on ? PttCommandOn : PttCommandOff;
-
-        var splat = cmd!.Split(' ', 2);
-        
-        Process.Start(new ProcessStartInfo
-        {
-            UseShellExecute = true,
-            FileName = splat[0],
-            Arguments = splat.Length > 1 ? splat[1] : ""
-        });
+        var psi = _processStartInfos[on ? 1 : 0];
+        if (psi != null)
+            Process.Start(psi);
     }
 }

@@ -86,6 +86,10 @@
       <Content Include="Resources\keyboard.yaml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </Content>
+      <None Remove="Resources\config.yaml" />
+      <Content Include="Resources\config.yaml">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
 </Project>

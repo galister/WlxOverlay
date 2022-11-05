@@ -5,15 +5,19 @@ using X11Overlay.Overlays.Simple;
 using X11Overlay.Screen.Interop;
 using X11Overlay.Types;
 
+Config.Load();
+
 var manager = OverlayManager.Initialize();
 
 manager.RegisterChild(new DesktopCursor());
-manager.RegisterChild(new LaserPointer(LeftRight.Left));
-manager.RegisterChild(new LaserPointerWithPushToTalk(LeftRight.Right) 
-{ 
-    PttCommandOn = "ptt B2_source on", 
-    PttCommandOff = "ptt B2_source off"
-});
+
+manager.RegisterChild(Config.Instance.LeftUsePtt
+    ? new LaserPointerWithPushToTalk(LeftRight.Left)
+    : new LaserPointer(LeftRight.Left));
+
+manager.RegisterChild(Config.Instance.RightUsePtt
+    ? new LaserPointerWithPushToTalk(LeftRight.Right)
+    : new LaserPointer(LeftRight.Right));
 
 IEnumerable<BaseOverlay> GetScreens()
 {
@@ -35,7 +39,7 @@ if (!KeyboardLayout.Load())
 var keyboard = new KeyboardOverlay();
 manager.RegisterChild(keyboard);
 
-manager.RegisterChild(new Watch("Asia/Tokyo", "America/Chicago", keyboard, GetScreens()));
+manager.RegisterChild(new Watch(keyboard, GetScreens()));
 
 var engine = new GlGraphicsEngine();
 engine.StartEventLoop();

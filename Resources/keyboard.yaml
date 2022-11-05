@@ -39,7 +39,7 @@ main_layout:
 use_shift_layout: true
 
 # The shift keys present on the keyboard, as shown in `xmodmap -pke`.
-# Used to eliminate conflicts while using shift layout.
+# Used to eliminate conflicts while using shift layout. Cannot be null.
 shift_keys: [ "Shift_L", "Shift_R" ]
 
 # The alt (purple) layout of the keyboard. 
@@ -67,7 +67,8 @@ macros:
 
 # Custom labels to use.
 # Key: element of MainLayout / AltLayout
-# Value: Array of strings. 0th element is the upper row, 1st element is lower row. both are optional.
+# Value: Array of strings. 0th element is the upper row, 1st element is lower row.
+# For empty labels, use [] (do not use ~)
 labels:
     "1":            ["1", "!"]
     "2":            ["2", "@"]

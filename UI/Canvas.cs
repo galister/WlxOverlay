@@ -22,7 +22,7 @@ public class Canvas : IDisposable
     private readonly List<ButtonBase?> _buttons = new() { null };
     
     private const int ResDivider = 4;
-    private byte[,] _uvToButtonMap;
+    private byte[,]? _uvToButtonMap;
     private readonly int[] _litButtons = new int[2];
     
     private bool _dirty = true;
@@ -168,8 +168,8 @@ public class Canvas : IDisposable
         
     private bool IdxFromUv(Vector2 uv, out int idx)
     {
-        var i = (int)((_uvToButtonMap.GetLength(0) - 1) * uv.x);
-        var j = (int)((_uvToButtonMap.GetLength(1) - 1) * uv.y);
+        var i = (int)((_uvToButtonMap!.GetLength(0) - 1) * uv.x);
+        var j = (int)((_uvToButtonMap!.GetLength(1) - 1) * uv.y);
 
         try
         {
