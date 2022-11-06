@@ -144,7 +144,7 @@ public class LaserPointer : BaseOverlay
         
         Mode = dot switch
         {
-            < -0.7f => PointerMode.Shift,
+            < -0.85f => PointerMode.Shift,
             > 0.7f => PointerMode.Alt,
             _ => PointerMode.Normal
         };

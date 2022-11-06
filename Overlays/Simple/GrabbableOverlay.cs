@@ -52,7 +52,15 @@ public class GrabbableOverlay : InteractableOverlay
         
         base.Show();
     }
-    
+
+    public override void ResetPosition()
+    {
+        _savedSpawnPosition = SpawnPosition;
+        var globalRef = InputManager.HmdTransform.TranslatedLocal(SpawnPosition);
+        Transform.origin = globalRef.origin;
+        OnOrientationChanged();
+    }
+
     private Vector3 _grabOffset;
     protected internal void OnGrabbed(PointerHit hitData)
     {

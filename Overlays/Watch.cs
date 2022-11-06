@@ -128,9 +128,19 @@ public class Watch : InteractableOverlay
         for (var s = 1; s <= _screens.Length; s++)
         {
             var screen = _screens[s - 1];
+            var pushedAt = DateTime.MinValue;
             _canvas.AddControl(new Button($"Scr {s}", btnWidth * s + 2, 2, (uint)btnWidth - 4U, 36)
             {
-                PointerDown = () => screen.ToggleVisible()
+                PointerDown = () =>
+                {
+                    pushedAt = DateTime.UtcNow;
+                    screen.ToggleVisible();
+                },
+                PointerUp = () =>
+                {
+                    if ((DateTime.UtcNow - pushedAt).TotalSeconds > 2)
+                        screen.ResetPosition();
+                }
             });
         }
         

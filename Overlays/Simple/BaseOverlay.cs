@@ -57,6 +57,11 @@ public class BaseOverlay : Overlay
         UploadTransform();
         UploadWidth();
     }
+
+    public virtual void ResetPosition()
+    {
+        
+    }
     
     public new virtual void Show()
     {
