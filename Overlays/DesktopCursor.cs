@@ -24,7 +24,7 @@ public class DesktopCursor : BaseOverlay
         ShowHideBinding = false;
     }
 
-    public override void Initialize()
+    protected override void Initialize()
     {
         Texture = GraphicsEngine.Instance.TextureFromFile("Resources/arrow.png");
         

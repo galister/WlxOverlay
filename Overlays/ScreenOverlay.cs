@@ -21,7 +21,7 @@ public class ScreenOverlay : GrabbableOverlay
         _screen = screen;
     }
 
-    public override void Initialize()
+    protected override void Initialize()
     {
         var hmd = InputManager.HmdTransform;
         var centerPoint = hmd.TranslatedLocal(SpawnPosition);

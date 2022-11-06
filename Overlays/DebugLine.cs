@@ -30,8 +30,6 @@ public class DebugLine : BaseOverlay
         line.Render();
     }
 
-    private Vector3 _color;
-
     private static ITexture? _sharedTexture;
     private DebugLine(Vector3 color) : base($"Debug-{color}")
     {
@@ -39,10 +37,10 @@ public class DebugLine : BaseOverlay
         WidthInMeters = 0.002f;
         ShowHideBinding = false;
         WantVisible = true;
-        _color = color;
+        Color = color;
     }
-    
-    public override void Initialize()
+
+    protected override void Initialize()
     {
         if (_sharedTexture == null)
         {
@@ -51,7 +49,6 @@ public class DebugLine : BaseOverlay
         }
         
         Texture = _sharedTexture;
-        UploadColor(_color);
         Alpha = 0.5f;
         
         base.Initialize();

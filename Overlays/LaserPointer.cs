@@ -14,27 +14,21 @@ public class LaserPointer : BaseOverlay
 {
     public readonly LeftRight Hand;
     public PointerMode Mode { get; private set; }
-    public GrabbableOverlay? GrabbedTarget;
 
     public Transform3D HandTransform;
 
     public Action? ReleaseAction;
     
-    private string myPose;
-    private float length;
+    private readonly string _myPose;
+    
+    private GrabbableOverlay? _grabbedTarget;
+    private float _length;
 
     private static readonly Vector3[] ModeColors = {
-        new(0, 0.37f, 0.5f),
-        new(0.69f, 0.19f, 0),
-        new(0.37f, 0, 0.5f),
-        new(0.62f, 0.62f, 0.62f)
-    };
-
-    private static readonly Vector3[] DiminishedColors = {
-        new(0, 0.19f, 0.25f),
-        new(0.37f, 0.16f, 0),
-        new(0.19f, 0, 0.25f),
-        new(0.62f, 0.62f, 0.62f)
+        HexColor.FromRgb("#006080"),
+        HexColor.FromRgb("#B03000"),
+        HexColor.FromRgb("#600080"),
+        HexColor.FromRgb("#A0A0A0"),
     };
 
     private static ITexture? _sharedTexture;
@@ -42,16 +36,16 @@ public class LaserPointer : BaseOverlay
     public LaserPointer(LeftRight hand) : base($"Pointer{hand}")
     {
         Hand = hand;
-        myPose = $"{hand}Hand";
+        _myPose = $"{hand}Hand";
 
         ZOrder = 69;
         WidthInMeters = 0.002f;
         ShowHideBinding = false;
     }
 
-    public override void Initialize()
+    protected override void Initialize()
     {
-        length = 2f;
+        _length = 2f;
         if (_sharedTexture == null)
         {
             var pixels = new byte[] { 255, 255, 255 };
@@ -59,14 +53,13 @@ public class LaserPointer : BaseOverlay
         }
         
         Texture = _sharedTexture;
-        UploadColor(new Vector3(1,1,1));
         
         base.Initialize();
     }
 
     protected internal override void AfterInput(bool batteryStateUpdated)
     {
-        HandTransform = InputManager.PoseState[myPose];
+        HandTransform = InputManager.PoseState[_myPose];
         EvaluateInput();
         
         if (!ClickNow && ClickBefore)
@@ -79,15 +72,15 @@ public class LaserPointer : BaseOverlay
     private static readonly float RotationOffset = Mathf.DegToRad(-90);
     private void RecalculateTransform()
     {
-        length = _lastHit?.distance ?? 25f;
+        _length = _lastHit?.distance ?? 25f;
         var hmd = InputManager.HmdTransform;
         
         Transform = HandTransform
-            .TranslatedLocal(Vector3.Forward * (length * 0.5f))
+            .TranslatedLocal(Vector3.Forward * (_length * 0.5f))
             .RotatedLocal(Vector3.Right, RotationOffset);
         
         // scale to make it a laser
-        Transform = Transform.ScaledLocal(new Vector3(1, length / WidthInMeters, 1));
+        Transform = Transform.ScaledLocal(new Vector3(1, _length / WidthInMeters, 1));
         
         // billboard towards hmd
         var viewDirection = hmd.origin - HandTransform.origin;
@@ -155,7 +148,7 @@ public class LaserPointer : BaseOverlay
     
     public void TestInteractions(IEnumerable<InteractableOverlay> targets)
     {
-        if (GrabbedTarget != null)
+        if (_grabbedTarget != null)
         {
             HandleGrabbedInteractions();
             return;
@@ -217,34 +210,34 @@ public class LaserPointer : BaseOverlay
     {
         if (!GrabNow)
         {
-            GrabbedTarget!.OnDropped();
-            GrabbedTarget = null;
+            _grabbedTarget!.OnDropped();
+            _grabbedTarget = null;
             return;
         }
         if (Mathf.Abs(Scroll) > 0.1f)
         {
             if (Mode == PointerMode.Alt)
-                GrabbedTarget!.OnScrollSize(Scroll);
+                _grabbedTarget!.OnScrollSize(Scroll);
             else
-                GrabbedTarget!.OnScrollDistance(Scroll);
+                _grabbedTarget!.OnScrollDistance(Scroll);
         }
 
         if (ClickNow && !ClickBefore)
         {
-            GrabbedTarget!.OnClickWhileHeld();
+            _grabbedTarget!.OnClickWhileHeld();
         }
         if (AltClickNow && !AltClickBefore)
         {
-            GrabbedTarget!.OnAltClickWhileHeld();
+            _grabbedTarget!.OnAltClickWhileHeld();
         }
         else 
-            GrabbedTarget!.OnGrabHeld();
+            _grabbedTarget!.OnGrabHeld();
     }
 
     internal void OnPrimaryLost(InteractableOverlay overlay)
     {
-        if (GrabbedTarget == overlay)
-            GrabbedTarget = null;
+        if (_grabbedTarget == overlay)
+            _grabbedTarget = null;
     }
 
     private void HandlePointerInteractions(PointerHit hitData)
@@ -252,7 +245,7 @@ public class LaserPointer : BaseOverlay
         if (GrabNow && !GrabBefore && hitData.overlay is GrabbableOverlay go)
         {
             go.OnGrabbed(hitData);
-            GrabbedTarget = go;
+            _grabbedTarget = go;
             return;
         }
 
@@ -270,7 +263,8 @@ public class LaserPointer : BaseOverlay
     protected internal override void Render()
     {
         RecalculateTransform();
-        UploadColor(ModeColors[(int)Mode]);
+        Color = ModeColors[(int)Mode];
+        UploadColor();
     }
 }
 

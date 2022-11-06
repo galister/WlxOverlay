@@ -20,17 +20,11 @@ public class Watch : InteractableOverlay
 
     private readonly List<Control> _batteryControls = new();
 
-    private readonly BaseOverlay _keyboard;
-    private readonly BaseOverlay[] _screens;
-    
-    public Watch(BaseOverlay keyboard, IEnumerable<BaseOverlay> screens) : base("Watch")
+    public Watch(BaseOverlay keyboard, IList<BaseOverlay> screens) : base("Watch")
     {
         if (_instance != null)
             throw new InvalidOperationException("Can't have more than one Watch!");
         _instance = this;
-        
-        _keyboard = keyboard;
-        _screens = screens.ToArray();
         
         WidthInMeters = 0.115f;
         ShowHideBinding = false;
@@ -110,7 +104,7 @@ public class Watch : InteractableOverlay
         
         // Bottom row
         
-        var numButtons = _screens.Length + 1;
+        var numButtons = screens.Count + 1;
         var btnWidth = 400 / numButtons;
         
         Canvas.CurrentBgColor = HexColor.FromRgb("#406050");
@@ -118,16 +112,16 @@ public class Watch : InteractableOverlay
 
         _canvas.AddControl(new Button("Kbd", 2, 2, (uint)btnWidth - 4U, 36)
         {
-            PointerDown = () => _keyboard.ToggleVisible()
+            PointerDown = keyboard.ToggleVisible
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#405060");        
         Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AABBCC");
 
-        for (var s = 1; s <= _screens.Length; s++)
+        for (var s = 1; s <= screens.Count; s++)
         {
-            var screen = _screens[s - 1];
+            var screen = screens[s - 1];
             var pushedAt = DateTime.MinValue;
             _canvas.AddControl(new Button($"Scr {s}", btnWidth * s + 2, 2, (uint)btnWidth - 4U, 36)
             {
@@ -170,7 +164,7 @@ public class Watch : InteractableOverlay
         _canvas.MarkDirty();
     }
 
-    public override void Initialize()
+    protected override void Initialize()
     {
         Texture = _canvas.Initialize();
         
@@ -196,18 +190,19 @@ public class Watch : InteractableOverlay
         UploadTransform();
 
         var toHmd = (InputManager.HmdTransform.origin - Transform.origin).Normalized();
-        var alpha = MathF.Log(0.7f, Transform.basis.z.Dot(toHmd)) - 1f;
-        alpha = Mathf.Clamp(alpha, 0f, 1f);
-        if (alpha < float.Epsilon)
+        var unclampedAlpha = MathF.Log(0.7f, Transform.basis.z.Dot(toHmd)) - 1f;
+        Alpha = Mathf.Clamp(unclampedAlpha, 0f, 1f);
+        if (Alpha < float.Epsilon)
         {
             if (Visible) 
                 Hide();
         }
         else
         {
-            Alpha = alpha;
             if (!Visible)
                 Show();
+            else
+                UploadAlpha();
         }
 
         if (batteryStateUpdated)

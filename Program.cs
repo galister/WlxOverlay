@@ -25,7 +25,7 @@ IEnumerable<BaseOverlay> GetScreens()
     for (var s = 0; s < numScreens; s++)
     {
         var screen = new ScreenOverlay(s) { WantVisible = s == 0 };
-        manager!.RegisterChild(screen);
+        manager.RegisterChild(screen);
         yield return screen;
     }
 }
@@ -39,7 +39,7 @@ if (!KeyboardLayout.Load())
 var keyboard = new KeyboardOverlay();
 manager.RegisterChild(keyboard);
 
-manager.RegisterChild(new Watch(keyboard, GetScreens()));
+manager.RegisterChild(new Watch(keyboard, GetScreens().ToList()));
 
 var engine = new GlGraphicsEngine();
 engine.StartEventLoop();

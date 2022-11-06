@@ -142,10 +142,10 @@ public class GrabbableOverlay : InteractableOverlay
             else
             {
                 var dot = vRela.Normalized().Dot(tHmd.basis.z);
-                var zDist = lookPoint.Length();
+                var zDist = vRela.Length();
 
                 var yDist = Mathf.Abs(Transform.origin.y - InputManager.HmdTransform.origin.y);
-                var xAngle = Mathf.Asin(yDist / lookPoint.Length());
+                var xAngle = Mathf.Asin(yDist / zDist);
 
                 if (dot < -float.Epsilon) // facing downwards
                 {

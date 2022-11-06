@@ -60,8 +60,8 @@ public class KeyboardOverlay : GrabbableOverlay
         }
         _canvas.BuildInteractiveLayer();
     }
-    
-    public override void Initialize()
+
+    protected override void Initialize()
     {
         var hmd = InputManager.HmdTransform;
         var centerPoint = hmd.TranslatedLocal(SpawnPosition);
