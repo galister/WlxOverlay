@@ -81,12 +81,12 @@ public class ScreenOverlay : GrabbableOverlay
     
     protected internal override void OnPointerHover(PointerHit hitData)
     {
+        base.OnPointerHover(hitData);
         if (PrimaryPointer == hitData.pointer && _freezeCursor < DateTime.UtcNow)
         {
             var adjustedUv = hitData.uv;
             adjustedUv.y = 1 - adjustedUv.y;
             _capture?.MoveMouse(adjustedUv);
-            
         }
     }
 

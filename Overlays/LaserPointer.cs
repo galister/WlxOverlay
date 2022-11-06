@@ -17,6 +17,8 @@ public class LaserPointer : BaseOverlay
     public GrabbableOverlay? GrabbedTarget;
 
     public Transform3D HandTransform;
+
+    public Action? ReleaseAction;
     
     private string myPose;
     private float length;
@@ -66,6 +68,9 @@ public class LaserPointer : BaseOverlay
     {
         HandTransform = InputManager.PoseState[myPose];
         EvaluateInput();
+        
+        if (!ClickNow && ClickBefore)
+            ReleaseAction?.Invoke();
         
         if (_showHideNow && !_showHideBefore)
             OverlayManager.Instance.ShowHide();
@@ -139,7 +144,7 @@ public class LaserPointer : BaseOverlay
         
         Mode = dot switch
         {
-            //< -0.4f => PointerMode.Shift,
+            < -0.7f => PointerMode.Shift,
             > 0.7f => PointerMode.Alt,
             _ => PointerMode.Normal
         };

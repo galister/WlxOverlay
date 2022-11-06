@@ -207,13 +207,8 @@ public class Watch : InteractableOverlay
     protected internal override void OnPointerDown(PointerHit hitData)
     {
         base.OnPointerDown(hitData);
-        _canvas.OnPointerDown(hitData.uv, hitData.hand);
-    }
-
-    protected internal override void OnPointerUp(PointerHit hitData)
-    {
-        base.OnPointerUp(hitData);
-        _canvas.OnPointerUp(hitData.hand);
+        var action = _canvas.OnPointerDown(hitData.uv, hitData.hand);
+        hitData.pointer.ReleaseAction = action;
     }
 
     protected internal override void OnPointerHover(PointerHit hitData)

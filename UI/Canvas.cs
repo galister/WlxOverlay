@@ -111,24 +111,17 @@ public class Canvas : IDisposable
         button.OnPointerEnter();
     }
 
-    public void OnPointerDown(Vector2 uv, LeftRight hand)
+    public Action? OnPointerDown(Vector2 uv, LeftRight hand)
     {
         if (!IdxFromUv(uv, out var idx)
             || !ButtonFromIdx(idx, out var button))
-            return;
+            return null;
                 
         var hint = (int) hand;
         _litButtons[hint] = idx;
 
         button.OnPointerDown();
-    }
-
-    public void OnPointerUp(LeftRight hand)
-    {
-        if (!IdxFromHand(hand, out var idx) 
-            || !ButtonFromIdx(idx, out var button)) return;   
-            
-        button.OnPointerUp();
+        return () => button.OnPointerUp();
     }
     
     public void Render()

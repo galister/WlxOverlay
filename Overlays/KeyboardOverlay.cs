@@ -4,6 +4,7 @@ using X11Overlay.Numerics;
 using X11Overlay.Overlays.Simple;
 using X11Overlay.Types;
 using X11Overlay.UI;
+using Action = System.Action;
 
 namespace X11Overlay.Overlays;
 
@@ -83,13 +84,8 @@ public class KeyboardOverlay : GrabbableOverlay
     protected internal override void OnPointerDown(PointerHit hitData)
     {
         base.OnPointerDown(hitData);
-        _canvas.OnPointerDown(hitData.uv, hitData.hand);
-    }
-
-    protected internal override void OnPointerUp(PointerHit hitData)
-    {
-        base.OnPointerUp(hitData);
-        _canvas.OnPointerUp(hitData.hand);
+        var action = _canvas.OnPointerDown(hitData.uv, hitData.hand);
+        hitData.pointer.ReleaseAction = action;
     }
 
     protected internal override void OnPointerHover(PointerHit hitData)
