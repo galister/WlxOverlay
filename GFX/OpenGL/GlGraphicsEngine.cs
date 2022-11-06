@@ -37,7 +37,6 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         options.FramesPerSecond = OverlayManager.Instance.DisplayFrequency;
         options.UpdatesPerSecond = options.FramesPerSecond;
         options.IsEventDriven = false;
-        options.VideoMode = new VideoMode(30);
 
         GlfwWindowing.Use();
         
@@ -53,7 +52,8 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         _gl.Enable(EnableCap.Texture2D);
         _gl.Enable(EnableCap.Blend);
 
-        Console.WriteLine($"GL Context initialized: {_gl.GetError()}");
+        _gl.GetError();
+        Console.WriteLine("GL Context initialized");
 
         SpriteShader = new GlShader(_gl, "Shaders/common.vert", "Shaders/sprite.frag");
         ColorShader = new GlShader(_gl, "Shaders/common.vert", "Shaders/color.frag");

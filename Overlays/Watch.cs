@@ -32,7 +32,7 @@ public class Watch : InteractableOverlay
         _keyboard = keyboard;
         _screens = screens.ToArray();
         
-        WidthInMeters = 0.125f;
+        WidthInMeters = 0.115f;
         ShowHideBinding = false;
         ZOrder = 67;
 
