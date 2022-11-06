@@ -115,7 +115,7 @@ public class GrabbableOverlay : InteractableOverlay
         _grabOffset = newGrabOffset;
     }
     
-    private void OnOrientationChanged()
+    protected void OnOrientationChanged()
     {
         var tHmd = InputManager.HmdTransform;
         var vRela = Transform.origin - tHmd.origin;

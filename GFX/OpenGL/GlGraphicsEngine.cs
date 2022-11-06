@@ -21,10 +21,6 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         if (GraphicsEngine.Instance != null)
             throw new InvalidOperationException("Another GraphicsEngine exists.");
         GraphicsEngine.Instance = this;
-        
-        var ctx = GL.CreateDefaultContext("libGL.so");
-        if (ctx == null)
-            throw new ApplicationException("Could not initialize GL Context!");
     }
 
     public void StartEventLoop()

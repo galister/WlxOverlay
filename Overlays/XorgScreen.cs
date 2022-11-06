@@ -1,44 +1,26 @@
-using X11Overlay.Core;
 using X11Overlay.Numerics;
-using X11Overlay.Overlays.Simple;
 using X11Overlay.Screen.Interop;
 
 namespace X11Overlay.Overlays;
 
-/// <summary>
-/// An overlay that displays an X11 screen, moves the mouse and sends mouse events.
-/// </summary>
-public class ScreenOverlay : GrabbableOverlay
+public class XorgScreen : BaseScreen
 {
-    private readonly int _screen;
     private XScreenCapture? _capture;
-
     private DateTime _freezeCursor = DateTime.MinValue;
     
-    public ScreenOverlay(int screen) : base($"Screen{screen}")
+    public XorgScreen(int screen) : base(screen)
     {
-        WidthInMeters = 1;
-        _screen = screen;
     }
 
     protected override void Initialize()
     {
-        var hmd = InputManager.HmdTransform;
-        var centerPoint = hmd.TranslatedLocal(SpawnPosition);
-
-        LocalScale = new Vector3(2, -2, 2);
-        CurveWhenUpright = true;
-
-        Transform = hmd.LookingAt(centerPoint.origin, hmd.basis.y * hmd.basis.Inverse()).ScaledLocal(LocalScale);
-        Transform.origin = centerPoint.origin;
-
-        _capture = new XScreenCapture(_screen);
+        base.Initialize();
+        
+        _capture = new XScreenCapture(Screen);
         Texture = _capture.Texture;
 
         UpdateInteractionTransform();
         UploadCurvature();
-        
-        base.Initialize();
     }
 
     public override void Show()
@@ -52,7 +34,6 @@ public class ScreenOverlay : GrabbableOverlay
         base.Hide();
         _capture?.Suspend();
     }
-
 
     protected internal override void Render()
     {
@@ -77,7 +58,6 @@ public class ScreenOverlay : GrabbableOverlay
 
         base.Render();
     }
-
     
     protected internal override void OnPointerHover(PointerHit hitData)
     {
@@ -144,19 +124,5 @@ public class ScreenOverlay : GrabbableOverlay
             _capture?.SendMouse(hitData.uv, XcbMouseButton.WheelUp, true);
             _capture?.SendMouse(hitData.uv, XcbMouseButton.WheelUp, false);
         }
-    }
-
-    protected internal override void OnClickWhileHeld()
-    {
-        SnapUpright = !SnapUpright;
-        
-        base.OnClickWhileHeld();
-    }
-
-    protected internal override void OnAltClickWhileHeld()
-    { 
-        // TODO high quality overlays
-        
-        base.OnAltClickWhileHeld();
     }
 }

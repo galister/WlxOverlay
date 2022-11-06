@@ -35,6 +35,7 @@ public class Canvas : IDisposable
 
     public ITexture Initialize()
     {
+        _texture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGBA8, true);
         _texture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGB8, true);
         return _texture;
     }
