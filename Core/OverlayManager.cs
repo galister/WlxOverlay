@@ -107,7 +107,7 @@ public class OverlayManager : Application
             o.AfterInput(batterStateUpdated);
 
         foreach (var pointer in _pointers)
-            pointer.TestInteractions(_interactables);
+            pointer.TestInteractions(_interactables.Where(o => o.Visible));
     }
     
     public void Render()
