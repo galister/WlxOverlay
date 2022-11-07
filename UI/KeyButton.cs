@@ -54,30 +54,24 @@ public class KeyButton : ButtonBase
 
             SetActionsForKey(key, ModeNormal);
 
-            if (layout.UseShiftLayout)
-            {
-                labelTexts = layout.LabelForKey(key, true);
-                for (var i = 0; i < labelTexts.Length; i++)
-                    _labelTexts[ModeShift, i] = labelTexts[i];
+            labelTexts = layout.LabelForKey(key, true);
+            for (var i = 0; i < labelTexts.Length; i++)
+                _labelTexts[ModeShift, i] = labelTexts[i];
 
-                SetActionsForKey(key, ModeShift);
-            }
+            SetActionsForKey(key, ModeShift);
         }
 
-        if (layout.UseAltLayout)
-        {
-            key = layout.AltLayout[row][col];
-            
-            if (key != null)
-            {
-                _visibility[2] = true;
-                
-                var labelTexts = layout.LabelForKey(key);
-                for (var i = 0; i < labelTexts.Length; i++)
-                    _labelTexts[ModeAlt, i] = labelTexts[i];
+        key = layout.AltLayout[row][col];
 
-                SetActionsForKey(key, ModeAlt);
-            }
+        if (key != null)
+        {
+            _visibility[2] = true;
+
+            var labelTexts = layout.LabelForKey(key);
+            for (var i = 0; i < labelTexts.Length; i++)
+                _labelTexts[ModeAlt, i] = labelTexts[i];
+
+            SetActionsForKey(key, ModeAlt);
         }
     }
 

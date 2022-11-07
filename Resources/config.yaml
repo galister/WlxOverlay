@@ -23,3 +23,44 @@ right_use_ptt: false
 right_ptt_dn_cmd: [ "ptt", "B2_source", "on" ]
 right_ptt_up_cmd: [ "ptt", "B2_source", "off" ]
 
+# ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+# Pointer modes
+#
+# Your pointer's functionality changes depending
+# on what mode it is in.
+# 
+# The keyboard will also inherit the color of the
+# pointer and change its mode.
+#
+#  | Color    | Click   | Keyboard              |
+#  | -------------------------------------------|
+#  | Blue     | Left    | Main Layout           |
+#  | Orange   | Right   | Main Layout + Shift   |
+#  | Purple   | Middle  | Alt layout            |
+
+# You may type using both hands. When having both
+# pointers on the keyboard at the same time, by
+# default the right hand's color will take precedence
+# when deciding the mode of the keyboard. You may 
+# change this here:
+
+# "Left" or "Right"
+primary_hand: Right
+
+# The color of the pointer can be set 2 ways:
+# - modifier bindings ("ClickModifierRight" and "ClickModifierMiddle")
+# - hand orientation
+
+# If you have capacitive buttons, I recommend binding the
+# click modifiers to the touch actions of those.
+# When touching both, right click takes precedence.
+
+# If you do not have enough buttons to bind modifiers,
+# you can also use the hand orientation to set mode.
+# Bindings always take precedence over orientation.
+
+# Use backhand-upward orientation for right click mode 
+right_click_orientation: false
+
+# Use palm-upwards orientation for middle click mode
+middle_click_orientation: false

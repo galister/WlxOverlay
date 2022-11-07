@@ -34,18 +34,12 @@ main_layout:
     - ["Shift_L", "z", "x", "c", "v", "b", "n", "m", "comma", "period", "slash", "Shift_R"]
     - ["Control_L", "Super_L", "Alt_L", "space", "Meta_R", "Menu", "Control_R", "STT"]
 
-# Allow usage of the shift (orange) layout. Lets you control shift state using hand rotation, for faster typing. 
-# Activates when backhand is facing upwards.
-use_shift_layout: true
-
 # The shift keys present on the keyboard, as shown in `xmodmap -pke`.
 # Used to eliminate conflicts while using shift layout. Cannot be null.
 shift_keys: [ "Shift_L", "Shift_R" ]
 
-# The alt (purple) layout of the keyboard. 
-# Activates when palm is facing upwards.
+# The alt (purple) layout of the keyboard.
 # Accepted values are the same as for MainLayout.
-use_alt_layout: true
 alt_layout:
     - ["Escape", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "Delete"]
     - ["Tab", "Home", "Up", "End", "Prior", ~, ~, ~, "KP_7", "KP_8", "KP_9", "Num_Lock", ~, "Insert"]

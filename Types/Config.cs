@@ -1,3 +1,4 @@
+using X11Overlay.Overlays;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -33,4 +34,9 @@ public class Config
     public string[]? RightPttDnCmd;
     public string[]? RightPttUpCmd;
 
+    public LeftRight PrimaryHand = LeftRight.Right;
+    
+    public bool RightClickOrientation;
+    public bool MiddleClickOrientation;
+    
 }

@@ -156,10 +156,40 @@
                "inputs" : {
                   "double" : {
                      "output" : "/actions/default/in/showhide"
+                  },
+                  "touch" : {
+                     "output": "/actions/default/in/clickmodifierright"
                   }
                },
                "mode" : "button",
                "path" : "/user/hand/left/input/b"
+            },
+            {
+               "path": "/user/hand/left/input/a",
+               "mode": "button",
+               "inputs": {
+                  "touch": {
+                     "output": "/actions/default/in/clickmodifiermiddle"
+                  }
+               }
+            },
+            {
+               "path": "/user/hand/right/input/b",
+               "mode": "button",
+               "inputs": {
+                  "touch": {
+                     "output": "/actions/default/in/clickmodifierright"
+                  }
+               }
+            },
+            {
+               "path": "/user/hand/right/input/a",
+               "mode": "button",
+               "inputs": {
+                  "touch": {
+                     "output": "/actions/default/in/clickmodifiermiddle"
+                  }
+               }
             },
             {
                "inputs" : {

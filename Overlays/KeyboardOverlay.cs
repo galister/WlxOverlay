@@ -13,6 +13,7 @@ public class KeyboardOverlay : GrabbableOverlay
     private const uint ButtonPadding = 4;
     
     private static KeyboardOverlay? _instance;
+    private bool _hoveredThisFrame;
 
     private Canvas _canvas;
     
@@ -79,6 +80,8 @@ public class KeyboardOverlay : GrabbableOverlay
         _canvas.Render();
         
         base.Render();
+        
+        _hoveredThisFrame = false;
     }
 
     protected internal override void OnPointerDown(PointerHit hitData)
@@ -90,10 +93,13 @@ public class KeyboardOverlay : GrabbableOverlay
 
     protected internal override void OnPointerHover(PointerHit hitData)
     {
-        if (hitData.pointer == PrimaryPointer && KeyButton.Mode != (int)hitData.modifier)
+        if (!_hoveredThisFrame || hitData.pointer.Hand == Config.Instance.PrimaryHand)
         {
-            KeyButton.Mode = (int)hitData.modifier;
-            _canvas.MarkDirty();
+            if (KeyButton.Mode != (int)hitData.modifier)
+            {
+                KeyButton.Mode = (int)hitData.modifier;
+                _canvas.MarkDirty();
+            }
         }
         
         base.OnPointerHover(hitData);

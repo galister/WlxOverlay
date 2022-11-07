@@ -57,10 +57,16 @@ cd bin/debug/net6.0
 # SteamVR bindings:
 Default bindings are provided for Index Controllers. Some notes to create your own:
 - `Click`: keyboard typing and clicking on the screen. set this to your triggers.
-- `Grip`: for moving overlays. Recommended: `Grip` input with pressure mode, pressure 70%. Release pressure 50%
-- `AltClick`: optional push-to-talk key
+- `Grip`: for moving overlays. 
+  - Recommended: `Grip` input with pressure mode, pressure 70%. Release pressure 50%
+- `AltClick`: push-to-talk or arbitrary shell execute, optional. `config.yaml` to configure.
 - `Pose`: set this to the controller tip
 - `Scroll`: set this to your joystick, and choose non-discrete mode
+- `ClickModifierRight`: bind this to a capacitive touch action, if able
+- `ClickModifierMiddle`: bind this also to a capacitive touch action
+  - `ClickModifierRight` takes precedence, so this can be a button that you may accidentally touch while reaching for `ClickModifierRight`
+
+If you can't bind the modifiers due to lack of buttons, see the `config.yaml` for alternatives.
 
 # Pointer
 

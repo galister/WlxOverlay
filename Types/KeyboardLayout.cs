@@ -26,8 +26,6 @@ public class KeyboardLayout
     public float[][] KeySizes;
     public string?[][] MainLayout;
     public string?[][] AltLayout;
-    public bool UseShiftLayout;
-    public bool UseAltLayout;
     public string[] ShiftKeys;
     
     public Dictionary<string, string[]> ExecCommands;

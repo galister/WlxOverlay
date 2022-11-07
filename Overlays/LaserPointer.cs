@@ -3,6 +3,8 @@ using X11Overlay.Core;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 using X11Overlay.Overlays.Simple;
+using X11Overlay.Types;
+using Action = System.Action;
 
 namespace X11Overlay.Overlays;
 
@@ -106,6 +108,9 @@ public class LaserPointer : BaseOverlay
     protected bool AltClickNow;
     protected bool AltClickBefore;
 
+    protected bool ClickModifierRight;
+    protected bool ClickModifierMiddle;
+
     private bool _showHideNow;
     private bool _showHideBefore;
 
@@ -125,6 +130,10 @@ public class LaserPointer : BaseOverlay
         _showHideBefore = _showHideNow;
         _showHideNow = InputManager.BooleanState["ShowHide"][(int)Hand];
         
+        ClickModifierRight = InputManager.BooleanState["ClickModifierRight"][(int)Hand];
+        
+        ClickModifierMiddle = InputManager.BooleanState["ClickModifierMiddle"][(int)Hand];
+        
         Scroll = InputManager.Vector2State["Scroll"][(int)Hand].y;
         
         RecalculateModifier();
@@ -132,15 +141,32 @@ public class LaserPointer : BaseOverlay
     
     private void RecalculateModifier()
     {
+        if (ClickModifierRight)
+        {
+            Mode = PointerMode.Right;
+            return;
+        }
+
+        if (ClickModifierMiddle)
+        {
+            Mode = PointerMode.Middle;
+            return;
+        }
+        
         var hmdUp = InputManager.HmdTransform.basis.y;
         var dot = hmdUp.Dot(HandTransform.basis.x) * (1 - 2 * (int)Hand);
         
         Mode = dot switch
         {
-            < -0.85f => PointerMode.Shift,
-            > 0.7f => PointerMode.Alt,
-            _ => PointerMode.Normal
+            < -0.85f => PointerMode.Right,
+            > 0.7f => PointerMode.Middle,
+            _ => PointerMode.Left
         };
+
+        if (Mode == PointerMode.Middle && !Config.Instance.MiddleClickOrientation)
+            Mode = PointerMode.Left;
+        else if (Mode == PointerMode.Right && !Config.Instance.RightClickOrientation)
+            Mode = PointerMode.Left;
     }
 
     private readonly List<PointerHit> _pointerHits = new(OverlayManager.MaxInteractableOverlays);
@@ -216,7 +242,7 @@ public class LaserPointer : BaseOverlay
         }
         if (Mathf.Abs(Scroll) > 0.1f)
         {
-            if (Mode == PointerMode.Alt)
+            if (Mode == PointerMode.Middle)
                 _grabbedTarget!.OnScrollSize(Scroll);
             else
                 _grabbedTarget!.OnScrollDistance(Scroll);
@@ -299,9 +325,9 @@ public class PointerHit
 
 public enum PointerMode : uint
 {
-    Normal,
-    Shift,
-    Alt,
+    Left,
+    Right,
+    Middle,
 }
 
 public enum LeftRight : uint

@@ -87,8 +87,8 @@ public class XorgScreen : BaseScreen
     {
         var click = hitData.modifier switch
         {
-            PointerMode.Shift => XcbMouseButton.Right,
-            PointerMode.Alt => XcbMouseButton.Middle,
+            PointerMode.Right => XcbMouseButton.Right,
+            PointerMode.Middle => XcbMouseButton.Middle,
             _ => XcbMouseButton.Left
         };
 
@@ -104,13 +104,13 @@ public class XorgScreen : BaseScreen
             return;
 
 
-        if (hitData.modifier == PointerMode.Alt)
+        if (hitData.modifier == PointerMode.Middle)
         {
             // super fast scroll, 1 click per frame
         }
         else
         {
-            var millis = hitData.modifier == PointerMode.Shift ? 50 : 100;
+            var millis = hitData.modifier == PointerMode.Right ? 50 : 100;
             _nextScroll = DateTime.UtcNow.AddMilliseconds((1 - Mathf.Abs(value)) * millis);
         }
 
