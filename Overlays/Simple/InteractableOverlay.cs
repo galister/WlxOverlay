@@ -98,7 +98,7 @@ public abstract class InteractableOverlay : BaseOverlay
         return true;
     }
 
-    protected Transform3D CurvedSurfaceTransformFromUv(Vector2 localUv)
+    protected internal Transform3D CurvedSurfaceTransformFromUv(Vector2 localUv)
     {
         var ovrUv = InteractionTransform * localUv - new Vector2(0.5f, 0.5f);
         

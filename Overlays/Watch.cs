@@ -13,18 +13,27 @@ namespace X11Overlay.Overlays;
 public class Watch : InteractableOverlay
 {
     private static Watch? _instance;
-    
     private readonly Canvas _canvas;
-
-    private readonly Vector3 _localPosition = new(-0.05f, -0.05f, 0.15f);
-
     private readonly List<Control> _batteryControls = new();
+    
+    private float _flBrightness = 1f;
+
+    private readonly string _strPose;
+    private readonly Vector3 _vec3RelToHand = new (-0.05f, -0.05f, 0.15f);
+    private readonly Vector3 _vec3InsideUnit = Vector3.Right;
 
     public Watch(BaseOverlay keyboard, IList<BaseOverlay> screens) : base("Watch")
     {
         if (_instance != null)
             throw new InvalidOperationException("Can't have more than one Watch!");
         _instance = this;
+
+        _strPose = $"{Config.Instance.WatchHand}Hand";
+        if (Config.Instance.WatchHand == LeftRight.Right)
+        {
+            _vec3RelToHand.x *= -1;
+            _vec3InsideUnit.x *= -1;
+        }
         
         WidthInMeters = 0.115f;
         ShowHideBinding = false;
@@ -110,9 +119,20 @@ public class Watch : InteractableOverlay
         Canvas.CurrentBgColor = HexColor.FromRgb("#406050");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");
 
+        var kbPushedAt = DateTime.MinValue;
         _canvas.AddControl(new Button("Kbd", 2, 2, (uint)btnWidth - 4U, 36)
         {
-            PointerDown = keyboard.ToggleVisible
+            PointerDown = () =>
+            {
+                kbPushedAt = DateTime.UtcNow;
+            },
+            PointerUp = () =>
+            {
+                if ((DateTime.UtcNow - kbPushedAt).TotalSeconds > 2)
+                    keyboard.ResetPosition();
+                else
+                    keyboard.ToggleVisible();
+            }
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#405060");        
@@ -128,12 +148,13 @@ public class Watch : InteractableOverlay
                 PointerDown = () =>
                 {
                     pushedAt = DateTime.UtcNow;
-                    screen.ToggleVisible();
                 },
                 PointerUp = () =>
                 {
                     if ((DateTime.UtcNow - pushedAt).TotalSeconds > 2)
                         screen.ResetPosition();
+                    else
+                        screen.ToggleVisible();
                 }
             });
         }
@@ -183,9 +204,9 @@ public class Watch : InteractableOverlay
     {
         base.AfterInput(batteryStateUpdated);
         
-        var controller = InputManager.PoseState["LeftHand"];
-        var tgt = controller.TranslatedLocal(Vector3.Right).TranslatedLocal(_localPosition);
-        Transform = controller.TranslatedLocal(_localPosition).LookingAt(tgt.origin, -controller.basis.y);
+        var controller = InputManager.PoseState[_strPose];
+        var tgt = controller.TranslatedLocal(_vec3InsideUnit).TranslatedLocal(_vec3RelToHand);
+        Transform = controller.TranslatedLocal(_vec3RelToHand).LookingAt(tgt.origin, -controller.basis.y);
 
         UploadTransform();
 
@@ -226,5 +247,15 @@ public class Watch : InteractableOverlay
     {
         base.OnPointerLeft(hand);
         _canvas.OnPointerLeft(hand);
+    }
+
+    protected internal override void OnScroll(PointerHit hitData, float value)
+    {
+        base.OnScroll(hitData, value);
+
+        var lastColorMultiplier = _flBrightness;
+        _flBrightness = Mathf.Clamp(_flBrightness + Mathf.Pow(value, 3) * 0.25f, 0.1f, 1f);
+        if (Math.Abs(lastColorMultiplier - _flBrightness) > float.Epsilon)
+            OverlayManager.Instance.SetBrightness(_flBrightness);
     }
 }

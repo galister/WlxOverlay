@@ -24,7 +24,7 @@ IEnumerable<BaseOverlay> GetScreens()
     var numScreens = XScreenCapture.NumScreens();
     for (var s = 0; s < numScreens; s++)
     {
-        var screen = new XorgScreen(s) { WantVisible = s == 0 };
+        var screen = new XorgScreen(s) { WantVisible = s == Config.Instance.DefaultScreen };
         manager.RegisterChild(screen);
         yield return screen;
     }

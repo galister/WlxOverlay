@@ -24,7 +24,11 @@ public class LaserPointer : BaseOverlay
     private readonly string _myPose;
     
     private GrabbableOverlay? _grabbedTarget;
+    private Vector2 _grabbedUv;
+    
     private float _length;
+    
+    private static readonly float RotationOffset = Mathf.DegToRad(-90);
 
     private static readonly Vector3[] ModeColors = {
         HexColor.FromRgb("#006080"),
@@ -69,34 +73,6 @@ public class LaserPointer : BaseOverlay
         
         if (_showHideNow && !_showHideBefore)
             OverlayManager.Instance.ShowHide();
-    }
-    
-    private static readonly float RotationOffset = Mathf.DegToRad(-90);
-    private void RecalculateTransform()
-    {
-        _length = _lastHit?.distance ?? 25f;
-        var hmd = InputManager.HmdTransform;
-        
-        Transform = HandTransform
-            .TranslatedLocal(Vector3.Forward * (_length * 0.5f))
-            .RotatedLocal(Vector3.Right, RotationOffset);
-        
-        // scale to make it a laser
-        Transform = Transform.ScaledLocal(new Vector3(1, _length / WidthInMeters, 1));
-        
-        // billboard towards hmd
-        var viewDirection = hmd.origin - HandTransform.origin;
-
-        var x1 = HandTransform.basis.y.Dot(viewDirection);
-        var x2 = HandTransform.basis.x.Dot(viewDirection);
-
-        var pies = (x1 - 1) * -0.5f * Mathf.Pi;
-        if (x2 < 0)
-            pies *= -1;
-
-        Transform = Transform.RotatedLocal(Vector3.Up, pies);
-        
-        UploadTransform();
     }
 
     protected bool ClickNow;
@@ -152,7 +128,7 @@ public class LaserPointer : BaseOverlay
             Mode = PointerMode.Middle;
             return;
         }
-        
+
         var hmdUp = InputManager.HmdTransform.basis.y;
         var dot = hmdUp.Dot(HandTransform.basis.x) * (1 - 2 * (int)Hand);
         
@@ -163,10 +139,37 @@ public class LaserPointer : BaseOverlay
             _ => PointerMode.Left
         };
 
-        if (Mode == PointerMode.Middle && !Config.Instance.MiddleClickOrientation)
+        if (Mode == PointerMode.Middle && !GrabNow && !Config.Instance.MiddleClickOrientation)
             Mode = PointerMode.Left;
         else if (Mode == PointerMode.Right && !Config.Instance.RightClickOrientation)
             Mode = PointerMode.Left;
+    }
+    
+    private void RecalculateTransform()
+    {
+        _length = _lastHit?.distance ?? 25f;
+        var hmd = InputManager.HmdTransform;
+        
+        Transform = HandTransform
+            .TranslatedLocal(Vector3.Forward * (_length * 0.5f))
+            .RotatedLocal(Vector3.Right, RotationOffset);
+        
+        // scale to make it a laser
+        Transform = Transform.ScaledLocal(new Vector3(1, _length / WidthInMeters, 1));
+        
+        // billboard towards hmd
+        var viewDirection = hmd.origin - HandTransform.origin;
+
+        var x1 = HandTransform.basis.y.Dot(viewDirection);
+        var x2 = HandTransform.basis.x.Dot(viewDirection);
+
+        var pies = (x1 - 1) * -0.5f * Mathf.Pi;
+        if (x2 < 0)
+            pies *= -1;
+
+        Transform = Transform.RotatedLocal(Vector3.Up, pies);
+        
+        UploadTransform();
     }
 
     private readonly List<PointerHit> _pointerHits = new(OverlayManager.MaxInteractableOverlays);
@@ -258,6 +261,9 @@ public class LaserPointer : BaseOverlay
         }
         else 
             _grabbedTarget!.OnGrabHeld();
+
+        _lastHit!.point = _grabbedTarget.CurvedSurfaceTransformFromUv(_grabbedUv).origin;
+        _lastHit!.distance = (_lastHit.point - HandTransform.origin).Length();
     }
 
     internal void OnPrimaryLost(InteractableOverlay overlay)
@@ -271,6 +277,7 @@ public class LaserPointer : BaseOverlay
         if (GrabNow && !GrabBefore && hitData.overlay is GrabbableOverlay go)
         {
             go.OnGrabbed(hitData);
+            go.TryTransformToLocal(hitData.uv, out _grabbedUv);
             _grabbedTarget = go;
             return;
         }
@@ -291,6 +298,12 @@ public class LaserPointer : BaseOverlay
         RecalculateTransform();
         Color = ModeColors[(int)Mode];
         UploadColor();
+    }
+
+    public override void SetBrightness(float brightness)
+    {
+        Brightness = brightness;
+        // don't upload, since we'll do that later
     }
 }
 

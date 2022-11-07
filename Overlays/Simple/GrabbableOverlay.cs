@@ -58,7 +58,10 @@ public class GrabbableOverlay : InteractableOverlay
         _savedSpawnPosition = SpawnPosition;
         var globalRef = InputManager.HmdTransform.TranslatedLocal(SpawnPosition);
         Transform.origin = globalRef.origin;
+        WantVisible = true;
         OnOrientationChanged();
+        if (!Visible)
+            Show();
     }
 
     private Vector3 _grabOffset;

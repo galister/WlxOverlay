@@ -34,9 +34,14 @@ public class Config
     public string[]? RightPttDnCmd;
     public string[]? RightPttUpCmd;
 
-    public LeftRight PrimaryHand = LeftRight.Right;
+    public LeftRight PrimaryHand;
+    public LeftRight WatchHand;
     
     public bool RightClickOrientation;
     public bool MiddleClickOrientation;
-    
+
+    public float ClickFreezeTime;
+
+    public int DefaultScreen;
+
 }

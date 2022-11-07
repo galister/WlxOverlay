@@ -88,6 +88,12 @@ public class OverlayManager : Application
                 
         }
     }
+
+    public void SetBrightness(float f)
+    {
+        foreach (var o in _overlays)
+            o.SetBrightness(f);
+    }
     
     private DateTime _nextBatteryUpdate = DateTime.MinValue;
     
@@ -121,9 +127,11 @@ public class OverlayManager : Application
 
     public void WaitForEndOfFrame()
     {
-        OpenVR.System.GetTimeSinceLastVsync(ref _secondsSinceLastVsync, ref _frameCounter);
-        var wait = TimeSpan.FromSeconds(FrameTime - _secondsSinceLastVsync);
-        if (wait.Ticks > 0)
-            Thread.Sleep(wait);
+        if (OpenVR.System.GetTimeSinceLastVsync(ref _secondsSinceLastVsync, ref _frameCounter))
+        {
+            var wait = TimeSpan.FromSeconds(FrameTime - _secondsSinceLastVsync);
+            if (wait.Ticks > 0)
+                Thread.Sleep(wait);
+        }
     }
 }

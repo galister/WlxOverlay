@@ -2,6 +2,9 @@
 
 # the main configuration file for X11Overlay
 
+# which screen to show by default, along with the keyboard
+default_screen: 0
+
 # additional timezones to display, other than your local time. optional.
 alt_timezone1: Asia/Tokyo
 alt_timezone2: America/Chicago
@@ -47,6 +50,9 @@ right_ptt_up_cmd: [ "ptt", "B2_source", "off" ]
 # "Left" or "Right"
 primary_hand: Right
 
+# "Left" or "Right"
+watch_hand: Left
+
 # The color of the pointer can be set 2 ways:
 # - modifier bindings ("ClickModifierRight" and "ClickModifierMiddle")
 # - hand orientation
@@ -64,3 +70,7 @@ right_click_orientation: false
 
 # Use palm-upwards orientation for middle click mode
 middle_click_orientation: false
+
+# Seconds to freeze the cursor for after clicking.
+# Aims to help with double clicking.
+click_freeze_time: 0.3

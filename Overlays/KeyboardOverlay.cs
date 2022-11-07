@@ -4,7 +4,6 @@ using X11Overlay.Numerics;
 using X11Overlay.Overlays.Simple;
 using X11Overlay.Types;
 using X11Overlay.UI;
-using Action = System.Action;
 
 namespace X11Overlay.Overlays;
 
@@ -13,7 +12,6 @@ public class KeyboardOverlay : GrabbableOverlay
     private const uint ButtonPadding = 4;
     
     private static KeyboardOverlay? _instance;
-    private bool _hoveredThisFrame;
 
     private Canvas _canvas;
     
@@ -80,29 +78,26 @@ public class KeyboardOverlay : GrabbableOverlay
         _canvas.Render();
         
         base.Render();
-        
-        _hoveredThisFrame = false;
     }
 
     protected internal override void OnPointerDown(PointerHit hitData)
     {
-        base.OnPointerDown(hitData);
         var action = _canvas.OnPointerDown(hitData.uv, hitData.hand);
         hitData.pointer.ReleaseAction = action;
     }
 
     protected internal override void OnPointerHover(PointerHit hitData)
     {
-        if (!_hoveredThisFrame || hitData.pointer.Hand == Config.Instance.PrimaryHand)
+        if (hitData.pointer.Hand == Config.Instance.PrimaryHand
+            || PrimaryPointer == null)
+            EnsurePrimary(hitData.pointer);
+
+        if (KeyButton.Mode != (int)PrimaryPointer!.Mode)
         {
-            if (KeyButton.Mode != (int)hitData.modifier)
-            {
-                KeyButton.Mode = (int)hitData.modifier;
-                _canvas.MarkDirty();
-            }
+            KeyButton.Mode = (int)PrimaryPointer!.Mode;
+            _canvas.MarkDirty();
         }
-        
-        base.OnPointerHover(hitData);
+
         _canvas.OnPointerHover(hitData.uv, hitData.hand);
     }
 
@@ -110,5 +105,12 @@ public class KeyboardOverlay : GrabbableOverlay
     {
         base.OnPointerLeft(hand);
         _canvas.OnPointerLeft(hand);
+    }
+
+    protected internal override void AfterInput(bool batteryStateUpdated)
+    {
+        base.AfterInput(batteryStateUpdated);
+        
+        
     }
 }

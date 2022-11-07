@@ -21,6 +21,7 @@ public class BaseOverlay
     public bool WantVisible;
     public bool Visible { get; protected set; }
 
+    protected float Brightness = 1f;
     private bool _initialized;
     private bool _textureUploaded;
     private Overlay? _overlay;
@@ -86,7 +87,7 @@ public class BaseOverlay
             _overlay = new Overlay(Key, Key);
             if (Alpha < 1f)
                 UploadAlpha();
-            if (Color != Vector3.One)
+            if (Color != Vector3.One || Brightness < 1f - float.Epsilon)
                 UploadColor();
             if (Curvature != 0f)
                 UploadCurvature();
@@ -131,6 +132,13 @@ public class BaseOverlay
             UploadTexture();
     }
 
+    public virtual void SetBrightness(float brightness)
+    {
+        Brightness = brightness;
+        if (Handle != OpenVR.k_ulOverlayHandleInvalid)
+            UploadColor();
+    }
+
     protected void UploadAlpha()
     {
         if (_overlay == null)
@@ -169,7 +177,7 @@ public class BaseOverlay
 
     protected void UploadColor()
     {
-        var err = OpenVR.Overlay.SetOverlayColor(Handle, Color.x, Color.y, Color.z);
+        var err = OpenVR.Overlay.SetOverlayColor(Handle, Color.x * Brightness, Color.y * Brightness, Color.z * Brightness);
         if (err != EVROverlayError.None)
             Console.WriteLine($"[Err] SetOverlayColor {Color}: " + OpenVR.Overlay.GetOverlayErrorNameFromEnum(err));
     }

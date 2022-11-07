@@ -1,6 +1,3 @@
-# Work in Progress!
-This project is not ready for end users just yet. Feel free to tinker with it, however.
-
 # X11Overlay
 A lightweight X11 desktop overlay for OpenVR / SteamVR.
 
@@ -29,8 +26,8 @@ The following libraries are needed:
 - libxcb-randr.so
 - libxcb-shm.so
 - libxcb-xinerama.so
-- dotnet >= 6
-- [xshm-cap](https://github.com/galister/xshm-cap) (included as binary, feel free to build yourself)
+- dotnet >= 6 (if building from source)
+- [xshm-cap](https://github.com/galister/xshm-cap) (compiled .so is included, but you can also build it from source)
 
 On Arch Linux:
 ```
@@ -59,44 +56,82 @@ Default bindings are provided for Index Controllers. Some notes to create your o
 - `Click`: keyboard typing and clicking on the screen. set this to your triggers.
 - `Grip`: for moving overlays. 
   - Recommended: `Grip` input with pressure mode, pressure 70%. Release pressure 50%
-- `AltClick`: push-to-talk or arbitrary shell execute, optional. `config.yaml` to configure.
-- `Pose`: set this to the controller tip
+- `Pose`: set this to the controller tip. Nothing will work without this!
 - `Scroll`: set this to your joystick, and choose non-discrete mode
+- `ShowHide`: Show/hide the current set of overlays.
+  - Recommended: DoubleClick on B / Y on your non-dominant hand
+- `AltClick`: push-to-talk or arbitrary shell execute, optional. `config.yaml` to configure.
 - `ClickModifierRight`: bind this to a capacitive touch action, if able
 - `ClickModifierMiddle`: bind this also to a capacitive touch action
   - `ClickModifierRight` takes precedence, so this can be a button that you may accidentally touch while reaching for `ClickModifierRight`
 
 If you can't bind the modifiers due to lack of buttons, see the `config.yaml` for alternatives.
 
-# Pointer
+If you're left handed, set `primary_hand: Left` in `config.yaml`.
 
-The pointer changes mode depending on the orientation:
-- Blue - left click - thumb upwards
-- Yellow - right click - palm upwards
-- Purple - middle click - backhand upwards
-Up is relative to HMD up.
+If you do make a binding for a controller that's not yet supported, please save the file using "Show Developer Output" or "Export Binding to File" and make a pull request, because bindings on SteamVR Linux is a huge pain.
 
-# Grabbing
+# Quick-Start Guide
 
-Simply grab to move screens and the keyboard. Scroll and grab for extra effect, depends on the pointer mode:
+Ensure your bindings are set up as per above!
 
-- Blue pointer: move on the forward axis (close / far)
-- Yellow/Purple pointer: change size
-- Click while grabbed: Toggle curved screens
+## Pointer Modes
+There are 3 modes, indicated by the color of the laser:
+- Blue: left click
+- Orange: right click
+- Purple: middle click
+
+These are used extensively in many different ways, so make sure you are able to access these 3 modes.
+
+Clicking is always done by the `Click` binding, while the modified explained in SteamVR bindings change the click type.
+
+## Juggling overlays
+
+The screens and keyboard can be grabbed, moved and resized.
+
+#### To show/hide:
+- Use the `ShowHide` binding.
+
+This will show `default_screen` + keyboard by default, or your last visible configuration from the current session.
+
+#### To selectively show/hide:
+- Click the buttons on the bottom of the watch
+
+#### To reset screen/keyboard position:
+- Long click (>2s) the buttons on the bottom of the watch, then release
+
+#### To move left/right/up/down: 
+- Grab the overlay using the `Grip` binding.
+
+#### To move closer/further: 
+- Ensure blue pointer mode on the grabbing hand. (Thumb should face upwards)
+- Joystick forward/back while grabbing to move
+
+#### To resize: 
+- Grab the overlay
+- Rotate your grabbing hand palms-upwards to get a purple pointer
+- Joystick forward/back while grabbing to resize
+
+#### To set/unset screen curvature:
+- Click while the screen is being grabbed
 
 Due to a SteamVR limitation, curved screens are fixed upright.
 
-# Keyboard
+#### To change brightness of all overlays:
+- Hover your pointer over the watch
+- Joystick up/down to change brightness
 
-The default layout is my personal 60% layout, reflecting my real life setup. The layout can be changed via the keyboard.yaml file.
+## Keyboard
 
-The keyboard also has 3 modes. The keys will change color to indicate the active mode. 
+The default layout is my personal 60% layout, reflecting my real life setup. The layout can be changed via the `keyboard.yaml` file.
+
+The keyboard has 3 modes. The mode comes from the color of the pointer being pointed at the keyboard.
+
+If both pointers are on the keyboard, `primary_hand` takes precedence.
 
 - Blue - regular keyboard
 - Yellow - regular with shift
-- Purple - alternative layout
-
-The color of the pointer that has remained on the keyboard the longest will determine the color of the keyboard.
+- Purple - alternative (Fn) layout
 
 # Non-planned Features
 - Displaying individual windows (XComposite) as this does not work well when using workspaces (windows getting culled and display black)
@@ -104,7 +139,7 @@ The color of the pointer that has remained on the keyboard the longest will dete
 - Windows support
 
 # Known Issues
-- The project is still in work in progress. I will make a release when I feel comfortable that this is actually useful to people.
+- Overlay movement is somewhat choppy
 
 # Works Used
 - [FreeTypeSharp](https://github.com/ryancheung/FreeTypeSharp), MIT License

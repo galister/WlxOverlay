@@ -1,9 +1,7 @@
 using X11Overlay.Core;
 using X11Overlay.Numerics;
-using X11Overlay.Overlays.Simple;
-using X11Overlay.Screen.Interop;
 
-namespace X11Overlay.Overlays;
+namespace X11Overlay.Overlays.Simple;
 
 /// <summary>
 /// An overlay that displays a screen, moves the mouse and sends mouse events.

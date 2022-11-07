@@ -1,5 +1,7 @@
 using X11Overlay.Numerics;
+using X11Overlay.Overlays.Simple;
 using X11Overlay.Screen.Interop;
+using X11Overlay.Types;
 
 namespace X11Overlay.Overlays;
 
@@ -73,7 +75,7 @@ public class XorgScreen : BaseScreen
     protected internal override void OnPointerDown(PointerHit hitData)
     {
         base.OnPointerDown(hitData);
-        _freezeCursor = DateTime.UtcNow + TimeSpan.FromMilliseconds(200);
+        _freezeCursor = DateTime.UtcNow + TimeSpan.FromMilliseconds(Config.Instance.ClickFreezeTime);
         SendMouse(hitData, true);
     }
 
