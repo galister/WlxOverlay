@@ -67,10 +67,13 @@ public class LaserPointer : BaseOverlay
     {
         HandTransform = InputManager.PoseState[_myPose];
         EvaluateInput();
-        
+
         if (!ClickNow && ClickBefore)
+        {
             ReleaseAction?.Invoke();
-        
+            ReleaseAction = null;
+        }
+
         if (_showHideNow && !_showHideBefore)
             OverlayManager.Instance.ShowHide();
     }
