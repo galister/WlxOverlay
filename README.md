@@ -82,6 +82,9 @@ Simply grab to move screens and the keyboard. Scroll and grab for extra effect, 
 
 - Blue pointer: move on the forward axis (close / far)
 - Yellow/Purple pointer: change size
+- Click while grabbed: Toggle curved screens
+
+Due to a SteamVR limitation, curved screens are fixed upright.
 
 # Keyboard
 
