@@ -69,7 +69,7 @@ If you can't bind the modifiers due to lack of buttons, see the `config.yaml` fo
 
 If you're left handed, set `primary_hand: Left` in `config.yaml`.
 
-If you do make a binding for a controller that's not yet supported, please save the file using "Show Developer Output" or "Export Binding to File" and make a pull request, because bindings on SteamVR Linux is a huge pain.
+If you do end up making bindings for a controller type that's not yet supported, please save the file using "Show Developer Output" or "Export Bindings to File" and make a pull request. Bindings on SteamVR Linux are a huge pain, let's save each other the hassle.
 
 # Quick-Start Guide
 
@@ -133,10 +133,16 @@ If both pointers are on the keyboard, `primary_hand` takes precedence.
 - Yellow - regular with shift
 - Purple - alternative (Fn) layout
 
+If you do end up making a layout, please submit it with a pull request, in order to so save others the trouble.
+
 # Non-planned Features
 - Displaying individual windows (XComposite) as this does not work well when using workspaces (windows getting culled and display black)
 - Wayland support (at least until SteamVR runs reliably on Wayland)
 - Windows support
+
+# Known Issues
+- Dragging curved displays very close may make them disappear. Long click the toggle on the watch to force respawn.
+- App will not start with "invalid keyboard layout" if the keys in the config are dead on your layout. This can happen if you use a non-US layout for your physical keyboard. Workaround is to `setxkbmap us` before you start the app, or change the keyboard.yaml to reflect your local layout. (You may revert `setxkbmap` after launching the app.)
 
 # Works Used
 - [FreeTypeSharp](https://github.com/ryancheung/FreeTypeSharp), MIT License
