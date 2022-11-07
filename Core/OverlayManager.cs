@@ -15,9 +15,8 @@ public class OverlayManager : Application
     {
         return Instance = new OverlayManager();
     }
-    
-    public readonly float DisplayFrequency;
-    public readonly float FrameTime;
+
+    private readonly float _frameTime;
     
     private readonly List<BaseOverlay> _overlays = new();
     private readonly List<InteractableOverlay> _interactables = new();
@@ -49,11 +48,11 @@ public class OverlayManager : Application
         Console.WriteLine("IVRCompositor: pass");
 
         var err = new ETrackedPropertyError();
-        DisplayFrequency = OpenVR.System.GetFloatTrackedDeviceProperty(OpenVR.k_unTrackedDeviceIndex_Hmd,
+        var displayFrequency = OpenVR.System.GetFloatTrackedDeviceProperty(OpenVR.k_unTrackedDeviceIndex_Hmd,
             ETrackedDeviceProperty.Prop_DisplayFrequency_Float, ref err);
-        FrameTime = Mathf.Floor(1000f / DisplayFrequency) * 0.001f;
+        _frameTime = Mathf.Floor(1000f / displayFrequency) * 0.001f;
 
-        Console.WriteLine($"HMD running @ {DisplayFrequency} Hz");
+        Console.WriteLine($"HMD running @ {displayFrequency} Hz");
 
         InputManager.Initialize();
     }
@@ -129,7 +128,7 @@ public class OverlayManager : Application
     {
         if (OpenVR.System.GetTimeSinceLastVsync(ref _secondsSinceLastVsync, ref _frameCounter))
         {
-            var wait = TimeSpan.FromSeconds(FrameTime - _secondsSinceLastVsync);
+            var wait = TimeSpan.FromSeconds(_frameTime - _secondsSinceLastVsync);
             if (wait.Ticks > 0)
                 Thread.Sleep(wait);
         }

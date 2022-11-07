@@ -30,9 +30,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         options.Size = new Vector2D<int>(800, 600);
         options.Title = "X11Overlay";
         options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Default, new APIVersion(4, 5));
-        options.FramesPerSecond = OverlayManager.Instance.DisplayFrequency;
-        options.UpdatesPerSecond = options.FramesPerSecond;
-        options.IsEventDriven = false;
+        options.VSync = false;
 
         GlfwWindowing.Use();
         

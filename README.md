@@ -138,9 +138,6 @@ If both pointers are on the keyboard, `primary_hand` takes precedence.
 - Wayland support (at least until SteamVR runs reliably on Wayland)
 - Windows support
 
-# Known Issues
-- Overlay movement is somewhat choppy
-
 # Works Used
 - [FreeTypeSharp](https://github.com/ryancheung/FreeTypeSharp), MIT License
 - [Godot Engine](https://github.com/godotengine/godot), MIT License
