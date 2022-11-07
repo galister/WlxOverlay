@@ -31,6 +31,8 @@ public class KeyButton : ButtonBase
     
     private readonly Action?[] _pressActions = new Action[3];
     private readonly Action?[] _releaseActions = new Action[3];
+
+    private readonly int[] _myKeyCodes = new int[3];
     
     public KeyButton(uint row, uint col, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
@@ -50,7 +52,7 @@ public class KeyButton : ButtonBase
             for (var i = 0; i < labelTexts.Length; i++)
                 _labelTexts[ModeNormal, i] = labelTexts[i];
 
-            (_pressActions[ModeNormal], _releaseActions[ModeNormal]) = GetActionsForKey(key, false);
+            SetActionsForKey(key, ModeNormal);
 
             if (layout.UseShiftLayout)
             {
@@ -58,7 +60,7 @@ public class KeyButton : ButtonBase
                 for (var i = 0; i < labelTexts.Length; i++)
                     _labelTexts[ModeShift, i] = labelTexts[i];
 
-                (_pressActions[ModeShift], _releaseActions[ModeShift]) = GetActionsForKey(key, true);
+                SetActionsForKey(key, ModeShift);
             }
         }
 
@@ -74,35 +76,42 @@ public class KeyButton : ButtonBase
                 for (var i = 0; i < labelTexts.Length; i++)
                     _labelTexts[ModeAlt, i] = labelTexts[i];
 
-                (_pressActions[ModeAlt], _releaseActions[ModeAlt]) = GetActionsForKey(key, true);
+                SetActionsForKey(key, ModeAlt);
             }
         }
     }
 
-    private (Action? press, Action? release) GetActionsForKey(string? key, bool shift)
+    private void SetActionsForKey(string? key, int mode)
     {
         if (key == null)
-            return (null, null);
+            return;
 
         if (KeyboardLayout.Instance.Keycodes.TryGetValue(key, out var keyCode))
         {
             if (KeyboardLayout.Instance.Modifiers.Contains(keyCode))
-                return (() => OnModifierPressed(keyCode), () => OnModifierReleased(keyCode));
-            return (() => OnKeyPressed(keyCode, shift), () => OnKeyReleased(keyCode, shift));
+            {
+                _myKeyCodes[mode] = keyCode;
+                _pressActions[mode] = () => OnModifierPressed(keyCode);
+                _releaseActions[mode] = () => OnModifierReleased(keyCode);
+            }
+            else
+            {
+                _pressActions[mode] = () => OnKeyPressed(keyCode, mode == ModeShift);
+                _releaseActions[mode] = () => OnKeyReleased(keyCode, mode == ModeShift);
+            }
         }
-        if (KeyboardLayout.Instance.Macros.TryGetValue(key, out var macro))
+        else if (KeyboardLayout.Instance.Macros.TryGetValue(key, out var macro))
         {
             var events = KeyboardLayout.Instance.KeyEventsFromMacro(macro);
-            return (() => events.ForEach(e => XScreenCapture.SendKey(e.key, e.down)), null);
+            _pressActions[mode] = () => events.ForEach(e => XScreenCapture.SendKey(e.key, e.down));
         }
 
-        if (KeyboardLayout.Instance.ExecCommands.TryGetValue(key, out var argv))
+        else if (KeyboardLayout.Instance.ExecCommands.TryGetValue(key, out var argv))
         {
             var psi = Runner.StartInfoFromArgs(argv);
-            return (psi != null ? () => Runner.TryStart(psi) : null, null);
+            if (psi != null)
+                _pressActions[mode] = () => Runner.TryStart(psi);
         }
-        Console.WriteLine($"[Err] No action found for key: {key}");
-        return (null, null);
     }
 
     public override void OnPointerDown()
@@ -121,6 +130,27 @@ public class KeyButton : ButtonBase
     {
         base.SetCanvas(canvas);
         _label2.SetCanvas(canvas);
+    }
+
+    public override void Update()
+    {
+        base.Update();
+        if (Modifiers.Contains(_myKeyCodes[Mode]))
+        {
+            if (!IsClicked)
+            {
+                IsClicked = true;
+                Canvas!.MarkDirty();
+            }
+        }
+        else
+        {
+            if (IsClicked)
+            {
+                IsClicked = false;
+                Canvas!.MarkDirty();
+            }
+        }
     }
 
     public override void Render()
@@ -173,10 +203,14 @@ public class KeyButton : ButtonBase
     private void OnModifierReleased(int keycode)
     {
         XScreenCapture.SendKey(keycode, false);
-            
+
         if (Modifiers.Contains(keycode))
+        {
             Modifiers.Remove(keycode);
+        }
         else
+        {
             Modifiers.Add(keycode);
+        }
     }
 }
