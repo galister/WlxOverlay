@@ -75,7 +75,7 @@ public class XorgScreen : BaseScreen
     protected internal override void OnPointerDown(PointerHit hitData)
     {
         base.OnPointerDown(hitData);
-        _freezeCursor = DateTime.UtcNow + TimeSpan.FromMilliseconds(Config.Instance.ClickFreezeTime);
+        _freezeCursor = DateTime.UtcNow + TimeSpan.FromSeconds(Config.Instance.ClickFreezeTime);
         SendMouse(hitData, true);
     }
 
