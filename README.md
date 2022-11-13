@@ -26,12 +26,12 @@ The following libraries are needed:
 - libxcb-randr.so
 - libxcb-shm.so
 - libxcb-xinerama.so
-- dotnet >= 6 (if building from source)
+- dotnet 6.0 (if building from source)
 - [xshm-cap](https://github.com/galister/xshm-cap) (compiled .so is included, but you can also build it from source)
 
 On Arch Linux:
 ```
-pacman -S libx11 libxcb libxtst dotnet
+pacman -S libx11 libxcb libxtst dotnet-sdk-6.0
 ```
 
 # How to Build
