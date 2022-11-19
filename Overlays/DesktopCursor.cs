@@ -11,8 +11,8 @@ namespace X11Overlay.Overlays;
 public class DesktopCursor : BaseOverlay
 {
     public static DesktopCursor Instance = null!;
-    private bool _visibleThisFrame;
-    
+    public bool VisibleThisFrame { get; private set; }
+
     public DesktopCursor() : base("Cursor")
     {
         if (Instance != null)
@@ -40,7 +40,7 @@ public class DesktopCursor : BaseOverlay
     public void MoveTo(Transform3D moveToTransform)
     {
         Transform = moveToTransform;
-        _visibleThisFrame = true;
+        VisibleThisFrame = true;
         
         if (!Visible)
         {
@@ -51,10 +51,10 @@ public class DesktopCursor : BaseOverlay
 
     protected internal override void Render()
     {
-        if (!_visibleThisFrame)
+        if (!VisibleThisFrame)
         {
             Hide();
         }
-        _visibleThisFrame = false;
+        VisibleThisFrame = false;
     }
 }

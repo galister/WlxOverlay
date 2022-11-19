@@ -60,20 +60,19 @@ public class XorgScreen : BaseScreen
 
         base.Render();
     }
-    
+
     protected internal override void OnPointerHover(PointerHit hitData)
     {
         base.OnPointerHover(hitData);
-        if (PrimaryPointer == hitData.pointer && _freezeCursor < DateTime.UtcNow)
-        {
-            var adjustedUv = hitData.uv;
-            adjustedUv.y = 1 - adjustedUv.y;
-            _capture?.MoveMouse(adjustedUv);
-        }
+        if (PrimaryPointer == hitData.pointer && !DesktopCursor.Instance.VisibleThisFrame && _freezeCursor < DateTime.UtcNow)
+            MoveMouse(hitData);
     }
 
     protected internal override void OnPointerDown(PointerHit hitData)
     {
+        if (PrimaryPointer != hitData.pointer)
+            MoveMouse(hitData);
+        
         base.OnPointerDown(hitData);
         _freezeCursor = DateTime.UtcNow + TimeSpan.FromSeconds(Config.Instance.ClickFreezeTime);
         SendMouse(hitData, true);
@@ -95,6 +94,13 @@ public class XorgScreen : BaseScreen
         };
 
         _capture?.SendMouse(hitData.uv, click, pressed);
+    }
+
+    private void MoveMouse(PointerHit hitData)
+    {
+        var adjustedUv = hitData.uv;
+        adjustedUv.y = 1 - adjustedUv.y;
+        _capture?.MoveMouse(adjustedUv);
     }
 
     private DateTime _nextScroll = DateTime.MinValue;

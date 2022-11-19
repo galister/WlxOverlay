@@ -11,13 +11,24 @@ var manager = OverlayManager.Initialize();
 
 manager.RegisterChild(new DesktopCursor());
 
-manager.RegisterChild(Config.Instance.LeftUsePtt
+var leftPointer = Config.Instance.LeftUsePtt
     ? new LaserPointerWithPushToTalk(LeftRight.Left)
-    : new LaserPointer(LeftRight.Left));
+    : new LaserPointer(LeftRight.Left);
 
-manager.RegisterChild(Config.Instance.RightUsePtt
+var rightPointer = Config.Instance.RightUsePtt
     ? new LaserPointerWithPushToTalk(LeftRight.Right)
-    : new LaserPointer(LeftRight.Right));
+    : new LaserPointer(LeftRight.Right);
+
+if (Config.Instance.PrimaryHand == LeftRight.Left)
+{
+    manager.RegisterChild(leftPointer);
+    manager.RegisterChild(rightPointer);
+}
+else
+{
+    manager.RegisterChild(rightPointer);
+    manager.RegisterChild(leftPointer);
+}
 
 IEnumerable<BaseOverlay> GetScreens()
 {
