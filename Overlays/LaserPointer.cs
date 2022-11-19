@@ -113,7 +113,7 @@ public class LaserPointer : BaseOverlay
         
         ClickModifierMiddle = InputManager.BooleanState["ClickModifierMiddle"][(int)Hand];
         
-        Scroll = InputManager.Vector2State["Scroll"][(int)Hand].y;
+        Scroll = InputManager.Vector3State["Scroll"][(int)Hand].y;
         
         RecalculateModifier();
     }

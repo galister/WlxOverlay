@@ -1,12 +1,14 @@
 using System.Runtime.InteropServices;
+using System.Text;
 using Newtonsoft.Json;
 using Valve.VR;
 using X11Overlay.Numerics;
+using X11Overlay.Overlays;
 using X11Overlay.Types;
 
 namespace X11Overlay.Core;
 
-public class InputManager
+public class InputManager : IDisposable
 {
     internal static InputManager Instance = null!;
     
@@ -14,7 +16,7 @@ public class InputManager
     private ulong _actionSetHandle;
     
     public static readonly Dictionary<string, bool[]> BooleanState = new();
-    public static readonly Dictionary<string, Vector2[]> Vector2State = new();
+    public static readonly Dictionary<string, Vector3[]> Vector3State = new();
     public static readonly Dictionary<string, Transform3D> PoseState = new();
     public static readonly List<BatteryStatus> BatteryStates = new();
 
@@ -37,7 +39,9 @@ public class InputManager
     
     private VRActiveActionSet_t[]? _activeActionSets;
     private readonly uint _activeActionSetsSize;
-    
+
+    private readonly Dictionary<(LeftRight hand, string action), FileStream> _exportFiles = new();
+
     private InputManager()
     {
         _digitalActionDataSize = (uint)Marshal.SizeOf(typeof(InputDigitalActionData_t));
@@ -63,6 +67,7 @@ public class InputManager
         Console.WriteLine("IVRInput: pass");
 
         Instance.LoadActionSets();
+        Instance.InitExportFileHandles();
     }
 
     private void LoadActionSets()
@@ -91,15 +96,22 @@ public class InputManager
             var inputAction = new OpenVrInputAction(action.name!, stringToActionType[action.type!]);
             inputAction.Initialize();
 
-            if (inputAction.Type == OpenVrInputActionType.Boolean)
-                BooleanState[inputAction.Name] = new[] { false, false };
+            switch (inputAction.Type)
+            {
+                case OpenVrInputActionType.Boolean:
+                    BooleanState[inputAction.Name] = new[] { false, false };
+                    break;
+                case OpenVrInputActionType.Pose:
+                    PoseState[inputAction.Name] = Transform3D.Identity;
+                    break;
+                case OpenVrInputActionType.Single:
+                case OpenVrInputActionType.Vector1:
+                case OpenVrInputActionType.Vector2:
+                case OpenVrInputActionType.Vector3:
+                    Vector3State[inputAction.Name] = new[] { Vector3.Zero, Vector3.Zero };
+                    break;
+            }
 
-            if (inputAction.Type == OpenVrInputActionType.Vector2)
-                Vector2State[inputAction.Name] = new[] { Vector2.Zero, Vector2.Zero };
-            
-            if (inputAction.Type == OpenVrInputActionType.Pose)
-                PoseState[inputAction.Name] = Transform3D.Identity;
-            
             _inputActions.Add(inputAction);
         }
         Console.WriteLine($"Loaded {_inputActions.Count} input actions for {_actionSet}");
@@ -137,6 +149,31 @@ public class InputManager
         }
     }
 
+    private void InitExportFileHandles()
+    {
+        foreach (var (key, path) in Config.Instance.ExportInputs)
+        {
+            var splat = key.Split('.', 2);
+
+            if (_inputActions.All(x => x.Name != splat[1]))
+            {
+                Console.WriteLine($"Could not use export_inputs entry @ '{key}': No action '{splat[1]}' found.");
+                continue;
+            }
+            
+            try
+            {
+                var leftRight = Enum.Parse<LeftRight>(splat[0]);
+                var file = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+                _exportFiles[(leftRight, splat[1])] = file;
+            }
+            catch (Exception x)
+            {
+                Console.WriteLine($"Could not use export_inputs entry @ '{key}': {x.Message}");
+            }
+        }
+    }
+
     public void UpdateInput()
     {
         var cErr = OpenVR.Compositor.GetLastPoses(_poses, _gamePoses);
@@ -156,7 +193,7 @@ public class InputManager
             Console.WriteLine($"UpdateActionState {_actionSet}: {err}");
             return;
         }
-        
+
         foreach (var inputAction in _inputActions)
         {
             if (inputAction.Type == OpenVrInputActionType.Pose)
@@ -180,30 +217,50 @@ public class InputManager
                 switch (inputAction.Type)
                 {
                     case OpenVrInputActionType.Boolean:
-
+                        bool bVal;
                         err = OpenVR.Input.GetDigitalActionData(inputAction.Handle, ref _digitalActionData, _digitalActionDataSize, _inputSourceHandles[s]);
                         if (err != EVRInputError.None)
                         {
                             Console.WriteLine($"GetDigitalActionData {inputAction.Path} on {_inputSources[s]}: {err}");
-                            BooleanState[inputAction.Name][s] = false;
+                            bVal = false;
                         }
                         else
-                            BooleanState[inputAction.Name][s] = _digitalActionData.bActive && _digitalActionData.bState;
+                            bVal = _digitalActionData.bActive && _digitalActionData.bState;
+
+                        BooleanState[inputAction.Name][s] = bVal;
+                        TryExportInput(inputAction.Name, (LeftRight)s, bVal ? "1" : "0");
                         break;
                     
+                    case OpenVrInputActionType.Single:
+                    case OpenVrInputActionType.Vector1:
                     case OpenVrInputActionType.Vector2:
+                    case OpenVrInputActionType.Vector3:
+                        Vector3 v3Val;
                         err = OpenVR.Input.GetAnalogActionData(inputAction.Handle, ref _analogActionData, _analogActionDataSize, _inputSourceHandles[s]);
                         if (err != EVRInputError.None)
                         {
                             Console.WriteLine($"GetAnalogActionData {inputAction.Path} on {_inputSources[s]}: {err}");
-                            Vector2State[inputAction.Name][s] = Vector2.Zero;
+                            v3Val = Vector3.Zero;
                         }
                         else
-                            Vector2State[inputAction.Name][s] = _digitalActionData.bActive ? new Vector2(_analogActionData.x, _analogActionData.y) : Vector2.Zero;
+                            v3Val = _digitalActionData.bActive ? new Vector3(_analogActionData.x, _analogActionData.y, _analogActionData.z) : Vector3.Zero;
+                        
+                        Vector3State[inputAction.Name][s] = v3Val;
+                        TryExportInput(inputAction.Name, (LeftRight)s, $"{v3Val.x:F6}\n{v3Val.y:F6}\n{v3Val.z:F6}");
                         break;
                 }
             }
         }
+    }
+
+    private void TryExportInput(string action, LeftRight hand, string value)
+    {
+        if (!_exportFiles.TryGetValue((hand, action), out var file))
+            return;
+
+        file.Seek(0, SeekOrigin.Begin);
+        file.Write(Encoding.UTF8.GetBytes(value));
+        file.Flush();
     }
 
     private readonly uint[] _deviceIds = new uint[OpenVR.k_unMaxTrackedDeviceCount];
@@ -265,6 +322,12 @@ public class InputManager
         }
         return false;
     }
+
+    public void Dispose()
+    {
+        foreach (var (_, file) in _exportFiles)
+            file.Dispose();
+    }
 }
 
 public class OpenVrInputAction
@@ -299,6 +362,9 @@ public struct BatteryStatus
 public enum OpenVrInputActionType
 {
     Boolean,
+    Single,
+    Vector1,
     Vector2,
+    Vector3,
     Pose
 }

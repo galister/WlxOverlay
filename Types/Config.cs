@@ -44,4 +44,5 @@ public class Config
 
     public int DefaultScreen;
 
+    public Dictionary<string, string> ExportInputs;
 }

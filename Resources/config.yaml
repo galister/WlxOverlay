@@ -74,3 +74,10 @@ middle_click_orientation: false
 # Seconds to freeze the cursor for after clicking.
 # Aims to help with double clicking.
 click_freeze_time: 0.3
+
+# Expose OpenVR input data to external applications
+# Key is: "{Left|Right}.{ActionName}", action name is case sensitive input name defined in actions.json
+# Value is a file that will be written with the value on every frame (recommend tmpfs)
+# Types of Single, Vector1, Vector2 and Vector3 are all exported as Vector3, with the missing values set to 0.
+# export_inputs:
+#   Right.Scroll: /dev/shm/x11overlay_scroll_r
