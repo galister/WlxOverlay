@@ -23,8 +23,8 @@ left_ptt_up_cmd: [ "pactl", "set-source-mute", "@DEFAULT_SOURCE@", "1" ]
 # enable push-to-talk (or other arbitrary command) on the right hand 
 # activates on right hand AltClick. use ~ (null) for no action
 right_use_ptt: false
-right_ptt_dn_cmd: [ "ptt", "B2_source", "on" ]
-right_ptt_up_cmd: [ "ptt", "B2_source", "off" ]
+right_ptt_dn_cmd: [ "ptt", "B2_source", "off" ]
+right_ptt_up_cmd: [ "ptt", "B2_source", "on" ]
 
 # ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 # Pointer modes
@@ -79,5 +79,5 @@ click_freeze_time: 0.3
 # Key is: "{Left|Right}.{ActionName}", action name is case sensitive input name defined in actions.json
 # Value is a file that will be written with the value on every frame (recommend tmpfs)
 # Types of Single, Vector1, Vector2 and Vector3 are all exported as Vector3, with the missing values set to 0.
-# export_inputs:
-#   Right.Scroll: /dev/shm/x11overlay_scroll_r
+export_inputs: []
+#  Right.Scroll: /dev/shm/x11overlay_scroll_r

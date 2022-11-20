@@ -10,6 +10,8 @@ public class XorgScreen : BaseScreen
     private XScreenCapture? _capture;
     private DateTime _freezeCursor = DateTime.MinValue;
     
+    private static bool _mouseMoved;
+    
     public XorgScreen(int screen) : base(screen)
     {
     }
@@ -59,12 +61,14 @@ public class XorgScreen : BaseScreen
         }
 
         base.Render();
+
+        _mouseMoved = false;
     }
 
     protected internal override void OnPointerHover(PointerHit hitData)
     {
         base.OnPointerHover(hitData);
-        if (PrimaryPointer == hitData.pointer && !DesktopCursor.Instance.VisibleThisFrame && _freezeCursor < DateTime.UtcNow)
+        if (PrimaryPointer == hitData.pointer && !_mouseMoved && _freezeCursor < DateTime.UtcNow)
             MoveMouse(hitData);
     }
 
@@ -101,6 +105,7 @@ public class XorgScreen : BaseScreen
         var adjustedUv = hitData.uv;
         adjustedUv.y = 1 - adjustedUv.y;
         _capture?.MoveMouse(adjustedUv);
+        _mouseMoved = true;
     }
 
     private DateTime _nextScroll = DateTime.MinValue;
