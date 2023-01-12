@@ -16,6 +16,8 @@ Features:
   - Volume rocker
   - Toggles for screens / keyboard
 
+![Image](https://github.com/galister/X11Overlay/blob/github/screenshot.jpeg?raw=true)
+
 # Getting Started
 
 [Check out the Wiki here!](https://github.com/galister/X11Overlay/wiki/Getting-Started)
