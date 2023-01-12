@@ -24,7 +24,7 @@ Features:
 
 # Non-planned Features
 - Displaying individual windows (XComposite) as this does not work well when using workspaces (windows getting culled and display black)
-- Wayland support (at least until SteamVR runs reliably on Wayland)
+- Wayland support (until the nvidia situation is sorted out)
 - Windows support
 
 # Known Issues
