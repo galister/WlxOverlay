@@ -39,9 +39,6 @@
       <None Remove="Resources\actions.json" />
       <None Remove="Resources\binding_knuckles.json" />
       <None Remove="libsteam_api.so" />
-      <Content Include="libsteam_api.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Resources\arrow.png" />
       <Content Include="libxshm_cap.so">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
