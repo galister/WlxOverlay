@@ -1,19 +1,19 @@
 # X11Overlay
-A lightweight X11 desktop overlay for OpenVR / SteamVR.
+A lightweight X11 desktop overlay for OpenVR / SteamVR, inspired by XSOverlay.
 
-Primarily made this because I couldn't find a proper overlay for Linux.
+Primarily made this because I couldn't find a proper desktop overlay for Linux.
 
 A reimplementation of [OVR4X11](https://github.com/galister/OVR4X11) using a lighter toolkit.
 
 Features:
 - Access your screens from within OpenVR / SteamVR
-- Mouse pointer that supports left/right/middle click, depending on hand orientation
+- Mouse pointer that supports left/right/middle click
 - Customizable keyboard with 2-hand typing
 - Notifications system (WIP)
 - Watch panel that shows:
   - Local time + 2 customizable time zones
-  - Battery states of controllers + all connected trackers (might get cramped with a lot of trackers, though)
-  - Volume rocker
+  - Battery states of SteamVR controllers + all connected trackers 
+  - Volume rocker (customizable)
   - Toggles for screens / keyboard
 
 ![Image](https://github.com/galister/X11Overlay/blob/github/screenshot.jpeg?raw=true)
