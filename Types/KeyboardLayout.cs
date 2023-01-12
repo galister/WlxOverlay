@@ -16,9 +16,17 @@ public class KeyboardLayout
     
     public static bool Load()
     {
-        var yaml = File.ReadAllText("Resources/keyboard.yaml");
-        Instance = Config.YamlDeserializer.Deserialize<KeyboardLayout>(yaml);
-        return Instance.LoadAndCheckConfig();
+        try
+        {
+            var yaml = File.ReadAllText("Resources/keyboard.yaml");
+            Instance = Config.YamlDeserializer.Deserialize<KeyboardLayout>(yaml);
+            return Instance.LoadAndCheckConfig();
+        }
+        catch
+        {
+            Console.WriteLine("FATAL: Could not load Resources/keyboard.yaml");
+            throw;
+        }
     }
     
     public string Name;

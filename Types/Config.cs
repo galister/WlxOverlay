@@ -16,8 +16,16 @@ public class Config
     
     public static void Load()
     {
-        var yaml = File.ReadAllText("Resources/config.yaml");
-        Instance = YamlDeserializer.Deserialize<Config>(yaml);
+        try
+        {
+            var yaml = File.ReadAllText("Resources/config.yaml");
+            Instance = YamlDeserializer.Deserialize<Config>(yaml);
+        }
+        catch
+        {
+            Console.WriteLine("FATAL: Could not load Resources/config.yaml");
+            throw;
+        }
     }
 
     public string[]? VolumeUpCmd;

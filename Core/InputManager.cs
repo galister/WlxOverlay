@@ -154,26 +154,33 @@ public class InputManager : IDisposable
 
     private void InitExportFileHandles()
     {
-        foreach (var (key, path) in Config.Instance.ExportInputs)
+        try
         {
-            var splat = key.Split('.', 2);
+            foreach (var (key, path) in Config.Instance.ExportInputs)
+            {
+                var splat = key.Split('.', 2);
 
-            if (_inputActions.All(x => x.Name != splat[1]))
-            {
-                Console.WriteLine($"Could not use export_inputs entry @ '{key}': No action '{splat[1]}' found.");
-                continue;
+                if (_inputActions.All(x => x.Name != splat[1]))
+                {
+                    Console.WriteLine($"Could not use export_inputs entry @ '{key}': No action '{splat[1]}' found.");
+                    continue;
+                }
+
+                try
+                {
+                    var leftRight = Enum.Parse<LeftRight>(splat[0]);
+                    var file = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
+                    _exportFiles[(leftRight, splat[1])] = file;
+                }
+                catch (Exception x)
+                {
+                    Console.WriteLine($"Could not use export_inputs entry @ '{key}': {x.Message}");
+                }
             }
-            
-            try
-            {
-                var leftRight = Enum.Parse<LeftRight>(splat[0]);
-                var file = File.Open(path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.Read);
-                _exportFiles[(leftRight, splat[1])] = file;
-            }
-            catch (Exception x)
-            {
-                Console.WriteLine($"Could not use export_inputs entry @ '{key}': {x.Message}");
-            }
+        }
+        catch
+        {
+            Console.WriteLine("export_inputs will not be used.");
         }
     }
 
