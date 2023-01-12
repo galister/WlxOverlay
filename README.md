@@ -7,6 +7,7 @@ A reimplementation of [OVR4X11](https://github.com/galister/OVR4X11) using a lig
 
 Features:
 - Access your screens from within OpenVR / SteamVR
+- Works with a huge variety of setups, including tiling window managers.
 - Mouse pointer that supports left/right/middle click
 - Customizable keyboard with 2-hand typing
 - Notifications system (WIP)
