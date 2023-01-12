@@ -94,22 +94,22 @@ public class OverlayManager : Application
             o.SetBrightness(f);
     }
     
-    private DateTime _nextBatteryUpdate = DateTime.MinValue;
+    private DateTime _nextDeviceUpdate = DateTime.MinValue;
     
     public void Update()
     {
         InputManager.Instance.UpdateInput();
-        var batterStateUpdated = false;
+        var deviceStateUpdated = false;
         
-        if (_nextBatteryUpdate < DateTime.UtcNow)
+        if (_nextDeviceUpdate < DateTime.UtcNow)
         {
-            InputManager.Instance.UpdateBatteryStates();
-            _nextBatteryUpdate = DateTime.UtcNow.AddSeconds(10);
-            batterStateUpdated = true;
+            InputManager.Instance.UpdateDeviceStates();
+            _nextDeviceUpdate = DateTime.UtcNow.AddSeconds(5);
+            deviceStateUpdated = true;
         }
         
         foreach (var o in _overlays) 
-            o.AfterInput(batterStateUpdated);
+            o.AfterInput(deviceStateUpdated);
 
         foreach (var pointer in _pointers)
             pointer.TestInteractions(_interactables.Where(o => o.Visible));

@@ -168,7 +168,7 @@ public class Watch : InteractableOverlay
             _canvas.RemoveControl(c);
         _batteryControls.Clear();
         
-        var numStates = InputManager.BatteryStates.Count;
+        var numStates = InputManager.DeviceStates.Count;
 
         if (numStates > 0)
         {
@@ -176,8 +176,11 @@ public class Watch : InteractableOverlay
 
             for (var s = 0; s < numStates; s++)
             {
-                var state = InputManager.BatteryStates[s];
-                var indicator = new BatteryIndicator(state, stateWidth * s + 2, 162, (uint)stateWidth - 4U, 36);
+                var device = InputManager.DeviceStatesSorted[s];
+                if (device.SoC < 0)
+                    continue;
+                
+                var indicator = new BatteryIndicator(device, stateWidth * s + 2, 162, (uint)stateWidth - 4U, 36);
                 _canvas.AddControl(indicator);
                 _batteryControls.Add(indicator);
             }

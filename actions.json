@@ -38,12 +38,12 @@
     {
       "name": "/actions/default/in/LeftHand",
       "type": "pose",
-      "requirement": "mandatory"
+      "requirement": "optional"
     },
     {
       "name": "/actions/default/in/RightHand",
       "type": "pose",
-      "requirement": "mandatory"
+      "requirement": "optional"
     }
   ],
   "action_sets": [
@@ -56,6 +56,10 @@
     {
       "controller_type": "knuckles",
       "binding_url": "actions_binding_knuckles.json"
+    },
+    {
+      "controller_type": "oculus_touch",
+      "binding_url": "actions_binding_oculus.json"
     }
   ],
   "localization": []

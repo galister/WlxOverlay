@@ -14,7 +14,7 @@ public class BatteryIndicator : Panel
     private readonly Label _label;
     private readonly Panel _bg2;
     
-    public BatteryIndicator(BatteryStatus status, int x, int y, uint w, uint h) : base(x, y, w, h)
+    public BatteryIndicator(TrackedDevice status, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
         if (status.Charging)
             BgColor = BgColorCharging;
@@ -34,7 +34,7 @@ public class BatteryIndicator : Panel
         _label.SetCanvas(canvas);
     }
 
-    private static string LabelString(BatteryStatus status)
+    private static string LabelString(TrackedDevice status)
     {
         var s = status.Role == ETrackedControllerRole.OptOut 
             ? "T" 

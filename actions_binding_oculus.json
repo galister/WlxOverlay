@@ -1,0 +1,257 @@
+{
+   "action_manifest_version" : 0,
+   "alias_info" : {
+      "/actions/legacy/in/head_proximity" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis2_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis2_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis3_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis3_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis3_value_e0" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis3_value_e1" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis4_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis4_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis4_value_e0" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_axis4_value_e1" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_system_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/left_system_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_axis3_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_axis3_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_axis3_value_e0" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_axis3_value_e1" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_axis4_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_axis4_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_axis4_value_e0" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_axis4_value_e1" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_system_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy/in/right_system_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis2_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis2_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis3_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis3_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis3_value_e0" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis3_value_e1" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis4_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis4_touch" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis4_value_e0" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/axis4_value_e1" : {
+         "alias_name" : "",
+         "hidden" : true
+      },
+      "/actions/legacy_mirrored/in/system_press" : {
+         "alias_name" : "",
+         "hidden" : true
+      }
+   },
+   "app_key" : "application.generated.x11overlay",
+   "bindings" : {
+      "/actions/default" : {
+         "sources" : [
+            {
+               "inputs" : {
+                  "double" : {
+                     "output" : "/actions/default/in/showhide"
+                  },
+                  "touch" : {
+                     "output": "/actions/default/in/clickmodifierright"
+                  }
+               },
+               "mode" : "button",
+               "path" : "/user/hand/left/input/y"
+            },
+            {
+               "path": "/user/hand/left/input/x",
+               "mode": "button",
+               "inputs": {
+                  "touch": {
+                     "output": "/actions/default/in/clickmodifiermiddle"
+                  }
+               }
+            },
+            {
+               "path": "/user/hand/right/input/b",
+               "mode": "button",
+               "inputs": {
+                  "touch": {
+                     "output": "/actions/default/in/clickmodifierright"
+                  }
+               }
+            },
+            {
+               "path": "/user/hand/right/input/a",
+               "mode": "button",
+               "inputs": {
+                  "touch": {
+                     "output": "/actions/default/in/clickmodifiermiddle"
+                  }
+               }
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/click"
+                  }
+               },
+               "mode": "button",
+               "path" : "/user/hand/left/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/click"
+                  }
+               },
+               "mode": "button",
+               "path" : "/user/hand/right/input/trigger"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/grab"
+                  }
+               },
+               "mode": "button",
+               "path" : "/user/hand/left/input/grip"
+            },
+            {
+               "inputs" : {
+                  "click" : {
+                     "output" : "/actions/default/in/grab"
+                  }
+               },
+               "mode": "button",
+               "path" : "/user/hand/right/input/grip"
+            },
+            {
+               "inputs" : {
+                  "scroll" : {
+                     "output" : "/actions/default/in/scroll"
+                  }
+               },
+               "mode" : "scroll",
+               "parameters" : {
+                  "scroll_mode" : "smooth"
+               },
+               "path" : "/user/hand/left/input/joystick"
+            },
+            {
+               "inputs" : {
+                  "scroll" : {
+                     "output" : "/actions/default/in/scroll"
+                  }
+               },
+               "mode" : "scroll",
+               "parameters" : {
+                  "scroll_mode" : "smooth"
+               },
+               "path" : "/user/hand/right/input/joystick"
+            }
+         ]
+      }
+   },
+   "category" : "steamvr_input",
+   "controller_type" : "oculus_touch",
+   "description" : "Ver1",
+   "interaction_profile" : "",
+   "name" : "X11Overlay configuration for Oculus Touch Controller",
+   "options" : {
+      "mirror_actions" : false,
+      "simulated_controller_type" : "none"
+   },
+   "simulated_actions" : []
+}
