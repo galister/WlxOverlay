@@ -44,6 +44,7 @@ public class InputManager : IDisposable
     private readonly Dictionary<(LeftRight hand, string action), FileStream> _exportFiles = new();
     
     private readonly TrackedDevice?[] _controllers = new TrackedDevice?[2];
+    private TrackedDevice? _hmd = null;
 
     private InputManager()
     {
@@ -290,9 +291,19 @@ public class InputManager : IDisposable
     private readonly uint[] _deviceIds = new uint[OpenVR.k_unMaxTrackedDeviceCount];
     public void UpdateDeviceStates()
     {
-        var numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.Controller, _deviceIds, 0);
-
         DeviceStates.Clear();
+        
+        if (_hmd == null || _hmd.SoC >= 0)
+        {
+            _hmd = TrackedDevice.FromDeviceIdx(OpenVR.k_unTrackedDeviceIndex_Hmd);
+            if (_hmd != null)
+            {
+                _hmd.Role = TrackedDeviceRole.Hmd;
+                DeviceStates[_hmd.Serial] = _hmd;
+            }
+        }
+
+        var numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.Controller, _deviceIds, 0);
 
         for (var i = 0U; i < numDevs; i++)
         {
@@ -300,11 +311,11 @@ public class InputManager : IDisposable
             if (device == null)
                 continue;
 
-            device.Role = OpenVR.System.GetControllerRoleForTrackedDeviceIndex(_deviceIds[i]);
-            if (device.Role is < ETrackedControllerRole.LeftHand or > ETrackedControllerRole.RightHand)
-                device.Role = ETrackedControllerRole.OptOut;
+            var nativeRole = OpenVR.System.GetControllerRoleForTrackedDeviceIndex(_deviceIds[i]);
+            if (nativeRole != ETrackedControllerRole.LeftHand && nativeRole != ETrackedControllerRole.RightHand)
+                device.Role = TrackedDeviceRole.None;
             else
-                _controllers[device.Role - ETrackedControllerRole.LeftHand] = device;
+                _controllers[nativeRole - ETrackedControllerRole.LeftHand] = device;
             
             DeviceStates[device.Serial] = device;
         }
@@ -317,7 +328,7 @@ public class InputManager : IDisposable
             if (device == null)
                 continue;
 
-            device.Role = ETrackedControllerRole.OptOut;
+            device.Role = TrackedDeviceRole.Tracker;
 
             DeviceStates[device.Serial] = device;
         }
@@ -361,7 +372,7 @@ public class TrackedDevice
     public uint Index;
     public float SoC;
     public bool Charging;
-    public ETrackedControllerRole Role;
+    public TrackedDeviceRole Role;
 
     private static readonly StringBuilder Sb = new((int)OpenVR.k_unMaxPropertyStringSize);
     public static TrackedDevice? FromDeviceIdx(uint deviceIdx)
@@ -401,6 +412,15 @@ public class TrackedDevice
         }
         return false;
     }
+}
+
+public enum TrackedDeviceRole
+{
+    None,
+    Hmd,
+    LeftHand,
+    RightHand,
+    Tracker
 }
 
 public enum OpenVrInputActionType

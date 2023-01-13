@@ -177,7 +177,7 @@ public class Watch : InteractableOverlay
             for (var s = 0; s < numStates; s++)
             {
                 var device = InputManager.DeviceStatesSorted[s];
-                if (device.SoC < 0)
+                if (device.Role == TrackedDeviceRole.None || device.SoC < 0)
                     continue;
                 
                 var indicator = new BatteryIndicator(device, stateWidth * s + 2, 162, (uint)stateWidth - 4U, 36);

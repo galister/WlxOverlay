@@ -36,9 +36,7 @@ public class BatteryIndicator : Panel
 
     private static string LabelString(TrackedDevice status)
     {
-        var s = status.Role == ETrackedControllerRole.OptOut 
-            ? "T" 
-            : status.Role.ToString()[..1];
+        var s = status.Role.ToString()[..1];
 
         var percent = Mathf.Clamp((int)(status.SoC * 100f), 0, 99);
         return s + percent;
