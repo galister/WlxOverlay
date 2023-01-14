@@ -16,15 +16,18 @@ public class KeyboardLayout
     
     public static bool Load()
     {
+        if (!Config.TryGetFile("keyboard.yaml", out var path, msgIfNotFound: true))
+            return false;
+        
         try
         {
-            var yaml = File.ReadAllText("Resources/keyboard.yaml");
+            var yaml = File.ReadAllText(path);
             Instance = Config.YamlDeserializer.Deserialize<KeyboardLayout>(yaml);
             return Instance.LoadAndCheckConfig();
         }
         catch
         {
-            Console.WriteLine("FATAL: Could not load Resources/keyboard.yaml");
+            Console.WriteLine($"FATAL: Could not load {path}!");
             throw;
         }
     }
@@ -121,7 +124,7 @@ public class KeyboardLayout
             var rowWidth = row.Sum();
             if (rowWidth - RowSize > Single.Epsilon)
             {
-                Console.WriteLine($"Sizes, row {i}: Want {RowSize} units of width, got {rowWidth}!");
+                Console.WriteLine($"FATAL keyboard.yaml: Sizes, row {i}: Want {RowSize} units of width, got {rowWidth}!");
                 return false;
             }
         }
@@ -135,20 +138,24 @@ public class KeyboardLayout
                 if (KeySizes[i].Length != layout[i].Length)
                 {
                     Console.WriteLine(
-                        $"{layoutName} layout, row {i}: Want {KeySizes[i].Length} buttons, got {layout[i].Length}!");
+                        $"FATAL keyboard.yaml: {layoutName} layout, row {i}: Want {KeySizes[i].Length} buttons, got {layout[i].Length}!");
                     return false;
                 }
 
-                foreach (var s in layout[i])
+                for (var j = 0; j < layout[i].Length; j++)
                 {
+                    var s = layout[i][j];
                     if (s == null)
                         continue;
-                    if (!Keycodes.TryGetValue(s, out _) 
+                    if (!Keycodes.TryGetValue(s, out _)
                         && !ExecCommands.TryGetValue(s, out _)
                         && !Macros.TryGetValue(s, out _))
                     {
-                        Console.WriteLine($"{layoutName} layout, row {i}: Keycode/Exec/Macro is not known for {s}! ");
-                        return false;
+                        Console.WriteLine(
+                            $"WARN keyboard.yaml: {layoutName} layout, row {i}: Keycode/Exec/Macro is not known for {s}! ** This key will not function! **");
+                        Console.WriteLine(
+                            $"WARN If {s} is a dead key or your system keyboard, edit keyboard.yaml and replace {s} with your actual key!");
+                        layout[i][j] = null;
                     }
                 }
             }

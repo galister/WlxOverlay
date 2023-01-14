@@ -12,18 +12,43 @@ public class Config
 {
     public static readonly IDeserializer YamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
 
+    public static readonly string[] ConfigFolders = 
+    { 
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "x11overlay"),
+        "Resources"
+    };
+
     public static Config Instance;
-    
-    public static void Load()
+
+    public static bool TryGetFile(string fName, out string fPath, bool msgIfNotFound = false)
     {
+        foreach (var folder in ConfigFolders)
+        {
+            fPath = Path.Combine(folder, "config.yaml");
+            if (File.Exists(fPath))
+                return true;
+        }
+
+        if (msgIfNotFound)
+            Console.WriteLine($"ERR: Could not find {fName}!\nLooked in: {string.Join(", ", ConfigFolders)}");
+        
+        fPath = null!;
+        return false;
+    }
+    
+    public static bool Load()
+    {
+        if (!TryGetFile("config.yaml", out var path, msgIfNotFound: true))
+            return false;
         try
         {
-            var yaml = File.ReadAllText("Resources/config.yaml");
+            var yaml = File.ReadAllText(path);
             Instance = YamlDeserializer.Deserialize<Config>(yaml);
+            return true;
         }
         catch
         {
-            Console.WriteLine("FATAL: Could not load Resources/config.yaml");
+            Console.WriteLine($"FATAL: Could not load {path}!");
             throw;
         }
     }
