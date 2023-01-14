@@ -5,7 +5,8 @@ using X11Overlay.Overlays.Simple;
 using X11Overlay.Screen.Interop;
 using X11Overlay.Types;
 
-Config.Load();
+if (!Config.Load())
+    return;
 
 var manager = OverlayManager.Initialize();
 
