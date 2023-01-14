@@ -9,6 +9,7 @@ if (!Config.Load())
     return;
 
 var manager = OverlayManager.Initialize();
+ManifestInstaller.EnsureInstalled("galister.x11overlay");
 
 manager.RegisterChild(new DesktopCursor());
 

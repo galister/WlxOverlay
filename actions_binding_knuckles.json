@@ -138,7 +138,7 @@
          "hidden" : true
       }
    },
-   "app_key" : "application.generated.x11overlay",
+   "app_key" : "galister.x11overlay",
    "bindings" : {
       "/actions/default" : {
          "poses" : [

@@ -59,7 +59,6 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
     private void OnRender(double _)
     {
         OverlayManager.Instance.Update();
-        OverlayManager.Instance.Render();
         
         // Use this instead of vsync to prevent glfw from using up the entire CPU core
         OverlayManager.Instance.WaitForEndOfFrame();
@@ -102,6 +101,11 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
     public ETextureType GetTextureType()
     {
         return ETextureType.OpenGL;
+    }
+
+    public void Shutdown()
+    {
+        _window.Close();
     }
 
     internal static (PixelFormat pf, PixelType pt) GraphicsFormatAsInput(GraphicsFormat format)

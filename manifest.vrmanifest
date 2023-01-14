@@ -1,0 +1,16 @@
+{
+	"source" : "builtin",
+	"applications": [{
+		"app_key": "galister.x11overlay",
+		"launch_type": "binary",
+		"binary_path_windows": "X11Overlay.exe",
+		"is_dashboard_overlay": true,
+
+		"strings": {
+			"en_us": {
+				"name": "X11Overlay",
+				"description": "A lightweight X11 desktop overlay for OpenVR."
+			}
+		}
+	}]
+}

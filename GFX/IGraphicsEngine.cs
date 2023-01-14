@@ -23,4 +23,6 @@ public interface IGraphicsEngine
 
     public ETextureType GetTextureType();
 
+    public void Shutdown();
+
 }

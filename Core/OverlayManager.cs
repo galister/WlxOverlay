@@ -1,5 +1,7 @@
+using System.Runtime.InteropServices;
 using OVRSharp;
 using Valve.VR;
+using X11Overlay.GFX;
 using X11Overlay.Numerics;
 using X11Overlay.Overlays;
 using X11Overlay.Overlays.Simple;
@@ -55,6 +57,8 @@ public class OverlayManager : Application
         Console.WriteLine($"HMD running @ {displayFrequency} Hz");
 
         InputManager.Initialize();
+        
+        _vrEventSize = (uint)Marshal.SizeOf(typeof(VREvent_t));
     }
 
     public void RegisterChild(BaseOverlay o)
@@ -95,6 +99,8 @@ public class OverlayManager : Application
     }
     
     private DateTime _nextDeviceUpdate = DateTime.MinValue;
+    private VREvent_t _vrEvent;
+    private readonly uint _vrEventSize;
     
     public void Update()
     {
@@ -104,7 +110,7 @@ public class OverlayManager : Application
         if (_nextDeviceUpdate < DateTime.UtcNow)
         {
             InputManager.Instance.UpdateDeviceStates();
-            _nextDeviceUpdate = DateTime.UtcNow.AddSeconds(5);
+            _nextDeviceUpdate = DateTime.UtcNow.AddSeconds(10);
             deviceStateUpdated = true;
         }
         
@@ -113,15 +119,28 @@ public class OverlayManager : Application
 
         foreach (var pointer in _pointers)
             pointer.TestInteractions(_interactables.Where(o => o.Visible));
-    }
-    
-    public void Render()
-    {
         foreach (var o in _overlays.Where(o => !o.Visible && o.WantVisible && !o.ShowHideBinding)) 
             o.Show();
 
         foreach (var o in _overlays.Where(o => o.Visible)) 
             o.Render();
+        
+        while (OVRSystem.PollNextEvent(ref _vrEvent, _vrEventSize))
+        {
+            switch ((EVREventType)_vrEvent.eventType)
+            {
+                case EVREventType.VREvent_Quit:
+                    OpenVR.Shutdown();
+                    GraphicsEngine.Instance.Shutdown();
+                    return;
+                
+                case EVREventType.VREvent_TrackedDeviceActivated:
+                case EVREventType.VREvent_TrackedDeviceDeactivated:
+                case EVREventType.VREvent_TrackedDeviceUpdated:
+                    _nextDeviceUpdate = DateTime.MinValue;
+                    break;
+            }
+        }
     }
 
     public void WaitForEndOfFrame()

@@ -1,3 +1,4 @@
+using System.Reflection;
 using X11Overlay.Overlays;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -12,6 +13,8 @@ public class Config
 {
     public static readonly IDeserializer YamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
 
+    public static string AppFolder = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
+    
     public static readonly string[] ConfigFolders = 
     { 
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "x11overlay"),
