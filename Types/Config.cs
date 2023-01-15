@@ -27,7 +27,7 @@ public class Config
     {
         foreach (var folder in ConfigFolders)
         {
-            fPath = Path.Combine(folder, "config.yaml");
+            fPath = Path.Combine(folder, fName);
             if (File.Exists(fPath))
                 return true;
         }
