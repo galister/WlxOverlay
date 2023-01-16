@@ -10,12 +10,15 @@ Features:
 - Works with a huge variety of setups, including tiling window managers.
 - Mouse pointer that supports left/right/middle click
 - Customizable keyboard with 2-hand typing
-- Notifications system (WIP)
 - Watch panel that shows:
   - Local time + 2 customizable time zones
   - Battery states of SteamVR controllers + all connected trackers 
   - Volume rocker (customizable)
   - Toggles for screens / keyboard
+  
+Planned:
+- Wayland support 
+- Notifications system
 
 ![Image](https://github.com/galister/X11Overlay/blob/github/screenshot.jpeg?raw=true)
 
@@ -25,7 +28,6 @@ Features:
 
 # Non-planned Features
 - Displaying individual windows (XComposite) as this does not work well when using workspaces (windows getting culled and display black)
-- Wayland support (until the nvidia situation is sorted out)
 - Windows support
 
 # Known Issues
