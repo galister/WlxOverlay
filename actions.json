@@ -60,6 +60,10 @@
     {
       "controller_type": "oculus_touch",
       "binding_url": "actions_binding_oculus.json"
+    },
+    {
+      "controller_type": "vive_controller",
+      "binding_url": "actions_binding_vive.json"
     }
   ],
   "localization": []
