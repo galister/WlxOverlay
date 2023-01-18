@@ -26,6 +26,8 @@ Planned:
 
 [Check out the Wiki here!](https://github.com/galister/X11Overlay/wiki/Getting-Started)
 
+Join the discussion here: https://discord.gg/gHwJ2vwSWV
+
 # Non-planned Features
 - Displaying individual windows (XComposite) as this does not work well when using workspaces (windows getting culled and display black)
 - Windows support
