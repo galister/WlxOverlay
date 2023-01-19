@@ -1,6 +1,6 @@
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
-using X11Overlay.Screen.Interop;
+using X11Overlay.Screen.X11;
 using X11Overlay.Types;
 using Action = System.Action;
 

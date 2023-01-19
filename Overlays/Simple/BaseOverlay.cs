@@ -5,7 +5,7 @@ using X11Overlay.Numerics;
 
 namespace X11Overlay.Overlays.Simple;
 
-public class BaseOverlay
+public class BaseOverlay : IDisposable
 {
     public Transform3D Transform;
     public ITexture? Texture;
@@ -198,5 +198,9 @@ public class BaseOverlay
         }
 
         _overlay!.SetTexture(tex);
+    }
+
+    public virtual void Dispose()
+    {
     }
 }

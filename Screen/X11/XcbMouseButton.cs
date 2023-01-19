@@ -1,4 +1,4 @@
-namespace X11Overlay.Screen.Interop
+namespace X11Overlay.Screen.X11
 {
     public enum XcbMouseButton : byte
     {

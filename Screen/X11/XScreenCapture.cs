@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 
-namespace X11Overlay.Screen.Interop
+namespace X11Overlay.Screen.X11
 {
     public class XScreenCapture : IDisposable
     {

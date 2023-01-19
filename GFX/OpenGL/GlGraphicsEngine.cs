@@ -59,9 +59,6 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
     private void OnRender(double _)
     {
         OverlayManager.Instance.Update();
-        
-        // Use this instead of vsync to prevent glfw from using up the entire CPU core
-        OverlayManager.Instance.WaitForEndOfFrame();
     }
 
     public ITexture TextureFromFile(string path, GraphicsFormat internalFormat = GraphicsFormat.RGBA8)

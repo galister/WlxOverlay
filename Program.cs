@@ -2,7 +2,7 @@
 using X11Overlay.GFX.OpenGL;
 using X11Overlay.Overlays;
 using X11Overlay.Overlays.Simple;
-using X11Overlay.Screen.Interop;
+using X11Overlay.Screen.X11;
 using X11Overlay.Types;
 
 if (!Config.Load())
@@ -37,7 +37,7 @@ IEnumerable<BaseOverlay> GetScreens()
     var numScreens = XScreenCapture.NumScreens();
     for (var s = 0; s < numScreens; s++)
     {
-        var screen = new XorgScreen(s) { WantVisible = s == Config.Instance.DefaultScreen };
+        var screen = new ScreenOverlay(s) { WantVisible = s == Config.Instance.DefaultScreen };
         manager.RegisterChild(screen);
         yield return screen;
     }

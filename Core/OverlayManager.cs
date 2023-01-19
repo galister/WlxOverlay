@@ -141,9 +141,21 @@ public class OverlayManager : Application
                     break;
             }
         }
+        
+        // Use this instead of vsync to prevent glfw from using up the entire CPU core
+        WaitForEndOfFrame();
     }
 
-    public void WaitForEndOfFrame()
+    private void Shutdown()
+    {
+        foreach (var baseOverlay in _overlays) 
+            baseOverlay.Dispose();
+
+        OpenVR.Shutdown();
+        GraphicsEngine.Instance.Shutdown();
+    }
+    
+    private void WaitForEndOfFrame()
     {
         if (OpenVR.System.GetTimeSinceLastVsync(ref _secondsSinceLastVsync, ref _frameCounter))
         {
