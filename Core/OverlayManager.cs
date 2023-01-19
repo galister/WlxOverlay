@@ -130,8 +130,7 @@ public class OverlayManager : Application
             switch ((EVREventType)_vrEvent.eventType)
             {
                 case EVREventType.VREvent_Quit:
-                    OpenVR.Shutdown();
-                    GraphicsEngine.Instance.Shutdown();
+                    Destroy();
                     return;
                 
                 case EVREventType.VREvent_TrackedDeviceActivated:
@@ -146,7 +145,7 @@ public class OverlayManager : Application
         WaitForEndOfFrame();
     }
 
-    private void Shutdown()
+    private void Destroy()
     {
         foreach (var baseOverlay in _overlays) 
             baseOverlay.Dispose();
