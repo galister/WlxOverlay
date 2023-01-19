@@ -161,16 +161,24 @@ public class LaserPointer : BaseOverlay
         Transform = Transform.ScaledLocal(new Vector3(1, _length / WidthInMeters, 1));
         
         // billboard towards hmd
-        var viewDirection = hmd.origin - HandTransform.origin;
+        var viewDirection = HandTransform.origin - hmd.origin;
 
-        var x1 = HandTransform.basis.y.Dot(viewDirection);
-        var x2 = HandTransform.basis.x.Dot(viewDirection);
+        const float step = Mathf.Pi / 3f;
 
-        var pies = (x1 - 1) * -0.5f * Mathf.Pi;
-        if (x2 < 0)
-            pies *= -1;
+        var best = 1f;
+        var bestAt = 0;
 
-        Transform = Transform.RotatedLocal(Vector3.Up, pies);
+        for (var i = 0; i < 6; i++)
+        {
+            var x0 = viewDirection.Dot(Transform.RotatedLocal(Vector3.Up, step * i).basis.z);
+            if (x0 < best)
+            {
+                best = x0;
+                bestAt = i;
+            }
+        }
+
+        Transform = Transform.RotatedLocal(Vector3.Up, step * bestAt);
         
         UploadTransform();
     }
