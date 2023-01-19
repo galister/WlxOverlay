@@ -168,7 +168,7 @@ public class Watch : InteractableOverlay
             _canvas.RemoveControl(c);
         _batteryControls.Clear();
         
-        var numStates = InputManager.DeviceStates.Count;
+        var numStates = InputManager.DeviceStatesSorted.Count;
 
         if (numStates > 0)
         {

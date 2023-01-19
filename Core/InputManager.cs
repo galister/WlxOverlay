@@ -334,7 +334,7 @@ public class InputManager : IDisposable
         }
 
         DeviceStatesSorted.Clear();
-        DeviceStatesSorted.AddRange(DeviceStates.Values.OrderBy(dev => dev.Role).ThenBy(dev => dev.Serial));
+        DeviceStatesSorted.AddRange(DeviceStates.Values.Where(dev => dev.Role != TrackedDeviceRole.None && dev.SoC >= 0).OrderBy(dev => dev.Role).ThenBy(dev => dev.Serial));
     }
 
     public void Dispose()
