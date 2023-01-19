@@ -18,6 +18,7 @@ public class OverlayManager : Application
         return Instance = new OverlayManager();
     }
 
+    private bool _running = true;
     private readonly float _frameTime;
     
     private readonly List<BaseOverlay> _overlays = new();
@@ -104,6 +105,12 @@ public class OverlayManager : Application
     
     public void Update()
     {
+        if (!_running)
+        {
+            Destroy();
+            return;
+        }
+        
         InputManager.Instance.UpdateInput();
         var deviceStateUpdated = false;
         
@@ -145,8 +152,15 @@ public class OverlayManager : Application
         WaitForEndOfFrame();
     }
 
+    public void Stop()
+    {
+        _running = false;
+    }
+    
     private void Destroy()
     {
+        Console.WriteLine("Shutting down.");
+        
         foreach (var baseOverlay in _overlays) 
             baseOverlay.Dispose();
 

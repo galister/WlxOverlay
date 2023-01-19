@@ -9,6 +9,12 @@ if (!Config.Load())
     return;
 
 var manager = OverlayManager.Initialize();
+Console.CancelKeyPress += (_, a) =>
+{
+    a.Cancel = true;
+    manager.Stop();
+};
+
 ManifestInstaller.EnsureInstalled("galister.x11overlay");
 
 manager.RegisterChild(new DesktopCursor());
