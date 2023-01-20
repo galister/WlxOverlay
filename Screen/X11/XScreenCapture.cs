@@ -58,7 +58,7 @@ namespace X11Overlay.Screen.X11
                 return;
             }
             
-            Texture!.LoadRawPixels(pixBuf, GraphicsFormat.BGRA8);
+            Texture!.LoadRawImage(pixBuf, GraphicsFormat.BGRA8);
         }
 
         public void Dispose()

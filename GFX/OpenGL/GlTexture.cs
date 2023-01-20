@@ -116,7 +116,7 @@ public class GlTexture : ITexture
         _gl.DeleteTexture(Handle);
     }
 
-    public unsafe void LoadRawPixels(IntPtr ptr, GraphicsFormat graphicsFormat)
+    public unsafe void LoadRawImage(IntPtr ptr, GraphicsFormat graphicsFormat)
     {
         var (pf, pt) = GlGraphicsEngine.GraphicsFormatAsInput(graphicsFormat);
 
@@ -125,6 +125,32 @@ public class GlTexture : ITexture
 
         _gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, Width, Height, pf, pt, d);
         _gl.GetError().AssertNone();
+    }
+
+    public unsafe void LoadRawSubImage(IntPtr ptr, GraphicsFormat graphicsFormat, int xOffset, int yOffset, int width, int height)
+    {
+        var (pf, pt) = GlGraphicsEngine.GraphicsFormatAsInput(graphicsFormat);
+
+        var d = ptr.ToPointer();
+        Bind();
+
+        _gl.TexSubImage2D(TextureTarget.Texture2D, 0, xOffset, yOffset, (uint) width, (uint) height, pf, pt, d);
+        _gl.GetError().AssertNone();
+    }
+
+    public void CopyTo(ITexture target, uint width = 0, uint height = 0, int srcX = 0, int srcY = 0, int dstX = 0, int dstY = 0)
+    {
+        var glTarget = (GlTexture)target;
+
+        if (width == 0)
+            width = Width;
+        
+        if (height == 0)
+            height = Height;
+
+        _gl.CopyImageSubData(Handle, GLEnum.Texture2D, 0, srcX, srcY, 0,
+            glTarget.Handle, GLEnum.Texture2D, 0, dstX, dstY, 0, 
+            width, height, 1);
     }
 
     public uint GetWidth()

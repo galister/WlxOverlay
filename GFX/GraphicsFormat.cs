@@ -8,6 +8,7 @@ public enum GraphicsFormat
     RG8,
     RGBA8,
     RGB8,
+    RGB_Float,
     BGRA8,
     BGR8
 }

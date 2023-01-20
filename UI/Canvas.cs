@@ -1,6 +1,8 @@
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 using X11Overlay.Overlays;
+using X11Overlay.Types;
+using Action = System.Action;
 
 namespace X11Overlay.UI;
 
@@ -18,6 +20,8 @@ public class Canvas : IDisposable
     public readonly uint Height;
     
     private ITexture _texture = null!;
+    private ITexture? _swapTexture;
+    
     private readonly List<Control> _controls = new();
     private readonly List<ButtonBase?> _buttons = new() { null };
     
@@ -35,9 +39,12 @@ public class Canvas : IDisposable
 
     public ITexture Initialize()
     {
-        _texture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGBA8, true);
         _texture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGB8, true);
-        return _texture;
+        if (!Config.Instance.FallbackCursors)
+            return _texture;
+        
+        _swapTexture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGB8, true);
+        return _swapTexture;
     }
 
     public void AddControl(Control c)
@@ -129,18 +136,21 @@ public class Canvas : IDisposable
     {
         foreach (var control in _controls) 
             control.Update();
-        
-        if (!_dirty)
-            return;
-        
-        GraphicsEngine.UiRenderer.Begin(_texture);
-        GraphicsEngine.UiRenderer.Clear();
 
-        foreach (var control in _controls) 
-            control.Render();
+        if (_dirty)
+        {
+            GraphicsEngine.UiRenderer.Begin(_texture);
+            GraphicsEngine.UiRenderer.Clear();
 
-        GraphicsEngine.UiRenderer.End();
-        _dirty = false;
+            foreach (var control in _controls)
+                control.Render();
+
+            GraphicsEngine.UiRenderer.End();
+            _dirty = false;
+        }
+        
+        if (_swapTexture != null)
+            _texture.CopyTo(_swapTexture);
     }
 
     public void Dispose()

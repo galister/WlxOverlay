@@ -80,5 +80,7 @@ public class Config
 
     public int DefaultScreen;
 
+    public bool FallbackCursors;
+
     public Dictionary<string, string> ExportInputs;
 }

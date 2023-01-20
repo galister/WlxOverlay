@@ -1,5 +1,7 @@
 using Valve.VR;
+using X11Overlay.GFX;
 using X11Overlay.Numerics;
+using X11Overlay.Types;
 
 namespace X11Overlay.Overlays.Simple;
 
@@ -9,6 +11,7 @@ namespace X11Overlay.Overlays.Simple;
 public abstract class InteractableOverlay : BaseOverlay
 {
     internal LaserPointer? PrimaryPointer;
+    protected List<PointerHit> HitsThisFrame = new(2);
 
     /// <summary>
     /// Transforms texture UV (rect) to overlay UV (square)
@@ -44,6 +47,27 @@ public abstract class InteractableOverlay : BaseOverlay
 
         InvInteractionTransform = InteractionTransform.AffineInverse();
     }
+    
+    protected internal override void Render()
+    {
+        if (Config.Instance.FallbackCursors)
+        {
+            foreach (var hit in HitsThisFrame)
+            {
+                var x = (int)(hit.uv.x * Texture!.GetWidth());
+                var y = (int)(hit.uv.y * Texture!.GetHeight());
+                var color = hit.pointer == PrimaryPointer
+                    ? hit.pointer.Color
+                    : hit.pointer.Color * 0.66f;
+
+                DrawFallbackCursor(x, y, Vector3.One, 1);
+                DrawFallbackCursor(x, y, color);
+            }
+        }
+        HitsThisFrame.Clear();
+
+        base.Render();
+    }
 
     protected void EnsurePrimary(LaserPointer pointer)
     {
@@ -61,6 +85,7 @@ public abstract class InteractableOverlay : BaseOverlay
     protected internal virtual void OnPointerHover(PointerHit hitData)
     {
         PrimaryPointer ??= hitData.pointer;
+        HitsThisFrame.Add(hitData);
     }
 
     protected internal virtual void OnPointerLeft(LeftRight hand)
@@ -82,6 +107,51 @@ public abstract class InteractableOverlay : BaseOverlay
     protected internal virtual void OnScroll(PointerHit hitData, float value)
     {
         
+    }
+
+    protected void DrawFallbackCursor(int x, int y, Vector3 color, int extraWidth = 0)
+    {
+        var halfSize = Math.Max((int)(Texture!.GetWidth() / 640f), 4) + extraWidth;
+        var size = halfSize * 2 + 1;
+        var sizePow2 = size * size;
+
+        var array = new Vector3[sizePow2];
+        for (var i = 0; i < sizePow2; i ++) 
+            array[i] = color;
+
+        x = (int)Math.Clamp(x - halfSize, 0, Texture!.GetWidth() - size - 1);
+        y = (int)Math.Clamp(y - halfSize, 0, Texture!.GetHeight() - size - 1);
+
+        unsafe
+        {
+            fixed (Vector3* pArray = array)
+            {
+                var ptr = new IntPtr(pArray);
+                Texture!.LoadRawSubImage(ptr, GraphicsFormat.RGB_Float, x, y, size, size);
+            }
+        }
+    }
+    protected void DrawFallbackCross(int x, int y, Vector3 color, int extraWidth = 0)
+    {
+        var halfSize = Math.Max((int)(Texture!.GetWidth() / 640f), 4) + extraWidth;
+        var size = halfSize * 2 + 1;
+
+        var array = new Vector3[size];
+        for (var i = 0; i < size; i ++) 
+            array[i] = color;
+
+        x = (int)Math.Clamp(x - halfSize, 0, Texture!.GetWidth() - size - 1);
+        y = (int)Math.Clamp(y - halfSize, 0, Texture!.GetHeight() - size - 1);
+
+        unsafe
+        {
+            fixed (Vector3* pArray = array)
+            {
+                var ptr = new IntPtr(pArray);
+                Texture!.LoadRawSubImage(ptr, GraphicsFormat.RGB_Float, x + halfSize, y, 1, size);
+                Texture!.LoadRawSubImage(ptr, GraphicsFormat.RGB_Float, x, y + halfSize, size, 1);
+            }
+        }
     }
 
     public bool TryTransformToLocal(Vector2 uvIn, out Vector2 uvOut)

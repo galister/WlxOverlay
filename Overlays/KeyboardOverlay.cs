@@ -13,7 +13,7 @@ public class KeyboardOverlay : GrabbableOverlay
     
     private static KeyboardOverlay? _instance;
 
-    private Canvas _canvas;
+    private readonly Canvas _canvas;
     
     public KeyboardOverlay() : base("Keyboard")
     {
@@ -99,6 +99,8 @@ public class KeyboardOverlay : GrabbableOverlay
         }
 
         _canvas.OnPointerHover(hitData.uv, hitData.hand);
+        
+        base.OnPointerHover(hitData);
     }
 
     protected internal override void OnPointerLeft(LeftRight hand)

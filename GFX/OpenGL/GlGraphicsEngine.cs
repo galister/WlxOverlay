@@ -112,6 +112,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
             GraphicsFormat.RGBA8 => (PixelFormat.Rgba, PixelType.UnsignedByte),
             GraphicsFormat.BGRA8 => (PixelFormat.Bgra, PixelType.UnsignedByte),
             GraphicsFormat.RGB8 => (PixelFormat.Rgb, PixelType.UnsignedByte),
+            GraphicsFormat.RGB_Float => (PixelFormat.Rgb, PixelType.Float),
             GraphicsFormat.BGR8 => (PixelFormat.Bgr, PixelType.UnsignedByte),
             GraphicsFormat.R8 => (PixelFormat.Red, PixelType.UnsignedByte),
             GraphicsFormat.R16 => (PixelFormat.Red, PixelType.UnsignedShort),

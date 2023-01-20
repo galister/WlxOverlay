@@ -5,14 +5,14 @@ using X11Overlay.Types;
 
 namespace X11Overlay.Overlays;
 
-public class ScreenOverlay : BaseScreen
+public class XorgScreen : BaseScreen
 {
     private XScreenCapture? _capture;
     private DateTime _freezeCursor = DateTime.MinValue;
     
     private static bool _mouseMoved;
     
-    public ScreenOverlay(int screen) : base(screen)
+    public XorgScreen(int screen) : base(screen)
     {
     }
 
@@ -54,10 +54,17 @@ public class ScreenOverlay : BaseScreen
         if (mouse.X >= 0 && mouse.X < w
                          && mouse.Y >= 0 && mouse.Y < h)
         {
-            var uv = new Vector2(mouse.X / (float)w, mouse.Y / (float)h);
-
-            var moveToTransform = CurvedSurfaceTransformFromUv(uv);
-            DesktopCursor.Instance.MoveTo(moveToTransform);
+            if (Config.Instance.FallbackCursors)
+            {
+                DrawFallbackCross(mouse.X, mouse.Y, Vector3.One, 8);
+                DrawFallbackCross(mouse.X+1, mouse.Y+1, Vector3.Zero, 8);
+            }
+            else
+            {
+                var uv = new Vector2(mouse.X / (float)w, mouse.Y / (float)h);
+                var moveToTransform = CurvedSurfaceTransformFromUv(uv);
+                DesktopCursor.Instance.MoveTo(moveToTransform);
+            }
         }
 
         base.Render();

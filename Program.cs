@@ -17,7 +17,8 @@ Console.CancelKeyPress += (_, a) =>
 
 ManifestInstaller.EnsureInstalled("galister.x11overlay");
 
-manager.RegisterChild(new DesktopCursor());
+if (!Config.Instance.FallbackCursors)
+    manager.RegisterChild(new DesktopCursor());
 
 var leftPointer = Config.Instance.LeftUsePtt
     ? new LaserPointerWithPushToTalk(LeftRight.Left)
@@ -43,7 +44,7 @@ IEnumerable<BaseOverlay> GetScreens()
     var numScreens = XScreenCapture.NumScreens();
     for (var s = 0; s < numScreens; s++)
     {
-        var screen = new ScreenOverlay(s) { WantVisible = s == Config.Instance.DefaultScreen };
+        var screen = new XorgScreen(s) { WantVisible = s == Config.Instance.DefaultScreen };
         manager.RegisterChild(screen);
         yield return screen;
     }
