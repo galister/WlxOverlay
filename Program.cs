@@ -1,4 +1,5 @@
-﻿using X11Overlay.Core;
+﻿using System.Runtime.InteropServices;
+using X11Overlay.Core;
 using X11Overlay.GFX.OpenGL;
 using X11Overlay.Overlays;
 using X11Overlay.Overlays.Simple;
@@ -9,11 +10,16 @@ if (!Config.Load())
     return;
 
 var manager = OverlayManager.Initialize();
-Console.CancelKeyPress += (_, a) =>
+
+void SignalHandler(PosixSignalContext context)
 {
-    a.Cancel = true;
+    context.Cancel = true;
     manager.Stop();
-};
+}
+
+PosixSignalRegistration.Create(PosixSignal.SIGINT, SignalHandler);
+PosixSignalRegistration.Create(PosixSignal.SIGHUP, SignalHandler);
+PosixSignalRegistration.Create(PosixSignal.SIGTERM, SignalHandler);
 
 ManifestInstaller.EnsureInstalled("galister.x11overlay");
 
