@@ -312,10 +312,14 @@ public class InputManager : IDisposable
                 continue;
 
             var nativeRole = OpenVR.System.GetControllerRoleForTrackedDeviceIndex(_deviceIds[i]);
-            if (nativeRole != ETrackedControllerRole.LeftHand && nativeRole != ETrackedControllerRole.RightHand)
+            if (nativeRole is ETrackedControllerRole.LeftHand or ETrackedControllerRole.RightHand)
+            {
+                var controllerIdx = nativeRole - ETrackedControllerRole.LeftHand;
+                device.Role = TrackedDeviceRole.LeftHand + controllerIdx;
+                _controllers[controllerIdx] = device;
+            }
+            else 
                 device.Role = TrackedDeviceRole.None;
-            else
-                _controllers[nativeRole - ETrackedControllerRole.LeftHand] = device;
             
             DeviceStates[device.Serial] = device;
         }
