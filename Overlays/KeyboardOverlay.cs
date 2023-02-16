@@ -9,6 +9,7 @@ namespace X11Overlay.Overlays;
 
 public class KeyboardOverlay : GrabbableOverlay
 {
+    private const uint PixelsPerKey = 80;
     private const uint ButtonPadding = 4;
     
     private static KeyboardOverlay? _instance;
@@ -25,8 +26,12 @@ public class KeyboardOverlay : GrabbableOverlay
         WidthInMeters = 0.8f;
         ShowHideBinding = true;
         WantVisible = true;
-
-        _canvas = new Canvas(1200, 400);
+        
+        var layout = KeyboardLayout.Instance;
+        var canvasWidth = PixelsPerKey * (uint) layout.RowSize;
+        var canvasHeight = PixelsPerKey * (uint) layout.MainLayout.Length;
+        
+        _canvas = new Canvas(canvasWidth, canvasHeight);
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#101010");
         _canvas.AddControl(new Panel(0, 0, _canvas.Width, _canvas.Height));
@@ -34,8 +39,6 @@ public class KeyboardOverlay : GrabbableOverlay
         
         Canvas.CurrentFont = new Font("LiberationSans-Bold.ttf", 18);
         Canvas.CurrentBgColor = HexColor.FromRgb("#202020");
-        
-        var layout = KeyboardLayout.Instance;
         
         var unitSize = _canvas.Width / (uint)layout.RowSize;
 

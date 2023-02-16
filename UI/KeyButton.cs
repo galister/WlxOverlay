@@ -14,7 +14,7 @@ public class KeyButton : ButtonBase
     
     public static int Mode = 0;
 
-    private static readonly HashSet<int> Modifiers = new(8);
+    private static readonly HashSet<VirtualKey> Modifiers = new(8);
     
     private readonly Label _label2;
     
@@ -32,7 +32,7 @@ public class KeyButton : ButtonBase
     private readonly Action?[] _pressActions = new Action[3];
     private readonly Action?[] _releaseActions = new Action[3];
 
-    private readonly int[] _myKeyCodes = new int[3];
+    private readonly VirtualKey[] _myKeyCodes = new VirtualKey[3];
     
     public KeyButton(uint row, uint col, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
@@ -52,16 +52,27 @@ public class KeyButton : ButtonBase
             for (var i = 0; i < labelTexts.Length; i++)
                 _labelTexts[ModeNormal, i] = labelTexts[i];
 
-            SetActionsForKey(key, ModeNormal);
+            SetActionsForKey(key, ModeNormal, KeyModifier.None);
 
             labelTexts = layout.LabelForKey(key, true);
             for (var i = 0; i < labelTexts.Length; i++)
                 _labelTexts[ModeShift, i] = labelTexts[i];
 
-            SetActionsForKey(key, ModeShift);
+            SetActionsForKey(key, ModeShift, KeyModifier.Shift);
         }
 
-        key = layout.AltLayout[row][col];
+        var altModifier = KeyModifier.None;
+
+        if (layout.AltLayoutMode == AltLayoutMode.Layout)
+            key = layout.AltLayout[row][col];
+        else if (layout.AltLayoutMode == AltLayoutMode.Ctrl)
+            altModifier = KeyModifier.Ctrl;
+        else if (layout.AltLayoutMode == AltLayoutMode.Meta)
+            altModifier = KeyModifier.Meta;
+        else if (layout.AltLayoutMode == AltLayoutMode.Shift)
+            altModifier = KeyModifier.Shift;
+        else if (layout.AltLayoutMode == AltLayoutMode.Super)
+            altModifier = KeyModifier.Super;
 
         if (key != null)
         {
@@ -71,33 +82,33 @@ public class KeyButton : ButtonBase
             for (var i = 0; i < labelTexts.Length; i++)
                 _labelTexts[ModeAlt, i] = labelTexts[i];
 
-            SetActionsForKey(key, ModeAlt);
+            SetActionsForKey(key, ModeAlt, altModifier);
         }
     }
 
-    private void SetActionsForKey(string? key, int mode)
+    private void SetActionsForKey(string? key, int mode, KeyModifier modifier)
     {
         if (key == null)
             return;
 
-        if (KeyboardLayout.Instance.Keycodes.TryGetValue(key, out var keyCode))
+        if (Enum.TryParse(key, out VirtualKey vk))
         {
-            if (KeyboardLayout.Instance.Modifiers.Contains(keyCode))
+            if (KeyboardLayout.Instance.Modifiers.Contains(vk))
             {
-                _myKeyCodes[mode] = keyCode;
-                _pressActions[mode] = () => OnModifierPressed(keyCode);
-                _releaseActions[mode] = () => OnModifierReleased(keyCode);
+                _myKeyCodes[mode] = vk;
+                _pressActions[mode] = () => OnModifierPressed(vk);
+                _releaseActions[mode] = () => OnModifierReleased(vk);
             }
             else
             {
-                _pressActions[mode] = () => OnKeyPressed(keyCode, mode == ModeShift);
-                _releaseActions[mode] = () => OnKeyReleased(keyCode, mode == ModeShift);
+                _pressActions[mode] = () => OnKeyPressed(vk, modifier);
+                _releaseActions[mode] = () => OnKeyReleased(vk, modifier);
             }
         }
         else if (KeyboardLayout.Instance.Macros.TryGetValue(key, out var macro))
         {
             var events = KeyboardLayout.Instance.KeyEventsFromMacro(macro);
-            _pressActions[mode] = () => events.ForEach(e => XScreenCapture.SendKey(e.key, e.down));
+            _pressActions[mode] = () => events.ForEach(e => XScreenCapture.SendKey((int) e.key, e.down));
         }
 
         else if (KeyboardLayout.Instance.ExecCommands.TryGetValue(key, out var argv))
@@ -160,51 +171,53 @@ public class KeyButton : ButtonBase
         _label2.Render();
     }
 
-    private void OnKeyPressed(int keycode, bool shift)
+    private void OnKeyPressed(VirtualKey key, KeyModifier modifier)
     {
-        if (shift)
+        if (modifier != KeyModifier.None)
         {
-            Modifiers.Remove(KeyboardLayout.Instance.ShiftKeyCodes[0]);
-            Modifiers.Add(KeyboardLayout.Instance.ShiftKeyCodes[1]);
+            Modifiers.Add(KeyboardLayout.ModifierKeys[modifier].First());
+            foreach (var modKey in KeyboardLayout.ModifierKeys[modifier].Skip(1))
+                Modifiers.Remove(modKey);
         }
 
         foreach (var mod in Modifiers)
-            XScreenCapture.SendKey(mod, true);
+            XScreenCapture.SendKey((int) mod, true);
             
-        XScreenCapture.SendKey(keycode, true);
+        XScreenCapture.SendKey((int) key, true);
     }
         
-    private void OnKeyReleased(int keycode, bool shift)
+    private void OnKeyReleased(VirtualKey key, KeyModifier modifier)
     {
-        if (shift)
+        if (modifier != KeyModifier.None)
         {
-            Modifiers.Remove(KeyboardLayout.Instance.ShiftKeyCodes[0]);
-            Modifiers.Add(KeyboardLayout.Instance.ShiftKeyCodes[1]);
+            Modifiers.Add(KeyboardLayout.ModifierKeys[modifier].First());
+            foreach (var modKey in KeyboardLayout.ModifierKeys[modifier].Skip(1))
+                Modifiers.Remove(modKey);
         }
             
-        XScreenCapture.SendKey(keycode, false);
+        XScreenCapture.SendKey((int) key, false);
 
         foreach (var mod in Modifiers) 
-            XScreenCapture.SendKey(mod, false);
+            XScreenCapture.SendKey((int) mod, false);
         Modifiers.Clear();
     }
     
-    private void OnModifierPressed(int keyCode)
+    private void OnModifierPressed(VirtualKey key)
     {
-        XScreenCapture.SendKey(keyCode, true);
+        XScreenCapture.SendKey((int) key, true);
     }
     
-    private void OnModifierReleased(int keycode)
+    private void OnModifierReleased(VirtualKey key)
     {
-        XScreenCapture.SendKey(keycode, false);
+        XScreenCapture.SendKey((int) key, false);
 
-        if (Modifiers.Contains(keycode))
+        if (Modifiers.Contains(key))
         {
-            Modifiers.Remove(keycode);
+            Modifiers.Remove(key);
         }
         else
         {
-            Modifiers.Add(keycode);
+            Modifiers.Add(key);
         }
     }
 }

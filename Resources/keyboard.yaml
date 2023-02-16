@@ -7,45 +7,59 @@
 # - We're limited to the flat & boring ANSI enter key.
 # - Numpad + and Enter might not look so great.
 
+# *** Important ***
+# The keyboard layout uses virtual key codes, so they are layout-independent.
+# For example, Q on a French layout actually results in A.
+# If you're using a non-english layout, chances are you only need to edit the label section below.
+
 # Not used for anything right now
-name: "en-us_iso_60"
+name: "en-us_full"
 
 # How many units of key size in each row? 1 = standard letter key size
-row_size: 15
+row_size: 23
 
 # Specifies the size of each key. The sum of any given row must equal RowSize
 key_sizes:
-    - [1,   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2    ]
-    - [1.5,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.5 ]
-    - [1.75,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.25  ]
-    - [2.25,    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.75   ]
-    - [1.25, 1.25, 1.25, 6.25, 1.25, 1.25, 1.25, 1.25]
+    - [1.5,0.5, 1, 1, 1, 1,0.5,1, 1, 1, 1,0.5,1, 1, 1, 1, 0.5, 1, 1, 1, 4]
+    - [1,   1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2,     0.5, 1, 1, 1, 0.5, 1, 1, 1, 1]
+    - [1.5,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1.5,  0.5, 1, 1, 1, 0.5, 1, 1, 1, 1]
+    - [1.75,  1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.25,   4,                 1, 1, 1, 1]
+    - [2.25,    1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 2.75,    1.5,    1, 1.5,    1, 1, 1, 1]
+    - [1.25, 1.25, 1.25, 6.25, 1.25, 1.25, 1.25, 1.25, 0.5, 1, 1, 1, 0.5, 2,    1, 1]
 
 # The main (blue) layout of the keyboard.
 # Accepted are:
-# - xorg key names (see `xmodmap -pke`)
+# - virtual keys, for a full list go to https://github.com/galister/X11Overlay/blob/master/Types/VirtualKey.cs
 # - ExecCommands (defined below)
 # - Macros (defined below)
 # - ~ (null) will leave an empty space with the corresponding size from key_sizes
 main_layout:
-    - ["grave", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "minus", "equal", "BackSpace"]
-    - ["Tab", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", "bracketleft", "bracketright", "backslash"]
-    - ["XF86Favorites", "a", "s", "d", "f", "g", "h", "j", "k", "l", "semicolon", "apostrophe", "Return"]
-    - ["Shift_L", "z", "x", "c", "v", "b", "n", "m", "comma", "period", "slash", "Shift_R"]
-    - ["Control_L", "Super_L", "Alt_L", "space", "Meta_R", "Menu", "Control_R", "STT"]
+    - ["Escape", ~, "F1", "F2", "F3", "F4", ~, "F5", "F6", "F7", "F8", ~, "F9", "F10", "F11", "F12", ~, "Print", "Scroll", "Pause", ~]
+    - ["Oem3", "N1", "N2", "N3", "N4", "N5", "N6", "N7", "N8", "N9", "N0", "Minus", "Plus", "BackSpace", ~, "Insert", "Home", "Prior", ~, "NumLock", "KP_Divide", "KP_Multiply", "KP_Subtract"]
+    - ["Tab", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "Oem4", "Oem6", "Oem5", ~, "Delete", "End", "Next", ~, "KP_7", "KP_8", "KP_9", "KP_Add"]
+    - ["XF86Favorites", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Oem1", "Oem7", "Return", ~, "KP_4", "KP_5", "KP_6", ~]
+    - ["LShift", "Z", "X", "C", "V", "B", "N", "M", "Comma", "Period", "Oem2", "RShift", ~, "Up", ~, "KP_1", "KP_2", "KP_3", "KP_Enter"]
+    - ["LCtrl", "LSuper", "LAlt", "Space", "Meta", "RSuper", "Menu", "RCtrl", ~, "Left", "Down", "Right", ~, "KP_0", "KP_Decimal", ~]
 
-# The shift keys present on the keyboard, as shown in `xmodmap -pke`.
-# Used to eliminate conflicts while using shift layout. Cannot be null.
-shift_keys: [ "Shift_L", "Shift_R" ]
+# When using the purple pointer...
+# None   - No special functionality when using purple pointer
+# Shift  - Use same functionality as the orange pointer
+# Ctrl   - Use Main layout with Ctrl modifier
+# Super  - Use Main layout with Super (WinKey) modifier
+# Meta   - Use Main layout with Meta (AltGr) modifier
+# Layout - Use the alt_layout defined below
+alt_layout_mode: Ctrl
 
-# The alt (purple) layout of the keyboard.
+# The alt (fn) layout of the keyboard. Only takes effect when alt_layout_mode: Layout
 # Accepted values are the same as for MainLayout.
+# The default layout here is a dummy. Change it to fit your liking.
 alt_layout:
-    - ["Escape", "F1", "F2", "F3", "F4", "F5", "F6", "F7", "F8", "F9", "F10", "F11", "F12", "Delete"]
-    - ["Tab", "Home", "Up", "End", "Prior", ~, ~, ~, "KP_7", "KP_8", "KP_9", "Num_Lock", ~, "Insert"]
-    - ["KILL", "Left", "Down", "Right", "Next", ~, ~, ~, "KP_4", "KP_5", "KP_6", "KP_Subtract", "KP_Enter"]
-    - ["Shift_L", "Print", "Scroll_Lock", "Pause", ~, ~, ~, ~, "KP_1", "KP_2", "KP_3", "KP_Add"]
-    - ["Control_L", "Super_L", "Alt_L", ~, "KP_0", "KP_Divide", "KP_Multiply", "KP_Decimal"]
+    - ["Escape", ~, "F1", "F2", "F3", "F4", ~, "F5", "F6", "F7", "F8", ~, "F9", "F10", "F11", "F12", ~, "Print", "Scroll", "Pause", ~, "COPY", "PASTE"]
+    - ["Oem3", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "Minus", "Plus", "BackSpace", ~, "Insert", "Home", "Prior", ~, "NumLock", "KP_Divide", "KP_Multiply", "KP_Subtract"]
+    - ["Tab", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "Oem4", "Oem6", "Oem5", ~, "Delete", "End", "Next", ~, "KP_7", "KP_8", "KP_9", "KP_Add"]
+    - ["XF86Favorites", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Oem1", "Oem7", "Return", ~, "KP_4", "KP_5", "KP_6", ~]
+    - ["LShift", "Z", "X", "C", "V", "B", "N", "M", "Comma", "Period", "Oem2", "RShift", ~, "Up", ~, "KP_1", "KP_2", "KP_3", "KP_Enter"]
+    - ["LCtrl", "LSuper", "LAlt", "Space", "Meta", "RSuper", "Menu", "RCtrl", ~, "Left", "Down", "Right", ~, "KP_0", "KP_Decimal", ~]
 
 # Shell commands to be used in a layout.
 # Value is an array of string arguments.
@@ -57,7 +71,9 @@ exec_commands:
 # keyName must be a valid key from `xmodmap -pke`
 # DOWN|UP: can be omitted for an implicit "keyName DOWN, keyName UP"
 macros:
-    KILL: [ "Super_L DOWN", "Control_L DOWN", "Escape", "Control_L UP", "Super_L UP" ]
+    KILL: [ "LSuper DOWN", "LCtrl DOWN", "Escape", "LCtrl UP", "LSuper UP" ]
+    COPY: [ "LCtrl DOWN", "C", "LCtrl UP" ]
+    PASTE: [ "LCtrl DOWN", "V", "LCtrl UP" ]
 
 # Custom labels to use.
 # Key: element of MainLayout / AltLayout
@@ -77,32 +93,34 @@ labels:
     "Escape":       ["Esc"]
     "Prior":        ["PgUp"]
     "Next":         ["PgDn"]
-    "Print":        ["PrScn"]
-    "Scroll_Lock":  ["ScrLk"]
-    "space":        []
+    "NumLock":      ["Num"]
+    "Space":        []
+    "LAlt":         ["Alt"]
+    "LCtrl":        ["Ctrl"]
+    "RCtrl":        ["Ctrl"]
+    "LSuper":       ["Super"]
+    "RSuper":       ["Super"]
+    "LShift":       ["Shift"]
+    "RShift":       ["Shift"]
+    "Insert":       ["Ins"]
     "Delete":       ["Del"]
-    "grave":        ["`", "~"]
-    "minus":        ["-", "_"]
-    "equal":        ["=", "+"]
-    "Left":         ["Left"]
-    "Right":        ["Right"]
-    "Up":           ["Up"]
-    "Down":         ["Down"]
-    "BackSpace":    ["BS"]
-    "Control_L":    ["Ctrl"]
-    "Control_R":    ["Ctrl"]
-    "semicolon":    [" ;",  ":"]
-    "apostrophe":   [" '",  "\""]
-    "comma":        [" ,",  "<"]
-    "period":       [" .",  ">"]
-    "slash":        [" /",  "?"]
-    "backslash":    [" \\", "|"]
-    "bracketleft":  [" [",  "{"]
-    "bracketright": [" ]",  "}"]
+    "Minus":        ["-", "_"]
+    "Plus":         ["=", "+"]
+    "BackSpace":    ["<<"]
+    "Comma":        [" ,",  "<"]
+    "Period":       [" .",  ">"]
+    "Oem1":         [" ;",  ":"]
+    "Oem2":         [" /",  "?"]
+    "Oem3":         ["`", "~"]
+    "Oem4":         [" [",  "{"]
+    "Oem5":         [" \\", "|"]
+    "Oem6":         [" ]",  "}"]
+    "Oem7":         [" '",  "\""]
     "KP_Divide":    [" /"]
     "KP_Add":       [" +"]
     "KP_Multiply":  [" *"]
     "KP_Decimal":   [" ."]
     "KP_Subtract":  [" -"]
+    "KP_Enter":     ["Ent"]
     "XF86Favorites": ["Rofi"]
 
