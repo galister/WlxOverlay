@@ -78,7 +78,7 @@ public class KeyButton : ButtonBase
         {
             _visibility[2] = true;
 
-            var labelTexts = layout.LabelForKey(key);
+            var labelTexts = layout.LabelForKey(key, altModifier == KeyModifier.Shift);
             for (var i = 0; i < labelTexts.Length; i++)
                 _labelTexts[ModeAlt, i] = labelTexts[i];
 

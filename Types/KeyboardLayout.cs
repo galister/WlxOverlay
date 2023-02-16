@@ -64,7 +64,7 @@ public class KeyboardLayout
 
         if (key.Length == 1)
             return new [] { shift ? key.ToUpperInvariant() : key.ToLowerInvariant() };
-
+        
         if (key.StartsWith("KP_"))
             key = key[3..];
 
