@@ -58,7 +58,7 @@ alt_layout:
     - ["Oem3", "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "Minus", "Plus", "BackSpace", ~, "Insert", "Home", "Prior", ~, "NumLock", "KP_Divide", "KP_Multiply", "KP_Subtract"]
     - ["Tab", "Q", "W", "E", "R", "T", "Y", "U", "I", "O", "P", "Oem4", "Oem6", "Oem5", ~, "Delete", "End", "Next", ~, "KP_7", "KP_8", "KP_9", "KP_Add"]
     - ["XF86Favorites", "A", "S", "D", "F", "G", "H", "J", "K", "L", "Oem1", "Oem7", "Return", ~, "KP_4", "KP_5", "KP_6", ~]
-    - ["LShift", "Z", "X", "C", "V", "B", "N", "M", "Comma", "Period", "Oem2", "RShift", ~, "Up", ~, "KP_1", "KP_2", "KP_3", "KP_Enter"]
+    - ["LShift", "Oem102", "Z", "X", "C", "V", "B", "N", "M", "Comma", "Period", "Oem2", "RShift", ~, "Up", ~, "KP_1", "KP_2", "KP_3", "KP_Enter"]
     - ["LCtrl", "LSuper", "LAlt", "Space", "Meta", "RSuper", "Menu", "RCtrl", ~, "Left", "Down", "Right", ~, "KP_0", "KP_Decimal", ~]
 
 # Shell commands to be used in a layout.
@@ -116,6 +116,7 @@ labels:
     "Oem5":         [" \\", "|"]
     "Oem6":         [" ]",  "}"]
     "Oem7":         [" '",  "\""]
+    "Oem102":       [" \\", "|"]
     "KP_Divide":    [" /"]
     "KP_Add":       [" +"]
     "KP_Multiply":  [" *"]

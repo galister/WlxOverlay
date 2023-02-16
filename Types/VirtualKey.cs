@@ -89,7 +89,7 @@ public enum VirtualKey
     KP_3,
     KP_0,
     KP_Decimal,
-    Oem102 = 94, // Optional key usually between LShift and Z or between Enter and Backspace
+    Oem102 = 94, // Optional key usually between LShift and Z
     F11,
     F12,
     AbntC1,
