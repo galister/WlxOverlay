@@ -23,13 +23,14 @@ public class KeyboardOverlay : GrabbableOverlay
         _instance = this;
 
         SpawnPosition = Vector3.Forward + Vector3.Down * 0.5f;
-        WidthInMeters = 0.8f;
         ShowHideBinding = true;
         WantVisible = true;
         
         var layout = KeyboardLayout.Instance;
         var canvasWidth = PixelsPerKey * (uint) layout.RowSize;
         var canvasHeight = PixelsPerKey * (uint) layout.MainLayout.Length;
+        
+        WidthInMeters = layout.RowSize * 0.05f;
         
         _canvas = new Canvas(canvasWidth, canvasHeight);
 
