@@ -63,7 +63,7 @@ public class BaseOverlay : IDisposable
     {
     }
 
-    public virtual void ResetPosition()
+    public virtual void ResetTransform()
     {
     }
     

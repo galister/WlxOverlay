@@ -129,7 +129,7 @@ public class Watch : InteractableOverlay
             PointerUp = () =>
             {
                 if ((DateTime.UtcNow - kbPushedAt).TotalSeconds > 2)
-                    keyboard.ResetPosition();
+                    keyboard.ResetTransform();
                 else
                     keyboard.ToggleVisible();
             }
@@ -152,7 +152,7 @@ public class Watch : InteractableOverlay
                 PointerUp = () =>
                 {
                     if ((DateTime.UtcNow - pushedAt).TotalSeconds > 2)
-                        screen.ResetPosition();
+                        screen.ResetTransform();
                     else
                         screen.ToggleVisible();
                 }

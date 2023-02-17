@@ -53,11 +53,14 @@ public class GrabbableOverlay : InteractableOverlay
         base.Show();
     }
 
-    public override void ResetPosition()
+    public override void ResetTransform()
     {
         _savedSpawnPosition = SpawnPosition;
         var globalRef = InputManager.HmdTransform.TranslatedLocal(SpawnPosition);
         Transform.origin = globalRef.origin;
+        Transform.basis.x = Transform.basis.x.Normalized();
+        Transform.basis.y = Transform.basis.y.Normalized();
+        Transform.basis.z = Transform.basis.z.Normalized();
         WantVisible = true;
         OnOrientationChanged();
         if (!Visible)
