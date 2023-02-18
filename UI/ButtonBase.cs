@@ -15,7 +15,7 @@ public class ButtonBase : Panel
     {
         _baseBgColor = Canvas.CurrentBgColor;
     }
-    
+
     public override void SetCanvas(Canvas canvas)
     {
         base.SetCanvas(canvas);
@@ -48,12 +48,12 @@ public class ButtonBase : Panel
 
     public override void Render()
     {
-        BgColor = IsClicked 
+        BgColor = IsClicked
             ? _baseBgColor * 2f
-            : IsHovered 
-                ? _baseBgColor * 1.5f 
+            : IsHovered
+                ? _baseBgColor * 1.5f
                 : _baseBgColor;
-        
+
         base.Render();
         _label.Render();
     }

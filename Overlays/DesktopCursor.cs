@@ -17,7 +17,7 @@ public class DesktopCursor : BaseOverlay
     {
         if (Instance != null)
             throw new InvalidOperationException("Can't have more than one DesktopCursor!");
-        
+
         Instance = this;
         ZOrder = 66;
         WidthInMeters = 0.01f;
@@ -27,13 +27,13 @@ public class DesktopCursor : BaseOverlay
     protected override void Initialize()
     {
         Texture = GraphicsEngine.Instance.TextureFromFile("Resources/arrow.png");
-        
+
         var controllerTip = InputManager.HmdTransform;
         var centerPoint = controllerTip.TranslatedLocal(Vector3.Forward);
 
         Transform = controllerTip.LookingAt(centerPoint.origin, Vector3.Up);
         Transform.origin = centerPoint.origin;
-        
+
         base.Initialize();
     }
 
@@ -41,7 +41,7 @@ public class DesktopCursor : BaseOverlay
     {
         Transform = moveToTransform;
         _visibleThisFrame = true;
-        
+
         if (!Visible)
         {
             Show();

@@ -7,7 +7,7 @@ public class Button : ButtonBase
 {
     public Action? PointerDown;
     public Action? PointerUp;
-    
+
     public Button(string text, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
         _label = new LabelCentered(text, x, y, w, h);

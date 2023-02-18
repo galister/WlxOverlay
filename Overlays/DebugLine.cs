@@ -18,10 +18,10 @@ public class DebugLine : BaseOverlay
     {
         Draw(HexColor.FromRgb(hexColor), start, end);
     }
-    
+
     public static void Draw(Vector3 color, Vector3 start, Vector3 end)
     {
-        if (!Lines.TryGetValue(color, out var line)) 
+        if (!Lines.TryGetValue(color, out var line))
             line = Lines[color] = new DebugLine(color);
 
         line.SetTransform(start, end);
@@ -47,13 +47,13 @@ public class DebugLine : BaseOverlay
             var pixels = new byte[] { 255, 255, 255 };
             _sharedTexture = GraphicsEngine.Instance.TextureFromRaw(1, 1, GraphicsFormat.RGB8, pixels);
         }
-        
+
         Texture = _sharedTexture;
         Alpha = 0.5f;
-        
+
         base.Initialize();
     }
-    
+
     private static readonly float RotationOffset = Mathf.DegToRad(-90);
     private void SetTransform(Vector3 start, Vector3 end)
     {
@@ -65,7 +65,7 @@ public class DebugLine : BaseOverlay
             .TranslatedLocal(Vector3.Forward * length * 0.5f)
             .RotatedLocal(Vector3.Right, RotationOffset)
             .ScaledLocal(new Vector3(1, length / WidthInMeters, 1));
-        
+
         // billboard towards hmd
         var viewDirection = hmd.origin - start;
 
@@ -77,7 +77,7 @@ public class DebugLine : BaseOverlay
             pies *= -1;
 
         Transform = Transform.RotatedLocal(Vector3.Up, pies);
-        
+
         UploadTransform();
     }
 }

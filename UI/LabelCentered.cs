@@ -5,16 +5,16 @@ namespace X11Overlay.UI;
 public class LabelCentered : Label
 {
     private int _textWidth = -1;
-    
+
     public LabelCentered(string text, int x, int y, uint w, uint h) : base(text, x, y, w, h)
     {
     }
-    
+
     public override void Render()
     {
         if (Text == null)
             return;
-        
+
         if (Dirty)
         {
             _textWidth = Text.Sum(x => Font.GetTexture(x)?.AdvX ?? 0);
@@ -33,7 +33,7 @@ public class LabelCentered : Label
             }
 
             GraphicsEngine.UiRenderer.DrawFont(g, FgColor, curX, y, g.Texture.GetWidth(), g.Texture.GetHeight());
-            
+
             curX += g.AdvX;
         }
     }

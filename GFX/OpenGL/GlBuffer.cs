@@ -20,7 +20,7 @@ public class GlBuffer<TDataType> : IDisposable
         _gl.GetError().AssertNone();
         fixed (void* d = data)
         {
-            _gl.BufferData(bufferType, (nuint) (data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
+            _gl.BufferData(bufferType, (nuint)(data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
         }
         _gl.GetError().AssertNone();
     }
@@ -31,10 +31,10 @@ public class GlBuffer<TDataType> : IDisposable
         _gl.GetError().AssertNone();
         fixed (void* d = data)
         {
-            _gl.BufferData(_bufferType, (nuint) (data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
+            _gl.BufferData(_bufferType, (nuint)(data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
         }
         _gl.GetError().AssertNone();
-    } 
+    }
 
     public void Bind()
     {

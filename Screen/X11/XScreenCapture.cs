@@ -42,8 +42,8 @@ namespace X11Overlay.Screen.X11
         public void Tick()
         {
             if (_xShmHandle == IntPtr.Zero) return;
-            
-            var bytes = (int) xshm_grab_bgra32(_xShmHandle);
+
+            var bytes = (int)xshm_grab_bgra32(_xShmHandle);
             if (bytes != _maxBytes)
             {
                 Console.WriteLine($"Unexpected buffer size: {bytes}");
@@ -51,13 +51,13 @@ namespace X11Overlay.Screen.X11
             }
 
             var pixBuf = xshm_pixel_buffer(_xShmHandle);
-                
+
             if (pixBuf == IntPtr.Zero)
             {
                 Console.WriteLine($"Could not get pixel buffer!");
                 return;
             }
-            
+
             Texture!.LoadRawImage(pixBuf, GraphicsFormat.BGRA8);
         }
 
@@ -65,7 +65,7 @@ namespace X11Overlay.Screen.X11
         {
             if (_xShmHandle != IntPtr.Zero)
                 xshm_cap_end(_xShmHandle);
-            
+
             Texture?.Dispose();
         }
 
@@ -82,17 +82,17 @@ namespace X11Overlay.Screen.X11
         {
             if (_xShmHandle == IntPtr.Zero)
                 return;
-            
+
             var to = MouseCoordinatesFromUv(uv);
             //Debug.Log($"Mouse: {button} {(pressed ? "down" : "up")} at {to}");
-            xshm_mouse_event(_xShmHandle, to.x, to.y, (byte) button, pressed ? 1 : 0);
+            xshm_mouse_event(_xShmHandle, to.x, to.y, (byte)button, pressed ? 1 : 0);
         }
 
         public static void SendKey(int keyCode, bool pressed)
         {
-            xshm_keybd_event(IntPtr.Zero, (byte) keyCode, pressed ? 1 : 0);
+            xshm_keybd_event(IntPtr.Zero, (byte)keyCode, pressed ? 1 : 0);
         }
-        
+
         public Vector2Int GetMousePosition()
         {
             var vec = new Vector2Int();
@@ -131,16 +131,16 @@ namespace X11Overlay.Screen.X11
 
         [DllImport("libxshm_cap.so")]
         private static extern Int32 xshm_num_screens();
-        
+
         [DllImport("libxshm_cap.so")]
         private static extern void xshm_screen_size(Int32 screen, ref Vector2Int vec);
-        
+
         [DllImport("libxshm_cap.so")]
         private static extern void xshm_mouse_position(IntPtr xhsm_instance, ref Vector2Int vec);
 
         [DllImport("libxshm_cap.so")]
         private static extern IntPtr xshm_pixel_buffer(IntPtr xhsm_instance);
-        
+
         [DllImport("libxshm_cap.so")]
         private static extern UInt64 xshm_grab_bgra32(IntPtr xhsm_instance);
 

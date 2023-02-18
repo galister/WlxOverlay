@@ -13,49 +13,49 @@ namespace X11Overlay.Types;
 
 public class KeyboardLayout
 {
-	public static KeyboardLayout Instance;
+    public static KeyboardLayout Instance;
 
-	public static bool Load()
-	{
-		if (!Config.TryGetFile("keyboard.yaml", out var path, msgIfNotFound: true))
-			return false;
+    public static bool Load()
+    {
+        if (!Config.TryGetFile("keyboard.yaml", out var path, msgIfNotFound: true))
+            return false;
 
-		try
-		{
-			var yaml = File.ReadAllText(path);
-			Instance = Config.YamlDeserializer.Deserialize<KeyboardLayout>(yaml);
-			return Instance.LoadAndCheckConfig();
-		}
-		catch
-		{
-			Console.WriteLine($"FATAL: Could not load {path}!");
-			throw;
-		}
-	}
+        try
+        {
+            var yaml = File.ReadAllText(path);
+            Instance = Config.YamlDeserializer.Deserialize<KeyboardLayout>(yaml);
+            return Instance.LoadAndCheckConfig();
+        }
+        catch
+        {
+            Console.WriteLine($"FATAL: Could not load {path}!");
+            throw;
+        }
+    }
 
-	public string Name;
-	public int RowSize;
-	public float[][] KeySizes;
-	public string?[][] MainLayout;
+    public string Name;
+    public int RowSize;
+    public float[][] KeySizes;
+    public string?[][] MainLayout;
 
-	public AltLayoutMode AltLayoutMode;
-	public string?[][] AltLayout;
-	public string[] ShiftKeys;
+    public AltLayoutMode AltLayoutMode;
+    public string?[][] AltLayout;
+    public string[] ShiftKeys;
 
-	public Dictionary<string, string[]> ExecCommands;
-	public Dictionary<string, string[]> Macros;
-	public Dictionary<string, string?[]> Labels;
+    public Dictionary<string, string[]> ExecCommands;
+    public Dictionary<string, string[]> Macros;
+    public Dictionary<string, string?[]> Labels;
 
-	public static Dictionary<KeyModifier, VirtualKey[]> ModifierKeys = new()
-	{
-		[KeyModifier.Shift] = new[] { VirtualKey.RShift, VirtualKey.LShift },
-		[KeyModifier.Super] = new[] { VirtualKey.LSuper, VirtualKey.RSuper },
-		[KeyModifier.Ctrl] = new[] { VirtualKey.RCtrl, VirtualKey.LCtrl },
-		[KeyModifier.Meta] = new[] { VirtualKey.Meta }
-	};
-    
-    public VirtualKey[] Modifiers = { VirtualKey.LShift, VirtualKey.RShift, VirtualKey.LSuper, VirtualKey.RSuper, 
-	    VirtualKey.LCtrl, VirtualKey.RCtrl, VirtualKey.LAlt, VirtualKey.Meta, VirtualKey.Hyper } ;
+    public static Dictionary<KeyModifier, VirtualKey[]> ModifierKeys = new()
+    {
+        [KeyModifier.Shift] = new[] { VirtualKey.RShift, VirtualKey.LShift },
+        [KeyModifier.Super] = new[] { VirtualKey.LSuper, VirtualKey.RSuper },
+        [KeyModifier.Ctrl] = new[] { VirtualKey.RCtrl, VirtualKey.LCtrl },
+        [KeyModifier.Meta] = new[] { VirtualKey.Meta }
+    };
+
+    public VirtualKey[] Modifiers = { VirtualKey.LShift, VirtualKey.RShift, VirtualKey.LSuper, VirtualKey.RSuper,
+        VirtualKey.LCtrl, VirtualKey.RCtrl, VirtualKey.LAlt, VirtualKey.Meta, VirtualKey.Hyper };
 
     public string[] LabelForKey(string key, bool shift = false)
     {
@@ -63,15 +63,15 @@ public class KeyboardLayout
             return label!;
 
         if (key.Length == 1)
-            return new [] { shift ? key.ToUpperInvariant() : key.ToLowerInvariant() };
-        
+            return new[] { shift ? key.ToUpperInvariant() : key.ToLowerInvariant() };
+
         if (key.StartsWith("KP_"))
             key = key[3..];
 
         if (key.Contains("_"))
             key = key.Split('_').First();
 
-        return new [] { Char.ToUpperInvariant(key[0]) + key[1..].ToLowerInvariant() };
+        return new[] { Char.ToUpperInvariant(key[0]) + key[1..].ToLowerInvariant() };
     }
 
     private static readonly Regex MacroRx = new(@"^([A-Za-z0-1_-]+)(?: +(UP|DOWN))?$", RegexOptions.Compiled);
@@ -83,7 +83,7 @@ public class KeyboardLayout
         foreach (var verb in macroVerbs)
         {
             var m = MacroRx.Match(verb);
-            
+
             if (m.Success)
             {
                 if (!VirtualKey.TryParse(m.Groups[1].Value, out VirtualKey virtualKey))
@@ -114,7 +114,7 @@ public class KeyboardLayout
 
     private bool LoadAndCheckConfig()
     {
-	    for (var i = 0; i < KeySizes.Length; i++)
+        for (var i = 0; i < KeySizes.Length; i++)
         {
             var row = KeySizes[i];
             var rowWidth = row.Sum();
@@ -125,11 +125,11 @@ public class KeyboardLayout
             }
         }
 
-	    var layoutsToCheck = AltLayoutMode == AltLayoutMode.Layout
-		    ? new[] { MainLayout, AltLayout }
-		    : new[] { MainLayout };
+        var layoutsToCheck = AltLayoutMode == AltLayoutMode.Layout
+            ? new[] { MainLayout, AltLayout }
+            : new[] { MainLayout };
 
-	    foreach (var layout in layoutsToCheck)
+        foreach (var layout in layoutsToCheck)
         {
             var layoutName = layout == MainLayout ? "main" : "alt";
 
@@ -165,19 +165,19 @@ public class KeyboardLayout
 
 public enum KeyModifier
 {
-	None,
-	Shift,
-	Ctrl,
-	Super,
-	Meta
+    None,
+    Shift,
+    Ctrl,
+    Super,
+    Meta
 }
 
 public enum AltLayoutMode
 {
-	None,
-	Shift,
-	Super,
-	Ctrl,
-	Meta,
-	Layout
+    None,
+    Shift,
+    Super,
+    Ctrl,
+    Meta,
+    Layout
 }

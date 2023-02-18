@@ -11,7 +11,7 @@ public class GlUiRenderer : IUiRenderer, IDisposable
     private readonly GlVertexArray<float, uint> _vao;
     private readonly float[] _projectionMatrix = new float[16];
     private readonly GL _gl;
-    
+
     private readonly float[] _vertices =
     {
         //X    Y      U   V
@@ -47,14 +47,14 @@ public class GlUiRenderer : IUiRenderer, IDisposable
 
         _framebuffer = new GlFramebuffer(_gl, glTex);
         _framebuffer.Bind();
-        
+
         _gl.Viewport(0, 0, glTex.Width, glTex.Height);
-        var m = Matrix4X4.CreateOrthographicOffCenter(0, glTex.Width,0, glTex.Height, -5f, 5f);
+        var m = Matrix4X4.CreateOrthographicOffCenter(0, glTex.Width, 0, glTex.Height, -5f, 5f);
 
         for (var i = 0; i < 4; i++)
-        for (var j = 0; j < 4; j++)
-            _projectionMatrix[i * 4 + j] = m[i, j];            
-        
+            for (var j = 0; j < 4; j++)
+                _projectionMatrix[i * 4 + j] = m[i, j];
+
         _gl.BlendFuncSeparate(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
         _gl.BlendEquationSeparate(BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd);
         _gl.ColorMask(true, true, true, true);
@@ -76,25 +76,25 @@ public class GlUiRenderer : IUiRenderer, IDisposable
     {
         var shader = GlGraphicsEngine.SpriteShader;
         var glSprite = (GlTexture)sprite;
-        
+
         UseRect(x, y, w, h);
-        
+
         _vao.Bind();
         shader.Use();
         glSprite.Bind();
         shader.SetUniformM4("projection", _projectionMatrix);
         shader.SetUniform("uTexture0", 0);
 
-        _gl.DrawElements(PrimitiveType.Triangles, (uint) _indices.Length, DrawElementsType.UnsignedInt, null);
+        _gl.DrawElements(PrimitiveType.Triangles, (uint)_indices.Length, DrawElementsType.UnsignedInt, null);
     }
 
     public unsafe void DrawFont(Glyph glyph, Vector3 color, int x, int y, uint w, uint h)
     {
         var shader = GlGraphicsEngine.FontShader;
         var glSprite = (GlTexture)glyph.Texture;
-        
-        UseRect(x+glyph.Left, y-glyph.Top, w, h);
-        
+
+        UseRect(x + glyph.Left, y - glyph.Top, w, h);
+
         _vao.Bind();
         shader.Use();
         glSprite.Bind();
@@ -102,7 +102,7 @@ public class GlUiRenderer : IUiRenderer, IDisposable
         shader.SetUniform("uTexture0", 0);
         shader.SetUniform("uColor", color.x, color.y, color.z, 1f);
 
-        _gl.DrawElements(PrimitiveType.Triangles, (uint) _indices.Length, DrawElementsType.UnsignedInt, null);
+        _gl.DrawElements(PrimitiveType.Triangles, (uint)_indices.Length, DrawElementsType.UnsignedInt, null);
     }
 
     public unsafe void DrawColor(Vector3 color, int x, int y, uint w, uint h)
@@ -110,13 +110,13 @@ public class GlUiRenderer : IUiRenderer, IDisposable
         var shader = GlGraphicsEngine.ColorShader;
 
         UseRect(x, y, w, h);
-        
+
         _vao.Bind();
         shader.Use();
         shader.SetUniformM4("projection", _projectionMatrix);
         shader.SetUniform("uColor", color.x, color.y, color.z, 1f);
 
-        _gl.DrawElements(PrimitiveType.Triangles, (uint) _indices.Length, DrawElementsType.UnsignedInt, null);
+        _gl.DrawElements(PrimitiveType.Triangles, (uint)_indices.Length, DrawElementsType.UnsignedInt, null);
         _gl.GetError().AssertNone();
     }
 

@@ -9,9 +9,9 @@ public class XorgScreen : BaseScreen
 {
     private XScreenCapture? _capture;
     private DateTime _freezeCursor = DateTime.MinValue;
-    
+
     private static bool _mouseMoved;
-    
+
     public XorgScreen(int screen) : base(screen)
     {
     }
@@ -19,7 +19,7 @@ public class XorgScreen : BaseScreen
     protected override void Initialize()
     {
         base.Initialize();
-        
+
         _capture = new XScreenCapture(Screen);
         Texture = _capture.Texture;
 
@@ -43,21 +43,21 @@ public class XorgScreen : BaseScreen
     {
         if (_capture == null || !_capture.Running())
             return;
-        
+
         _capture.Tick();
-            
+
         var mouse = _capture.GetMousePosition();
 
         var w = Texture!.GetWidth();
         var h = Texture!.GetHeight();
-        
+
         if (mouse.X >= 0 && mouse.X < w
                          && mouse.Y >= 0 && mouse.Y < h)
         {
             if (Config.Instance.FallbackCursors)
             {
                 DrawFallbackCross(mouse.X, mouse.Y, Vector3.One, 8);
-                DrawFallbackCross(mouse.X+1, mouse.Y+1, Vector3.Zero, 8);
+                DrawFallbackCross(mouse.X + 1, mouse.Y + 1, Vector3.Zero, 8);
             }
             else
             {
@@ -83,7 +83,7 @@ public class XorgScreen : BaseScreen
     {
         if (PrimaryPointer != hitData.pointer)
             MoveMouse(hitData);
-        
+
         base.OnPointerDown(hitData);
         _freezeCursor = DateTime.UtcNow + TimeSpan.FromSeconds(Config.Instance.ClickFreezeTime);
         SendMouse(hitData, true);

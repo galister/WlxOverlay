@@ -10,7 +10,7 @@ public static class Extensions
         h.v0 = v.x;
         h.v1 = v.y;
     }
-    
+
     public static void CopyTo(this Vector3 v, ref HmdVector3_t h)
     {
         h.v0 = v.x;

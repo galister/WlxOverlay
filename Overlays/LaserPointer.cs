@@ -20,14 +20,14 @@ public class LaserPointer : BaseOverlay
     public Transform3D HandTransform;
 
     public Action? ReleaseAction;
-    
+
     private readonly string _myPose;
-    
+
     private GrabbableOverlay? _grabbedTarget;
     private Vector2 _grabbedUv;
-    
+
     private float _length;
-    
+
     private static readonly float RotationOffset = Mathf.DegToRad(-90);
 
     private static readonly Vector3[] ModeColors = {
@@ -57,9 +57,9 @@ public class LaserPointer : BaseOverlay
             var pixels = new byte[] { 255, 255, 255 };
             _sharedTexture = GraphicsEngine.Instance.TextureFromRaw(1, 1, GraphicsFormat.RGB8, pixels);
         }
-        
+
         Texture = _sharedTexture;
-        
+
         base.Initialize();
     }
 
@@ -94,7 +94,7 @@ public class LaserPointer : BaseOverlay
     private bool _showHideBefore;
 
     protected float Scroll;
-    
+
     private void EvaluateInput()
     {
         ClickBefore = ClickNow;
@@ -108,16 +108,16 @@ public class LaserPointer : BaseOverlay
 
         _showHideBefore = _showHideNow;
         _showHideNow = InputManager.BooleanState["ShowHide"][(int)Hand];
-        
+
         ClickModifierRight = InputManager.BooleanState["ClickModifierRight"][(int)Hand];
-        
+
         ClickModifierMiddle = InputManager.BooleanState["ClickModifierMiddle"][(int)Hand];
-        
+
         Scroll = InputManager.Vector3State["Scroll"][(int)Hand].y;
-        
+
         RecalculateModifier();
     }
-    
+
     private void RecalculateModifier()
     {
         if (ClickModifierRight)
@@ -134,7 +134,7 @@ public class LaserPointer : BaseOverlay
 
         var hmdUp = InputManager.HmdTransform.basis.y;
         var dot = hmdUp.Dot(HandTransform.basis.x) * (1 - 2 * (int)Hand);
-        
+
         Mode = dot switch
         {
             < -0.85f => PointerMode.Right,
@@ -147,19 +147,19 @@ public class LaserPointer : BaseOverlay
         else if (Mode == PointerMode.Right && !Config.Instance.RightClickOrientation)
             Mode = PointerMode.Left;
     }
-    
+
     private void RecalculateTransform()
     {
         _length = _lastHit?.distance ?? 25f;
         var hmd = InputManager.HmdTransform;
-        
+
         Transform = HandTransform
             .TranslatedLocal(Vector3.Forward * (_length * 0.5f))
             .RotatedLocal(Vector3.Right, RotationOffset);
-        
+
         // scale to make it a laser
         Transform = Transform.ScaledLocal(new Vector3(1, _length / WidthInMeters, 1));
-        
+
         // billboard towards hmd
         var viewDirection = HandTransform.origin - hmd.origin;
 
@@ -179,13 +179,13 @@ public class LaserPointer : BaseOverlay
         }
 
         Transform = Transform.RotatedLocal(Vector3.Up, step * bestAt);
-        
+
         UploadTransform();
     }
 
     private readonly List<PointerHit> _pointerHits = new(OverlayManager.MaxInteractableOverlays);
     private PointerHit? _lastHit;
-    
+
     public void TestInteractions(IEnumerable<InteractableOverlay> targets)
     {
         if (_grabbedTarget != null)
@@ -196,10 +196,10 @@ public class LaserPointer : BaseOverlay
 
         _pointerHits.Clear();
 
-        
+
         HandTransform.origin.CopyTo(ref IntersectionParams.vSource);
         (-HandTransform.basis.z).CopyTo(ref IntersectionParams.vDirection);
-        
+
         foreach (var overlay in targets)
             if (ComputeIntersection(overlay, out var hitData))
                 _pointerHits.Add(hitData);
@@ -207,24 +207,25 @@ public class LaserPointer : BaseOverlay
         if (_pointerHits.Count > 0)
         {
             _pointerHits.Sort((a, b) => a.distance.CompareTo(b.distance));
-            
+
             var newHit = _pointerHits.First();
             if (_lastHit != null && _lastHit.overlay != newHit.overlay)
                 _lastHit.overlay.OnPointerLeft(Hand);
-            
+
             HandlePointerInteractions(newHit);
             _lastHit = newHit;
-            
+
             if (!Visible)
                 Show();
         }
-        else {
+        else
+        {
             if (_lastHit != null)
             {
                 _lastHit.overlay.OnPointerLeft(Hand);
                 _lastHit = null;
             }
-            
+
             if (Visible)
                 Hide();
         }
@@ -238,7 +239,7 @@ public class LaserPointer : BaseOverlay
             hitData = null!;
             return false;
         }
-        
+
         hitData = new PointerHit(this, target, IntersectionResults, localUv);
         return wasHit;
     }
@@ -270,7 +271,7 @@ public class LaserPointer : BaseOverlay
         {
             _grabbedTarget!.OnAltClickWhileHeld();
         }
-        else 
+        else
             _grabbedTarget!.OnGrabHeld();
 
         _lastHit!.point = _grabbedTarget.CurvedSurfaceTransformFromUv(_grabbedUv).origin;
@@ -297,7 +298,7 @@ public class LaserPointer : BaseOverlay
 
         if (ClickNow && !ClickBefore)
             hitData.overlay.OnPointerDown(hitData);
-        else if (!ClickNow && ClickBefore) 
+        else if (!ClickNow && ClickBefore)
             hitData.overlay.OnPointerUp(hitData);
 
         if (Mathf.Abs(Scroll) > 0.1f)
@@ -356,6 +357,6 @@ public enum PointerMode : uint
 
 public enum LeftRight : uint
 {
-    Left  = 0U,
+    Left = 0U,
     Right = 1U
 }

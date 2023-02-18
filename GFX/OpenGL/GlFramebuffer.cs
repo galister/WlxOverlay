@@ -12,7 +12,7 @@ public class GlFramebuffer : IDisposable
     {
         _gl = gl;
         _texture = texture;
-        
+
         _handle = _gl.GenFramebuffer();
         _gl.GetError().AssertNone();
     }

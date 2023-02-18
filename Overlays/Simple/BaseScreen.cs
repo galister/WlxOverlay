@@ -9,7 +9,7 @@ namespace X11Overlay.Overlays.Simple;
 public class BaseScreen : GrabbableOverlay
 {
     protected readonly int Screen;
-    
+
     public BaseScreen(int screen) : base($"Screen{screen}")
     {
         WidthInMeters = 1;
@@ -27,21 +27,21 @@ public class BaseScreen : GrabbableOverlay
         Transform = hmd.LookingAt(centerPoint.origin, hmd.basis.y * hmd.basis.Inverse()).ScaledLocal(LocalScale);
         Transform.origin = centerPoint.origin;
         OnOrientationChanged();
-        
+
         base.Initialize();
     }
 
     protected internal override void OnClickWhileHeld()
     {
         SnapUpright = !SnapUpright;
-        
+
         base.OnClickWhileHeld();
     }
 
     protected internal override void OnAltClickWhileHeld()
-    { 
+    {
         // TODO high quality overlays
-        
+
         base.OnAltClickWhileHeld();
     }
 }

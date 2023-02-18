@@ -11,43 +11,43 @@ public class KeyButton : ButtonBase
     private const int ModeNormal = 0;
     private const int ModeShift = 1;
     private const int ModeAlt = 2;
-    
+
     public static int Mode = 0;
 
     private static readonly HashSet<VirtualKey> Modifiers = new(8);
-    
+
     private readonly Label _label2;
-    
-    private readonly string[,] _labelTexts = new string[3,2];
+
+    private readonly string[,] _labelTexts = new string[3, 2];
 
     private readonly Vector3[] _modeColors =
     {
-        HexColor.FromRgb("#006080"), 
-        HexColor.FromRgb("#b03000"), 
+        HexColor.FromRgb("#006080"),
+        HexColor.FromRgb("#b03000"),
         HexColor.FromRgb("#600080")
     };
 
     private readonly bool[] _visibility = new bool[3];
-    
+
     private readonly Action?[] _pressActions = new Action[3];
     private readonly Action?[] _releaseActions = new Action[3];
 
     private readonly VirtualKey[] _myKeyCodes = new VirtualKey[3];
-    
+
     public KeyButton(uint row, uint col, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
         var fontSize = Canvas.CurrentFont!.Size();
-        
-        _label = new Label(null, x+4, y+(int)h-fontSize-4, w, h);
-        _label2 = new Label(null, x+(int)(w/2), y+4+fontSize, w, h);
-        
+
+        _label = new Label(null, x + 4, y + (int)h - fontSize - 4, w, h);
+        _label2 = new Label(null, x + (int)(w / 2), y + 4 + fontSize, w, h);
+
         var layout = KeyboardLayout.Instance;
         var key = layout.MainLayout[row][col];
 
         if (key != null)
         {
             _visibility[0] = _visibility[1] = true;
-            
+
             var labelTexts = layout.LabelForKey(key);
             for (var i = 0; i < labelTexts.Length; i++)
                 _labelTexts[ModeNormal, i] = labelTexts[i];
@@ -108,7 +108,7 @@ public class KeyButton : ButtonBase
         else if (KeyboardLayout.Instance.Macros.TryGetValue(key, out var macro))
         {
             var events = KeyboardLayout.Instance.KeyEventsFromMacro(macro);
-            _pressActions[mode] = () => events.ForEach(e => XScreenCapture.SendKey((int) e.key, e.down));
+            _pressActions[mode] = () => events.ForEach(e => XScreenCapture.SendKey((int)e.key, e.down));
         }
 
         else if (KeyboardLayout.Instance.ExecCommands.TryGetValue(key, out var argv))
@@ -162,11 +162,11 @@ public class KeyButton : ButtonBase
     {
         if (!_visibility[Mode])
             return;
-        
+
         _label.Text = _labelTexts[Mode, 0];
         _label2.Text = _labelTexts[Mode, 1];
         _label2.FgColor = _label.FgColor = _modeColors[Mode];
-        
+
         base.Render();
         _label2.Render();
     }
@@ -181,11 +181,11 @@ public class KeyButton : ButtonBase
         }
 
         foreach (var mod in Modifiers)
-            XScreenCapture.SendKey((int) mod, true);
-            
-        XScreenCapture.SendKey((int) key, true);
+            XScreenCapture.SendKey((int)mod, true);
+
+        XScreenCapture.SendKey((int)key, true);
     }
-        
+
     private void OnKeyReleased(VirtualKey key, KeyModifier modifier)
     {
         if (modifier != KeyModifier.None)
@@ -194,22 +194,22 @@ public class KeyButton : ButtonBase
             foreach (var modKey in KeyboardLayout.ModifierKeys[modifier].Skip(1))
                 Modifiers.Remove(modKey);
         }
-            
-        XScreenCapture.SendKey((int) key, false);
 
-        foreach (var mod in Modifiers) 
-            XScreenCapture.SendKey((int) mod, false);
+        XScreenCapture.SendKey((int)key, false);
+
+        foreach (var mod in Modifiers)
+            XScreenCapture.SendKey((int)mod, false);
         Modifiers.Clear();
     }
-    
+
     private void OnModifierPressed(VirtualKey key)
     {
-        XScreenCapture.SendKey((int) key, true);
+        XScreenCapture.SendKey((int)key, true);
     }
-    
+
     private void OnModifierReleased(VirtualKey key)
     {
-        XScreenCapture.SendKey((int) key, false);
+        XScreenCapture.SendKey((int)key, false);
 
         if (Modifiers.Contains(key))
         {

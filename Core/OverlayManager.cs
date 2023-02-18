@@ -20,7 +20,7 @@ public class OverlayManager : Application
 
     private bool _running = true;
     private readonly float _frameTime;
-    
+
     private readonly List<BaseOverlay> _overlays = new();
     private readonly List<InteractableOverlay> _interactables = new();
     private readonly List<LaserPointer> _pointers = new();
@@ -28,11 +28,11 @@ public class OverlayManager : Application
 
     private float _secondsSinceLastVsync;
     private ulong _frameCounter;
-    
+
     public OverlayManager() : base(ApplicationType.Overlay)
     {
         Instance = this;
-        
+
         var error = EVRInitError.None;
         OpenVR.GetGenericInterface(OpenVR.IVROverlay_Version, ref error);
         if (error != EVRInitError.None)
@@ -41,7 +41,7 @@ public class OverlayManager : Application
             Environment.Exit(1);
         }
         Console.WriteLine("IVROverlay: pass");
-        
+
         OpenVR.GetGenericInterface(OpenVR.IVRCompositor_Version, ref error);
         if (error != EVRInitError.None)
         {
@@ -58,7 +58,7 @@ public class OverlayManager : Application
         Console.WriteLine($"HMD running @ {displayFrequency} Hz");
 
         InputManager.Initialize();
-        
+
         _vrEventSize = (uint)Marshal.SizeOf(typeof(VREvent_t));
     }
 
@@ -70,7 +70,7 @@ public class OverlayManager : Application
         else if (o is LaserPointer lp)
             _pointers.Add(lp);
     }
-        
+
     public void UnregisterChild(BaseOverlay o)
     {
         _overlays.Remove(o);
@@ -89,7 +89,7 @@ public class OverlayManager : Application
                 overlay.Hide();
             else if (_showHideState && !overlay.Visible && overlay.WantVisible)
                 overlay.Show();
-                
+
         }
     }
 
@@ -98,11 +98,11 @@ public class OverlayManager : Application
         foreach (var o in _overlays)
             o.SetBrightness(f);
     }
-    
+
     private DateTime _nextDeviceUpdate = DateTime.MinValue;
     private VREvent_t _vrEvent;
     private readonly uint _vrEventSize;
-    
+
     public void Update()
     {
         if (!_running)
@@ -110,28 +110,28 @@ public class OverlayManager : Application
             Destroy();
             return;
         }
-        
+
         InputManager.Instance.UpdateInput();
         var deviceStateUpdated = false;
-        
+
         if (_nextDeviceUpdate < DateTime.UtcNow)
         {
             InputManager.Instance.UpdateDeviceStates();
             _nextDeviceUpdate = DateTime.UtcNow.AddSeconds(10);
             deviceStateUpdated = true;
         }
-        
-        foreach (var o in _overlays) 
+
+        foreach (var o in _overlays)
             o.AfterInput(deviceStateUpdated);
 
         foreach (var pointer in _pointers)
             pointer.TestInteractions(_interactables.Where(o => o.Visible));
-        foreach (var o in _overlays.Where(o => !o.Visible && o.WantVisible && !o.ShowHideBinding)) 
+        foreach (var o in _overlays.Where(o => !o.Visible && o.WantVisible && !o.ShowHideBinding))
             o.Show();
 
-        foreach (var o in _overlays.Where(o => o.Visible)) 
+        foreach (var o in _overlays.Where(o => o.Visible))
             o.Render();
-        
+
         while (OVRSystem.PollNextEvent(ref _vrEvent, _vrEventSize))
         {
             switch ((EVREventType)_vrEvent.eventType)
@@ -139,7 +139,7 @@ public class OverlayManager : Application
                 case EVREventType.VREvent_Quit:
                     Destroy();
                     return;
-                
+
                 case EVREventType.VREvent_TrackedDeviceActivated:
                 case EVREventType.VREvent_TrackedDeviceDeactivated:
                 case EVREventType.VREvent_TrackedDeviceUpdated:
@@ -147,7 +147,7 @@ public class OverlayManager : Application
                     break;
             }
         }
-        
+
         // Use this instead of vsync to prevent glfw from using up the entire CPU core
         WaitForEndOfFrame();
     }
@@ -156,18 +156,18 @@ public class OverlayManager : Application
     {
         _running = false;
     }
-    
+
     private void Destroy()
     {
         Console.WriteLine("Shutting down.");
-        
-        foreach (var baseOverlay in _overlays) 
+
+        foreach (var baseOverlay in _overlays)
             baseOverlay.Dispose();
 
         OpenVR.Shutdown();
         GraphicsEngine.Instance.Shutdown();
     }
-    
+
     private void WaitForEndOfFrame()
     {
         if (OpenVR.System.GetTimeSinceLastVsync(ref _secondsSinceLastVsync, ref _frameCounter))

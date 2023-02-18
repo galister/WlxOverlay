@@ -12,7 +12,7 @@ public class ManifestInstaller
             var manifestPath = Path.Combine(Config.AppFolder, "manifest.vrmanifest");
 
             var err = OpenVR.Applications.AddApplicationManifest(manifestPath, false);
-            if (err == EVRApplicationError.None) 
+            if (err == EVRApplicationError.None)
                 OpenVR.Applications.SetApplicationAutoLaunch(appKey, true);
         }
     }

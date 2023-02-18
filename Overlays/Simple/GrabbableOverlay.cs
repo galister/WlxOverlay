@@ -27,18 +27,18 @@ public class GrabbableOverlay : InteractableOverlay
 
     protected bool SnapUpright;
     protected bool CurveWhenUpright;
-    
+
     /// <summary>
     /// Default spawn point, relative to HMD
     /// </summary>
     public Vector3 SpawnPosition = Vector3.Forward;
-    
+
     private Vector3 _savedSpawnPosition;
-    
+
     public GrabbableOverlay(string key) : base(key)
     {
     }
-    
+
     public override void Show()
     {
         var len = _savedSpawnPosition.Length();
@@ -46,10 +46,10 @@ public class GrabbableOverlay : InteractableOverlay
             _savedSpawnPosition = SpawnPosition;
 
         var globalRef = InputManager.HmdTransform.TranslatedLocal(_savedSpawnPosition);
-        
+
         Transform.origin = globalRef.origin;
         OnOrientationChanged();
-        
+
         base.Show();
     }
 
@@ -72,9 +72,9 @@ public class GrabbableOverlay : InteractableOverlay
     {
         if (PrimaryPointer != null && hitData.pointer != PrimaryPointer)
             PrimaryPointer.OnPrimaryLost(this);
-        
+
         PrimaryPointer = hitData.pointer;
-        
+
         _grabOffset = PrimaryPointer.HandTransform.AffineInverse() * Transform.origin;
     }
 
@@ -88,12 +88,12 @@ public class GrabbableOverlay : InteractableOverlay
     {
         _savedSpawnPosition = InputManager.HmdTransform.AffineInverse() * Transform.origin;
     }
-    
+
     protected internal virtual void OnClickWhileHeld()
     {
         OnGrabHeld();
     }
-    
+
     protected internal virtual void OnAltClickWhileHeld()
     {
         OnGrabHeld();
@@ -104,7 +104,7 @@ public class GrabbableOverlay : InteractableOverlay
         if (LocalScale.Length() < NearDistance && value > 0
             || LocalScale.Length() > FarDistance && value < 0)
             return;
-        
+
         LocalScale *= Vector3.One - Vector3.One * Mathf.Pow(value, 3) * 2;
     }
 
@@ -113,14 +113,14 @@ public class GrabbableOverlay : InteractableOverlay
         var newGrabOffset = _grabOffset + _grabOffset.Normalized() * Mathf.Pow(value, 3);
 
         var distance = newGrabOffset.Length();
-        
+
         if (distance < 0.3f && value < 0
             || distance > 10f && value > 0)
             return;
 
         _grabOffset = newGrabOffset;
     }
-    
+
     protected void OnOrientationChanged()
     {
         var tHmd = InputManager.HmdTransform;

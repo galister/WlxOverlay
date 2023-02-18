@@ -15,20 +15,20 @@ public class Canvas : IDisposable
     public static Vector3 CurrentBgColor;
     public static Vector3 CurrentFgColor;
     public static Font? CurrentFont;
-    
+
     public readonly uint Width;
     public readonly uint Height;
-    
+
     private ITexture _texture = null!;
     private ITexture? _swapTexture;
-    
+
     private readonly List<Control> _controls = new();
     private readonly List<ButtonBase?> _buttons = new() { null };
-    
+
     private const int ResDivider = 4;
     private byte[,]? _uvToButtonMap;
     private readonly int[] _litButtons = new int[2];
-    
+
     private bool _dirty = true;
 
     public Canvas(uint width, uint height)
@@ -42,7 +42,7 @@ public class Canvas : IDisposable
         _texture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGB8, true);
         if (!Config.Instance.FallbackCursors)
             return _texture;
-        
+
         _swapTexture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGB8, true);
         return _swapTexture;
     }
@@ -72,30 +72,30 @@ public class Canvas : IDisposable
         if (_buttons.Count > 1)
         {
             _uvToButtonMap = new byte[Width / ResDivider, Height / ResDivider];
-            
+
             var maxIdxX = _uvToButtonMap.GetLength(0) - 1;
             var maxIdxY = _uvToButtonMap.GetLength(1) - 1;
 
             for (byte b = 1; b < _buttons.Count; b++)
             {
                 var button = _buttons[b]!;
-                
+
                 var xMin = Mathf.Max(0, button.X / ResDivider);
                 var yMin = Mathf.Max(0, button.Y / ResDivider);
                 var xMax = Mathf.Min(maxIdxX, xMin + button.Width / ResDivider);
                 var yMax = Mathf.Min(maxIdxY, yMin + button.Height / ResDivider);
-                
+
                 for (var i = xMin; i < xMax; i++)
-                for (var j = yMin; j < yMax; j++)
-                    try
-                    {
-                        _uvToButtonMap[i, j] = b;
-                    }
-                    catch (IndexOutOfRangeException)
-                    {
-                        Console.WriteLine($"Index ouf of range: ({i}, {j}). xywh: ({button.X}, {button.Y}, {button.Width}, {button.Height}) xyXY: ({xMin}, {yMin}, {xMax}, {yMax}), size: ({_uvToButtonMap.GetLength(0)}, {_uvToButtonMap.GetLength(1)})");
-                        throw;
-                    }
+                    for (var j = yMin; j < yMax; j++)
+                        try
+                        {
+                            _uvToButtonMap[i, j] = b;
+                        }
+                        catch (IndexOutOfRangeException)
+                        {
+                            Console.WriteLine($"Index ouf of range: ({i}, {j}). xywh: ({button.X}, {button.Y}, {button.Width}, {button.Height}) xyXY: ({xMin}, {yMin}, {xMax}, {yMax}), size: ({_uvToButtonMap.GetLength(0)}, {_uvToButtonMap.GetLength(1)})");
+                            throw;
+                        }
             }
         }
     }
@@ -106,12 +106,12 @@ public class Canvas : IDisposable
             || !ButtonFromIdx(idx, out var button))
             return;
 
-        var hint = (int) hand;
-            
+        var hint = (int)hand;
+
         var litIdx = _litButtons[hint];
         if (litIdx == idx)
             return;
-            
+
         if (ButtonFromIdx(litIdx, out var otherBtn))
             otherBtn.OnPointerExit();
 
@@ -124,17 +124,17 @@ public class Canvas : IDisposable
         if (!IdxFromUv(uv, out var idx)
             || !ButtonFromIdx(idx, out var button))
             return null;
-                
-        var hint = (int) hand;
+
+        var hint = (int)hand;
         _litButtons[hint] = idx;
 
         button.OnPointerDown();
         return () => button.OnPointerUp();
     }
-    
+
     public void Render()
     {
-        foreach (var control in _controls) 
+        foreach (var control in _controls)
             control.Update();
 
         if (_dirty)
@@ -148,7 +148,7 @@ public class Canvas : IDisposable
             GraphicsEngine.UiRenderer.End();
             _dirty = false;
         }
-        
+
         if (_swapTexture != null)
             _texture.CopyTo(_swapTexture);
     }
@@ -157,10 +157,10 @@ public class Canvas : IDisposable
     {
         _texture.Dispose();
     }
-    
+
     private bool IdxFromHand(LeftRight hand, out int idx)
     {
-        idx = _litButtons[(int) hand];
+        idx = _litButtons[(int)hand];
         return idx != 0;
     }
 
@@ -169,7 +169,7 @@ public class Canvas : IDisposable
         button = _buttons[idx]!;
         return button != null!;
     }
-        
+
     private bool IdxFromUv(Vector2 uv, out int idx)
     {
         var i = (int)((_uvToButtonMap!.GetLength(0) - 1) * uv.x);
@@ -191,7 +191,7 @@ public class Canvas : IDisposable
 
     public void OnPointerLeft(LeftRight hand)
     {
-        if (IdxFromHand(hand, out var btnIdx) 
+        if (IdxFromHand(hand, out var btnIdx)
             && ButtonFromIdx(btnIdx, out var button))
             button.OnPointerExit();
     }

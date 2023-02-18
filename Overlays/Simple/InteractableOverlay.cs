@@ -17,14 +17,14 @@ public abstract class InteractableOverlay : BaseOverlay
     /// Transforms texture UV (rect) to overlay UV (square)
     /// </summary>
     protected Transform2D InteractionTransform;
-    
+
     /// <summary>
     /// Transforms overlay UV (square) to texture UV (rect) 
     /// </summary>
     protected Transform2D InvInteractionTransform;
 
     protected InteractableOverlay(string key) : base(key) { }
-    
+
     protected void UpdateInteractionTransform()
     {
         if (Texture == null)
@@ -47,7 +47,7 @@ public abstract class InteractableOverlay : BaseOverlay
 
         InvInteractionTransform = InteractionTransform.AffineInverse();
     }
-    
+
     protected internal override void Render()
     {
         if (Config.Instance.FallbackCursors)
@@ -75,7 +75,7 @@ public abstract class InteractableOverlay : BaseOverlay
         {
             if (PrimaryPointer == pointer)
                 return;
-            
+
             PrimaryPointer.OnPrimaryLost(this);
         }
 
@@ -101,12 +101,12 @@ public abstract class InteractableOverlay : BaseOverlay
 
     protected internal virtual void OnPointerUp(PointerHit hitData)
     {
-        
+
     }
 
     protected internal virtual void OnScroll(PointerHit hitData, float value)
     {
-        
+
     }
 
     protected void DrawFallbackCursor(int x, int y, Vector3 color, int extraWidth = 0)
@@ -116,7 +116,7 @@ public abstract class InteractableOverlay : BaseOverlay
         var sizePow2 = size * size;
 
         var array = new Vector3[sizePow2];
-        for (var i = 0; i < sizePow2; i ++) 
+        for (var i = 0; i < sizePow2; i++)
             array[i] = color;
 
         x = (int)Math.Clamp(x - halfSize, 0, Texture!.GetWidth() - size - 1);
@@ -137,7 +137,7 @@ public abstract class InteractableOverlay : BaseOverlay
         var size = halfSize * 2 + 1;
 
         var array = new Vector3[size];
-        for (var i = 0; i < size; i ++) 
+        for (var i = 0; i < size; i++)
             array[i] = color;
 
         x = (int)Math.Clamp(x - halfSize, 0, Texture!.GetWidth() - size - 1);
@@ -171,23 +171,23 @@ public abstract class InteractableOverlay : BaseOverlay
     protected internal Transform3D CurvedSurfaceTransformFromUv(Vector2 localUv)
     {
         var ovrUv = InteractionTransform * localUv - new Vector2(0.5f, 0.5f);
-        
-        var tCursor =  Transform.TranslatedLocal(new Vector3(WidthInMeters * ovrUv.x, WidthInMeters * ovrUv.y, 0));
+
+        var tCursor = Transform.TranslatedLocal(new Vector3(WidthInMeters * ovrUv.x, WidthInMeters * ovrUv.y, 0));
 
         if (Mathf.Abs(Curvature) < float.Epsilon)
             return tCursor;
-        
+
         var theta = Mathf.Pi * 4f * Curvature;
         var halfTheta = theta / 2f;
         var r = WidthInMeters * 2 / theta;
-        
+
         var tOrigin = Transform.TranslatedLocal(Vector3.Back * r);
         tOrigin.origin.y = tCursor.origin.y;
 
         var offsetAngle = ovrUv.x * halfTheta;
         tCursor = tOrigin.RotatedLocal(Vector3.Up, -offsetAngle)
             .TranslatedLocal(Vector3.Forward * r);
-        
+
         return tCursor;
     }
 }

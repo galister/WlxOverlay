@@ -11,10 +11,10 @@ namespace X11Overlay.Core;
 public class InputManager : IDisposable
 {
     internal static InputManager Instance = null!;
-    
+
     private string? _actionSet;
     private ulong _actionSetHandle;
-    
+
     public static readonly Dictionary<string, bool[]> BooleanState = new();
     public static readonly Dictionary<string, Vector3[]> Vector3State = new();
     public static readonly Dictionary<string, Transform3D> PoseState = new();
@@ -27,22 +27,22 @@ public class InputManager : IDisposable
 
     private readonly string[] _inputSources = { "/user/hand/left", "/user/hand/right", "/user/head" };
     private readonly ulong[] _inputSourceHandles = new ulong[3];
-    
+
     private InputDigitalActionData_t _digitalActionData;
     private readonly uint _digitalActionDataSize;
     private InputAnalogActionData_t _analogActionData;
     private readonly uint _analogActionDataSize;
     private InputPoseActionData_t _poseActionData;
     private readonly uint _poseActionDataSize;
-    
+
     private readonly TrackedDevicePose_t[] _poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
     private readonly TrackedDevicePose_t[] _gamePoses = new TrackedDevicePose_t[0];
-    
+
     private VRActiveActionSet_t[]? _activeActionSets;
     private readonly uint _activeActionSetsSize;
 
     private readonly Dictionary<(LeftRight hand, string action), FileStream> _exportFiles = new();
-    
+
     private readonly TrackedDevice?[] _controllers = new TrackedDevice?[2];
     private TrackedDevice? _hmd = null;
 
@@ -51,7 +51,7 @@ public class InputManager : IDisposable
         _digitalActionDataSize = (uint)Marshal.SizeOf(typeof(InputDigitalActionData_t));
         _analogActionDataSize = (uint)Marshal.SizeOf(typeof(InputAnalogActionData_t));
         _poseActionDataSize = (uint)Marshal.SizeOf(typeof(InputPoseActionData_t));
-        
+
         _activeActionSetsSize = (uint)Marshal.SizeOf(typeof(VRActiveActionSet_t));
     }
 
@@ -60,7 +60,7 @@ public class InputManager : IDisposable
         if (Instance != null)
             throw new InvalidOperationException("Can't have more than one InputManager!");
         Instance = new InputManager();
-        
+
         var error = EVRInitError.None;
         OpenVR.GetGenericInterface(OpenVR.IVRInput_Version, ref error);
         if (error != EVRInitError.None)
@@ -121,7 +121,7 @@ public class InputManager : IDisposable
         Console.WriteLine($"Loaded {_inputActions.Count} input actions for {_actionSet}");
 
         err = OpenVR.Input.GetActionSetHandle(_actionSet, ref _actionSetHandle);
-        if (err != EVRInputError.None) 
+        if (err != EVRInputError.None)
         {
             Console.WriteLine($"GetActionSetHandle {_actionSet}: {err}");
             Environment.Exit(1);
@@ -135,7 +135,7 @@ public class InputManager : IDisposable
                 ulRestrictedToDevice = OpenVR.k_ulInvalidInputValueHandle,
             }
         };
-        
+
         GetInputSourceHandles();
     }
 
@@ -146,7 +146,7 @@ public class InputManager : IDisposable
             var path = _inputSources[i];
             var handle = 0UL;
             var err = OpenVR.Input.GetInputSourceHandle(path, ref handle);
-            if (err != EVRInputError.None) 
+            if (err != EVRInputError.None)
                 Console.WriteLine($"GetInputSources {path}: {err}");
 
             _inputSourceHandles[i] = handle;
@@ -195,7 +195,7 @@ public class InputManager : IDisposable
         }
 
         var pose = _poses[OpenVR.k_unTrackedDeviceIndex_Hmd];
-        
+
         if (pose.bPoseIsValid)
             HmdTransform = pose.mDeviceToAbsoluteTracking.ToTransform3D();
 
@@ -206,11 +206,11 @@ public class InputManager : IDisposable
                 continue;
 
             pose = _poses[controller.Index];
-            
+
             if (pose.bPoseIsValid)
                 PoseState[$"{side}Hand"] = pose.mDeviceToAbsoluteTracking.ToTransform3D().RotatedLocal(Vector3.Left, Mathf.Pi * 0.3f);
         }
-        
+
         EVRInputError err;
         err = OpenVR.Input.UpdateActionState(_activeActionSets, _activeActionSetsSize);
         if (err != EVRInputError.None)
@@ -238,7 +238,7 @@ public class InputManager : IDisposable
             {
                 if (_inputSourceHandles[s] == 0UL)
                     continue;
-                
+
                 switch (inputAction.Type)
                 {
                     case OpenVrInputActionType.Boolean:
@@ -255,7 +255,7 @@ public class InputManager : IDisposable
                         BooleanState[inputAction.Name][s] = bVal;
                         TryExportInput(inputAction.Name, (LeftRight)s, bVal ? "1" : "0");
                         break;
-                    
+
                     case OpenVrInputActionType.Single:
                     case OpenVrInputActionType.Vector1:
                     case OpenVrInputActionType.Vector2:
@@ -269,7 +269,7 @@ public class InputManager : IDisposable
                         }
                         else
                             v3Val = _digitalActionData.bActive ? new Vector3(_analogActionData.x, _analogActionData.y, _analogActionData.z) : Vector3.Zero;
-                        
+
                         Vector3State[inputAction.Name][s] = v3Val;
                         TryExportInput(inputAction.Name, (LeftRight)s, $"{v3Val.x:F6}\n{v3Val.y:F6}\n{v3Val.z:F6}");
                         break;
@@ -292,7 +292,7 @@ public class InputManager : IDisposable
     public void UpdateDeviceStates()
     {
         DeviceStates.Clear();
-        
+
         if (_hmd == null || _hmd.SoC >= 0)
         {
             _hmd = TrackedDevice.FromDeviceIdx(OpenVR.k_unTrackedDeviceIndex_Hmd);
@@ -318,14 +318,14 @@ public class InputManager : IDisposable
                 device.Role = TrackedDeviceRole.LeftHand + controllerIdx;
                 _controllers[controllerIdx] = device;
             }
-            else 
+            else
                 device.Role = TrackedDeviceRole.None;
-            
+
             DeviceStates[device.Serial] = device;
         }
-        
+
         numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.GenericTracker, _deviceIds, 0);
-        
+
         for (var i = 0U; i < numDevs; i++)
         {
             var device = TrackedDevice.FromDeviceIdx(_deviceIds[i]);
@@ -365,7 +365,7 @@ public class OpenVrInputAction
     public void Initialize()
     {
         var err = OpenVR.Input.GetActionHandle(Path, ref Handle);
-        if (err != EVRInputError.None) 
+        if (err != EVRInputError.None)
             Console.WriteLine($"GetActionHandle {Path}: {err}");
     }
 }
@@ -391,7 +391,7 @@ public class TrackedDevice
         device.Index = deviceIdx;
         device.Serial = Sb.ToString();
         Sb.Clear();
-            
+
         device.SoC = OpenVR.System.GetFloatTrackedDeviceProperty(deviceIdx,
             ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float, ref lastErr);
         if (lastErr == ETrackedPropertyError.TrackedProp_Success)

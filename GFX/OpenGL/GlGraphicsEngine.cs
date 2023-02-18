@@ -33,7 +33,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         options.VSync = false;
 
         GlfwWindowing.Use();
-        
+
         _window = Window.Create(options);
         _window.Load += OnLoad;
         _window.Render += OnRender;
@@ -83,7 +83,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
             return new GlTexture(_gl, data.ToPointer(), width, height, pixelFmt, pixelType, internalFmt);
         }
     }
-    
+
     public unsafe ITexture TextureFromRaw(uint width, uint height, GraphicsFormat inputFormat, Span<byte> data,
         GraphicsFormat internalFormat = GraphicsFormat.RGBA8)
     {
@@ -121,7 +121,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
     }
-    
+
     internal static InternalFormat GraphicsFormatAsInternal(GraphicsFormat format)
     {
         return format switch

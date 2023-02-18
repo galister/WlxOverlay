@@ -15,11 +15,11 @@ public class Watch : InteractableOverlay
     private static Watch? _instance;
     private readonly Canvas _canvas;
     private readonly List<Control> _batteryControls = new();
-    
+
     private float _flBrightness = 1f;
 
     private readonly string _strPose;
-    private readonly Vector3 _vec3RelToHand = new (-0.05f, -0.05f, 0.15f);
+    private readonly Vector3 _vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
     private readonly Vector3 _vec3InsideUnit = Vector3.Right;
 
     public Watch(BaseOverlay keyboard, IList<BaseOverlay> screens) : base("Watch")
@@ -34,7 +34,7 @@ public class Watch : InteractableOverlay
             _vec3RelToHand.x *= -1;
             _vec3InsideUnit.x *= -1;
         }
-        
+
         WidthInMeters = 0.115f;
         ShowHideBinding = false;
         ZOrder = 67;
@@ -43,11 +43,11 @@ public class Watch : InteractableOverlay
         _canvas = new Canvas(400, 200);
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#353535");
-        
+
         _canvas.AddControl(new Panel(0, 0, 400, 200));
 
         Canvas.CurrentFgColor = HexColor.FromRgb("#FFFFFF");
-        
+
         Canvas.CurrentFont = new Font("LiberationSans-Bold.ttf", 46);
         _canvas.AddControl(new DateTimeLabel("HH:mm", TimeZoneInfo.Local, 19, 107, 200, 50));
 
@@ -56,21 +56,21 @@ public class Watch : InteractableOverlay
         _canvas.AddControl(new DateTimeLabel("dddd", TimeZoneInfo.Local, 20, 60, 200, 50));
 
         Font? b24Pt = null;
-        
+
         if (Config.Instance.AltTimezone1 != null)
         {
-            
+
             Canvas.CurrentFgColor = HexColor.FromRgb("#99BBAA");
             var tz = TimeZoneInfo.FindSystemTimeZoneById(Config.Instance.AltTimezone1);
             var tzDisplay = Config.Instance.AltTimezone1.Split('/').Last();
-            
+
             Canvas.CurrentFont = b14Pt;
             _canvas.AddControl(new Label(tzDisplay, 210, 137, 200, 50));
-            
+
             b24Pt = Canvas.CurrentFont = new Font("LiberationSans-Bold.ttf", 24);
             _canvas.AddControl(new DateTimeLabel("HH:mm", tz, 210, 107, 200, 50));
         }
-        
+
         if (Config.Instance.AltTimezone2 != null)
         {
             Canvas.CurrentFgColor = HexColor.FromRgb("#AA99BB");
@@ -86,7 +86,7 @@ public class Watch : InteractableOverlay
         }
 
         // Volume controls
-        
+
         Canvas.CurrentBgColor = HexColor.FromRgb("#222222");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AAAAAA");
         Canvas.CurrentFont = b14Pt;
@@ -103,19 +103,19 @@ public class Watch : InteractableOverlay
             {
                 PointerDown = () => Runner.TryStart(psiUp)
             });
-        
+
         var psiDn = Runner.StartInfoFromArgs(Config.Instance.VolumeDnCmd);
         if (psiDn != null)
             _canvas.AddControl(new Button("-", 327, 52, 46, 32)
             {
                 PointerDown = () => Runner.TryStart(psiDn)
             });
-        
+
         // Bottom row
-        
+
         var numButtons = screens.Count + 1;
         var btnWidth = 400 / numButtons;
-        
+
         Canvas.CurrentBgColor = HexColor.FromRgb("#406050");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");
 
@@ -135,7 +135,7 @@ public class Watch : InteractableOverlay
             }
         });
 
-        Canvas.CurrentBgColor = HexColor.FromRgb("#405060");        
+        Canvas.CurrentBgColor = HexColor.FromRgb("#405060");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AABBCC");
 
@@ -158,16 +158,16 @@ public class Watch : InteractableOverlay
                 }
             });
         }
-        
+
         _canvas.BuildInteractiveLayer();
     }
 
     private void OnBatteryStatesUpdated()
     {
-        foreach (var c in _batteryControls) 
+        foreach (var c in _batteryControls)
             _canvas.RemoveControl(c);
         _batteryControls.Clear();
-        
+
         var numStates = InputManager.DeviceStatesSorted.Count;
 
         if (numStates > 0)
@@ -179,7 +179,7 @@ public class Watch : InteractableOverlay
                 var device = InputManager.DeviceStatesSorted[s];
                 if (device.Role == TrackedDeviceRole.None || device.SoC < 0)
                     continue;
-                
+
                 var indicator = new BatteryIndicator(device, stateWidth * s + 2, 162, (uint)stateWidth - 4U, 36);
                 _canvas.AddControl(indicator);
                 _batteryControls.Add(indicator);
@@ -191,7 +191,7 @@ public class Watch : InteractableOverlay
     protected override void Initialize()
     {
         Texture = _canvas.Initialize();
-        
+
         UpdateInteractionTransform();
         base.Initialize();
     }
@@ -199,14 +199,14 @@ public class Watch : InteractableOverlay
     protected internal override void Render()
     {
         _canvas.Render();
-        
+
         base.Render();
     }
 
     protected internal override void AfterInput(bool batteryStateUpdated)
     {
         base.AfterInput(batteryStateUpdated);
-        
+
         var controller = InputManager.PoseState[_strPose];
         var tgt = controller.TranslatedLocal(_vec3InsideUnit).TranslatedLocal(_vec3RelToHand);
         Transform = controller.TranslatedLocal(_vec3RelToHand).LookingAt(tgt.origin, -controller.basis.y);
@@ -218,7 +218,7 @@ public class Watch : InteractableOverlay
         Alpha = Mathf.Clamp(unclampedAlpha, 0f, 1f);
         if (Alpha < float.Epsilon)
         {
-            if (Visible) 
+            if (Visible)
                 Hide();
         }
         else

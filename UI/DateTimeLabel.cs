@@ -13,11 +13,11 @@ public class DateTimeLabel : Label
     public override void Update()
     {
         base.Update();
-        
+
         var newText = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, _timeZoneInfo).ToString(_format);
 
         if (newText == Text) return;
-        
+
         Text = newText;
     }
 }

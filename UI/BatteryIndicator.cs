@@ -13,7 +13,7 @@ public class BatteryIndicator : Panel
 
     private readonly Label _label;
     private readonly Panel _bg2;
-    
+
     public BatteryIndicator(TrackedDevice status, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
         if (status.Charging)
@@ -22,8 +22,8 @@ public class BatteryIndicator : Panel
             BgColor = BgColorCritical;
         else
             BgColor = BgColorDischarging;
-        
-        _bg2 = new Panel(x+1, y+1, (uint)Mathf.Max(1,w * status.SoC), h-2) { BgColor = BgColor * 2 };
+
+        _bg2 = new Panel(x + 1, y + 1, (uint)Mathf.Max(1, w * status.SoC), h - 2) { BgColor = BgColor * 2 };
         _label = new LabelCentered(LabelString(status), x, y, w, h) { FgColor = Vector3.Zero };
     }
 

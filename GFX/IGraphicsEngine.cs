@@ -17,7 +17,7 @@ public interface IGraphicsEngine
 
     public ITexture TextureFromRaw(uint width, uint height, GraphicsFormat inputFormat, IntPtr data,
         GraphicsFormat internalFormat = GraphicsFormat.RGBA8);
-    
+
     public ITexture TextureFromRaw(uint width, uint height, GraphicsFormat inputFormat, Span<byte> data,
         GraphicsFormat internalFormat = GraphicsFormat.RGBA8);
 

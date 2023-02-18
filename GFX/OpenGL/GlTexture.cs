@@ -134,7 +134,7 @@ public class GlTexture : ITexture
         var d = ptr.ToPointer();
         Bind();
 
-        _gl.TexSubImage2D(TextureTarget.Texture2D, 0, xOffset, yOffset, (uint) width, (uint) height, pf, pt, d);
+        _gl.TexSubImage2D(TextureTarget.Texture2D, 0, xOffset, yOffset, (uint)width, (uint)height, pf, pt, d);
         _gl.GetError().AssertNone();
     }
 
@@ -144,12 +144,12 @@ public class GlTexture : ITexture
 
         if (width == 0)
             width = Width;
-        
+
         if (height == 0)
             height = Height;
 
         _gl.CopyImageSubData(Handle, GLEnum.Texture2D, 0, srcX, srcY, 0,
-            glTarget.Handle, GLEnum.Texture2D, 0, dstX, dstY, 0, 
+            glTarget.Handle, GLEnum.Texture2D, 0, dstX, dstY, 0,
             width, height, 1);
     }
 

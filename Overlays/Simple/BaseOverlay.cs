@@ -9,10 +9,10 @@ public class BaseOverlay : IDisposable
 {
     public Transform3D Transform;
     public ITexture? Texture;
-    
+
     public uint ZOrder = 0;
     public bool ShowHideBinding = true;
-    
+
     public float WidthInMeters;
     public float Curvature;
     public float Alpha = 1f;
@@ -28,7 +28,7 @@ public class BaseOverlay : IDisposable
 
     public readonly string Key;
     protected Vector3 LocalScale = Vector3.One;
-    
+
     protected static HmdMatrix34_t HmdMatrix;
     protected static VROverlayIntersectionParams_t IntersectionParams = new() { eOrigin = ETrackingUniverseOrigin.TrackingUniverseStanding };
     protected static VROverlayIntersectionResults_t IntersectionResults;
@@ -37,7 +37,7 @@ public class BaseOverlay : IDisposable
 
     public BaseOverlay(string key)
     {
-        Key = Prefix+key;
+        Key = Prefix + key;
     }
 
     public ulong Handle => _overlay?.Handle ?? OpenVR.k_ulOverlayHandleInvalid;
@@ -55,7 +55,7 @@ public class BaseOverlay : IDisposable
             WantVisible = true;
         }
     }
-    
+
     /// <summary>
     /// Runs before the showing for the first time.
     /// </summary>
@@ -66,7 +66,7 @@ public class BaseOverlay : IDisposable
     public virtual void ResetTransform()
     {
     }
-    
+
     public virtual void Show()
     {
         if (!_initialized)
@@ -74,14 +74,14 @@ public class BaseOverlay : IDisposable
             Initialize();
             _initialized = true;
         }
-        
+
         if (Texture == null)
         {
             Console.WriteLine($"Not showing {Key}: No texture set.");
             WantVisible = false;
             return;
         }
-        
+
         if (Handle == OpenVR.k_ulOverlayHandleInvalid)
         {
             _overlay = new Overlay(Key, Key);
@@ -91,19 +91,19 @@ public class BaseOverlay : IDisposable
                 UploadColor();
             if (Curvature != 0f)
                 UploadCurvature();
-            
+
             UploadSortOrder();
             UploadTransform();
             UploadWidth();
         }
-        
+
 
         if (!_textureUploaded && !Texture.IsDynamic())
         {
             UploadTexture();
             _textureUploaded = true;
         }
-        
+
         Visible = true;
         _overlay!.Show();
     }
@@ -113,7 +113,7 @@ public class BaseOverlay : IDisposable
         Visible = false;
         if (_overlay == null)
             return;
-        
+
         if (Texture!.IsDynamic())
         {
             // To prevent SteamVR from crashing on Linux, we destroy/recreate instead of hide/show.
@@ -123,9 +123,9 @@ public class BaseOverlay : IDisposable
         else // Overlays where the texture is only uploaded once do not seem to cause crash.
             _overlay.Hide();
     }
-    
+
     protected internal virtual void AfterInput(bool batteryStateUpdated) { }
-    
+
     protected internal virtual void Render()
     {
         if (Texture!.IsDynamic())
@@ -181,7 +181,7 @@ public class BaseOverlay : IDisposable
         if (err != EVROverlayError.None)
             Console.WriteLine($"[Err] SetOverlayColor {Color}: " + OpenVR.Overlay.GetOverlayErrorNameFromEnum(err));
     }
-    
+
     private void UploadTexture()
     {
         var tex = new Texture_t

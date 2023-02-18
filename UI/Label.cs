@@ -16,14 +16,14 @@ public class Label : Control
     public string? Text
     {
         get => _text;
-        set 
+        set
         {
             _text = value;
             Dirty = true;
             Canvas?.MarkDirty();
         }
     }
-    
+
     public Vector3 FgColor
     {
         get => _fgColor;
@@ -37,7 +37,7 @@ public class Label : Control
 
     public readonly Font Font;
 
-    public Label(string? text, int x, int y, uint w, uint h) : base(x ,y ,w, h)
+    public Label(string? text, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
         Font = Canvas.CurrentFont!;
         _fgColor = Canvas.CurrentFgColor;
@@ -55,9 +55,9 @@ public class Label : Control
             var g = Font.GetTexture(c);
             if (g == null)
                 continue;
-            
+
             GraphicsEngine.UiRenderer.DrawFont(g, FgColor, curX, Y, g.Texture.GetWidth(), g.Texture.GetHeight());
-            
+
             curX += g.AdvX;
         }
     }

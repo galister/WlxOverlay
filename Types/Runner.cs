@@ -10,13 +10,13 @@ public static class Runner
         {
             return null;
         }
-        
+
         var psi = new ProcessStartInfo
         {
             UseShellExecute = true,
             FileName = argv[0],
         };
-        foreach (var arg in argv.Skip(1)) 
+        foreach (var arg in argv.Skip(1))
             psi.ArgumentList.Add(arg);
         return psi;
     }
@@ -32,5 +32,5 @@ public static class Runner
             Console.WriteLine($"[Err] {x.Message}");
         }
     }
-    
+
 }

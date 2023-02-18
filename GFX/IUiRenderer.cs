@@ -8,12 +8,12 @@ public interface IUiRenderer
     /// Begin rendering to this texture.
     /// </summary>
     public void Begin(ITexture texture);
-    
+
     /// <summary>
     /// Call after rendering of the texture is done. 
     /// </summary>
     public void End();
-    
+
     /// <summary>
     /// Clear the color buffer
     /// </summary>
