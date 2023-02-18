@@ -16,6 +16,8 @@ public class GlTexture : ITexture
 
     private readonly bool _dynamic;
 
+    private bool isDirty = true;
+
     public unsafe GlTexture(GL gl, string path, InternalFormat internalFormat = InternalFormat.Rgba8)
     {
         _gl = gl;
@@ -89,8 +91,21 @@ public class GlTexture : ITexture
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
-        //Generating mipmaps.
-        _gl.GenerateMipmap(TextureTarget.Texture2D);
+    }
+
+    public void GenerateMipmaps()
+    {
+        if (!isDirty) 
+            return;
+        
+        Console.WriteLine($"GenerateMipmaps on {Handle} {Width}x{Height}");
+        _gl.GenerateTextureMipmap(Handle);
+        isDirty = false;
+    }
+
+    public void SetDirty()
+    {
+        isDirty = true;
     }
 
     private unsafe void Allocate(InternalFormat internalFormat, uint width, uint height,
@@ -125,6 +140,7 @@ public class GlTexture : ITexture
 
         _gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, Width, Height, pf, pt, d);
         _gl.GetError().AssertNone();
+        isDirty = true;
     }
 
     public unsafe void LoadRawSubImage(IntPtr ptr, GraphicsFormat graphicsFormat, int xOffset, int yOffset, int width, int height)
@@ -136,6 +152,7 @@ public class GlTexture : ITexture
 
         _gl.TexSubImage2D(TextureTarget.Texture2D, 0, xOffset, yOffset, (uint) width, (uint) height, pf, pt, d);
         _gl.GetError().AssertNone();
+        isDirty = true;
     }
 
     public void CopyTo(ITexture target, uint width = 0, uint height = 0, int srcX = 0, int srcY = 0, int dstX = 0, int dstY = 0)
@@ -151,6 +168,8 @@ public class GlTexture : ITexture
         _gl.CopyImageSubData(Handle, GLEnum.Texture2D, 0, srcX, srcY, 0,
             glTarget.Handle, GLEnum.Texture2D, 0, dstX, dstY, 0, 
             width, height, 1);
+
+        glTarget.isDirty = true;
     }
 
     public uint GetWidth()

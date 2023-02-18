@@ -184,6 +184,7 @@ public class BaseOverlay : IDisposable
     
     private void UploadTexture()
     {
+        
         var tex = new Texture_t
         {
             handle = Texture!.GetNativeTexturePtr(),
@@ -197,6 +198,7 @@ public class BaseOverlay : IDisposable
             return;
         }
 
+        Texture!.GenerateMipmaps();
         _overlay!.SetTexture(tex);
     }
 

@@ -13,5 +13,7 @@ public interface ITexture : IDisposable
     public uint GetWidth();
     public uint GetHeight();
 
+    public void GenerateMipmaps();
+
     public bool IsDynamic();
 }

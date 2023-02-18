@@ -44,6 +44,8 @@ public class GlUiRenderer : IUiRenderer, IDisposable
     public void Begin(ITexture texture)
     {
         var glTex = (GlTexture)texture;
+        
+        glTex.SetDirty();
 
         _framebuffer = new GlFramebuffer(_gl, glTex);
         _framebuffer.Bind();
