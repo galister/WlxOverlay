@@ -22,6 +22,8 @@ public class Watch : InteractableOverlay
     private readonly Vector3 _vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
     private readonly Vector3 _vec3InsideUnit = Vector3.Right;
 
+    private ProgressBar memUsageBar;
+
     public Watch(BaseOverlay keyboard, IList<BaseOverlay> screens) : base("Watch")
     {
         if (_instance != null)
@@ -40,7 +42,9 @@ public class Watch : InteractableOverlay
         ZOrder = 67;
 
         // 400 x 200
-        _canvas = new Canvas(400, 200);
+        _canvas = new Canvas(400, 250);
+        memUsageBar = new ProgressBar(0.0f, "Memory Usage", 2, 200, 400 - 2 * 2, 40);
+        _canvas.AddControl(memUsageBar);
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#353535");
 
@@ -204,6 +208,15 @@ public class Watch : InteractableOverlay
                 _batteryControls.Add(indicator);
             }
         }
+        _canvas.MarkDirty();
+    }
+
+    public void OnGpuStatsUpdated(float memUsage, float memTotal)
+    {
+        float memPercent = memUsage / memTotal;
+        _canvas.RemoveControl(memUsageBar);
+        memUsageBar = new ProgressBar(memPercent, $"{memUsage}MiB/{memTotal}MiB", 2, 200, 400 - 2 * 2, 40);
+        _canvas.AddControl(memUsageBar);
         _canvas.MarkDirty();
     }
 

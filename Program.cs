@@ -115,5 +115,22 @@ foreach (var screen in screens)
 
 manager.RegisterChild(new Watch(keyboard, screens));
 
+try
+{
+    var smi = new NvidiaSMI();
+    smi.Start();
+    smi.StatsUpdated += (stats) =>
+    {
+        float usage = stats["memory.used"];
+        float total = stats["memory.total"];
+        watch.OnGpuStatsUpdated(usage, total);
+    };
+}
+catch (Exception e)
+{
+    Console.Error.WriteLine($"Could not start nvidia-smi for stats: {e.Message}");
+}
+
+
 var engine = new GlGraphicsEngine();
 engine.StartEventLoop();
