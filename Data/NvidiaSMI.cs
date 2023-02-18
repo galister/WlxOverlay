@@ -19,7 +19,7 @@ class NvidiaSMI : IDisposable
 
     // TODO: Add more descriptive messages?, Dict?
     // TODO: Make configurable?
-    private readonly String[] props = { "temperature.gpu", "memory.used", "memory.total", "power.draw" };
+    private readonly String[] props = { "temperature.gpu", "memory.used", "memory.total", "power.draw", "power.limit" };
 
     // TODO: Could probably be typed enum as keys?
     public Dictionary<string, float>? Values;

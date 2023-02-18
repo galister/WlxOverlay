@@ -121,9 +121,7 @@ try
     smi.Start();
     smi.StatsUpdated += (stats) =>
     {
-        float usage = stats["memory.used"];
-        float total = stats["memory.total"];
-        watch.OnGpuStatsUpdated(usage, total);
+        watch.OnGpuStatsUpdated(stats["memory.used"], stats["memory.total"], stats["power.draw"], stats["power.limit"]);
     };
 }
 catch (Exception e)
