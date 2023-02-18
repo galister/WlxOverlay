@@ -134,23 +134,26 @@ public class Canvas : IDisposable
 
     public void Render()
     {
-        foreach (var control in _controls)
-            control.Update();
-
-        if (_dirty)
+        lock (this)
         {
-            GraphicsEngine.UiRenderer.Begin(_texture);
-            GraphicsEngine.UiRenderer.Clear();
-
             foreach (var control in _controls)
-                control.Render();
+                control.Update();
 
-            GraphicsEngine.UiRenderer.End();
-            _dirty = false;
+            if (_dirty)
+            {
+                GraphicsEngine.UiRenderer.Begin(_texture);
+                GraphicsEngine.UiRenderer.Clear();
+
+                foreach (var control in _controls)
+                    control.Render();
+
+                GraphicsEngine.UiRenderer.End();
+                _dirty = false;
+            }
+
+            if (_swapTexture != null)
+                _texture.CopyTo(_swapTexture);
         }
-
-        if (_swapTexture != null)
-            _texture.CopyTo(_swapTexture);
     }
 
     public void Dispose()

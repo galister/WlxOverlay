@@ -216,15 +216,19 @@ public class Watch : InteractableOverlay
 
     public void OnGpuStatsUpdated(float memUsage, float memTotal, float power, float powerLimit)
     {
-        float memPercent = memUsage / memTotal;
-        float powerPercent = power / powerLimit;
-        _canvas.RemoveControl(memUsageBar);
-        _canvas.RemoveControl(powerUsageBar);
-        powerUsageBar = new ProgressBar(powerPercent, $"{power}W", 2, 244, 400 - 2 * 2, 40);
-        memUsageBar = new ProgressBar(memPercent, $"{memUsage}MiB/{memTotal}MiB", 2, 200, 400 - 2 * 2, 40);
-        _canvas.AddControl(memUsageBar);
-        _canvas.AddControl(powerUsageBar);
-        _canvas.MarkDirty();
+        lock (_canvas)
+        {
+            _canvas.RemoveControl(memUsageBar);
+            float memPercent = memUsage / memTotal;
+            float powerPercent = power / powerLimit;
+            _canvas.RemoveControl(memUsageBar);
+            _canvas.RemoveControl(powerUsageBar);
+            powerUsageBar = new ProgressBar(powerPercent, $"{power}W", 2, 244, 400 - 2 * 2, 40);
+            memUsageBar = new ProgressBar(memPercent, $"{memUsage}MiB/{memTotal}MiB", 2, 200, 400 - 2 * 2, 40);
+            _canvas.AddControl(memUsageBar);
+            _canvas.AddControl(powerUsageBar);
+            _canvas.MarkDirty();
+        }
     }
 
     protected override void Initialize()
