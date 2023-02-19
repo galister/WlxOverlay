@@ -2,11 +2,11 @@ namespace WlxOverlay.UI;
 
 public abstract class Control
 {
-    public readonly int X;
-    public readonly int Y;
+    public int X;
+    public int Y;
 
-    public readonly uint Width;
-    public readonly uint Height;
+    public uint Width;
+    public uint Height;
 
     protected bool Dirty = true;
 

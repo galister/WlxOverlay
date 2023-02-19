@@ -1,6 +1,7 @@
 using System.Diagnostics;
 using System;
 using System.Linq;
+using System.Globalization;
 
 namespace X11Overlay.Data;
 
@@ -10,7 +11,7 @@ class NvidiaSMI : IDisposable
     public NvidiaSMI()
     {
         if (Instance != null)
-            throw new InvalidOperationException("Can't have more than one Watch!");
+            throw new InvalidOperationException("Can't have more than one Nvidia-SMI!");
         Instance = this;
     }
 
@@ -24,15 +25,18 @@ class NvidiaSMI : IDisposable
     // TODO: Could probably be typed enum as keys?
     public Dictionary<string, float>? Values;
     public delegate void StatsDictDelegate(Dictionary<string, float> newValue);
-    public event StatsDictDelegate StatsUpdated;
+    public event StatsDictDelegate? StatsUpdated;
 
     private void ParseInput(string? input)
     {
-        if (input is string)
+        if (input is not null)
         {
-            var splitInput = input.Split(",", StringSplitOptions.TrimEntries);
-            Values = props.Zip(splitInput).ToDictionary(x => x.First, y => float.Parse(y.Second));
-            StatsUpdated(Values);
+            var splitInput = input.Split(",", StringSplitOptions.TrimEntries).Select(value => float.Parse(value, CultureInfo.InvariantCulture.NumberFormat));
+            Values = props.Zip(splitInput).ToDictionary(x => x.First, y => y.Second);
+            if (StatsUpdated is not null)
+            {
+                StatsUpdated(Values);
+            }
         }
     }
 
@@ -47,7 +51,6 @@ class NvidiaSMI : IDisposable
 
         process.StartInfo.FileName = "nvidia-smi";
         process.StartInfo.Arguments = $"--format=csv,nounits,noheader -l 1 --query-gpu={String.Join(",", props)}";
-        // Console.WriteLine($"Running {process.StartInfo.FileName} {process.StartInfo.Arguments}");
         bool wasStarted = process.Start();
         if (wasStarted)
         {
@@ -67,14 +70,5 @@ class NvidiaSMI : IDisposable
             process.WaitForExit();
             process = null;
         }
-    }
-}
-
-static class Program
-{
-    static void Main(string[] args)
-    {
-        Console.WriteLine("Hello World!");
-        // NvidiaSMI.Start();
     }
 }

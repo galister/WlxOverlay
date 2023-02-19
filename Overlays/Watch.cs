@@ -22,8 +22,8 @@ public class Watch : InteractableOverlay
     private readonly Vector3 _vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
     private readonly Vector3 _vec3InsideUnit = Vector3.Right;
 
-    private ProgressBar memUsageBar;
-    private ProgressBar powerUsageBar;
+    private readonly ProgressBar memUsageBar;
+    private readonly ProgressBar powerUsageBar;
 
     public Watch(BaseOverlay keyboard, IList<BaseOverlay> screens) : base("Watch")
     {
@@ -43,7 +43,7 @@ public class Watch : InteractableOverlay
         ZOrder = 67;
 
         // 400 x 200
-        _canvas = new Canvas(400, 300);
+        _canvas = new Canvas(400, 284);
         powerUsageBar = new ProgressBar(0.0f, "Power Usage", 2, 244, 400 - 2 * 2, 40);
         memUsageBar = new ProgressBar(0.0f, "Memory Usage", 2, 202, 400 - 2 * 2, 40);
         _canvas.AddControl(memUsageBar);
@@ -214,20 +214,36 @@ public class Watch : InteractableOverlay
         _canvas.MarkDirty();
     }
 
+    // Material colors, taken from https://m2.material.io/resources/color/
+    private static readonly Vector3 BgColorGreen = HexColor.FromRgb("#33691e");
+    private static readonly Vector3 BgColorYellow = HexColor.FromRgb("#f57f17");
+    private static readonly Vector3 BgColorRed = HexColor.FromRgb("#880e4f");
+    private static readonly Vector3 BgColorBlue = HexColor.FromRgb("#0d47a1");
+
+    public static Vector3 ColorizeFraction(float val) => val switch
+    {
+        (> 0.0f) and (<= 0.5f) => BgColorGreen,
+        (> 0.5f) and (<= 0.8f) => BgColorYellow,
+        (> 0.8f) and (<= 1.0f) => BgColorRed,
+        _ => BgColorBlue,
+    };
+
     public void OnGpuStatsUpdated(float memUsage, float memTotal, float power, float powerLimit)
     {
         lock (_canvas)
         {
-            _canvas.RemoveControl(memUsageBar);
-            float memPercent = memUsage / memTotal;
-            float powerPercent = power / powerLimit;
-            _canvas.RemoveControl(memUsageBar);
-            _canvas.RemoveControl(powerUsageBar);
-            powerUsageBar = new ProgressBar(powerPercent, $"{power}W", 2, 244, 400 - 2 * 2, 40);
-            memUsageBar = new ProgressBar(memPercent, $"{memUsage}MiB/{memTotal}MiB", 2, 200, 400 - 2 * 2, 40);
-            _canvas.AddControl(memUsageBar);
-            _canvas.AddControl(powerUsageBar);
-            _canvas.MarkDirty();
+            {
+                float powerPercent = power / powerLimit;
+                powerUsageBar.Progress = powerPercent;
+                powerUsageBar.LabelText = $"{power}W";
+                powerUsageBar.Color = ColorizeFraction(powerPercent);
+            }
+            {
+                float memPercent = memUsage / memTotal;
+                memUsageBar.Progress = memPercent;
+                memUsageBar.LabelText = $"{memUsage}MiB/{memTotal}MiB";
+                memUsageBar.Color = ColorizeFraction(memPercent);
+            }
         }
     }
 
