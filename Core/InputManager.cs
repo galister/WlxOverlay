@@ -185,6 +185,7 @@ public class InputManager : IDisposable
         }
     }
 
+    private static readonly string[] Hands = { "LeftHand", "RightHand" };
     public void UpdateInput()
     {
         var cErr = OpenVR.Compositor.GetLastPoses(_poses, _gamePoses);
@@ -199,16 +200,16 @@ public class InputManager : IDisposable
         if (pose.bPoseIsValid)
             HmdTransform = pose.mDeviceToAbsoluteTracking.ToTransform3D();
 
-        for (var side = LeftRight.Left; side <= LeftRight.Right; side++)
+        for (var side = 0; side < 2; side++)
         {
-            var controller = _controllers[(int)side];
+            var controller = _controllers[side];
             if (controller == null)
                 continue;
 
             pose = _poses[controller.Index];
 
             if (pose.bPoseIsValid)
-                PoseState[$"{side}Hand"] = pose.mDeviceToAbsoluteTracking.ToTransform3D().RotatedLocal(Vector3.Left, Mathf.Pi * 0.3f);
+                PoseState[Hands[side]] = pose.mDeviceToAbsoluteTracking.ToTransform3D().RotatedLocal(Vector3.Left, Mathf.Pi * 0.3f);
         }
 
         EVRInputError err;

@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 
-namespace X11Overlay.Screen.X11
+namespace X11Overlay.Desktop.X11
 {
     public class XScreenCapture : IDisposable
     {
@@ -88,11 +88,6 @@ namespace X11Overlay.Screen.X11
             xshm_mouse_event(_xShmHandle, to.x, to.y, (byte)button, pressed ? 1 : 0);
         }
 
-        public static void SendKey(int keyCode, bool pressed)
-        {
-            xshm_keybd_event(IntPtr.Zero, (byte)keyCode, pressed ? 1 : 0);
-        }
-
         public Vector2Int GetMousePosition()
         {
             var vec = new Vector2Int();
@@ -149,8 +144,5 @@ namespace X11Overlay.Screen.X11
 
         [DllImport("libxshm_cap.so")]
         private static extern void xshm_mouse_event(IntPtr xhsm_instance, Int16 x, Int16 y, Byte button, Int32 pressed);
-
-        [DllImport("libxshm_cap.so")]
-        private static extern void xshm_keybd_event(IntPtr xhsm_instance, Byte keycode, Int32 pressed);
     }
 }

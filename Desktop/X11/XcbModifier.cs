@@ -1,4 +1,4 @@
-namespace X11Overlay.Screen.X11
+namespace X11Overlay.Desktop.X11
 {
     [Flags]
     public enum XcbModifier : ushort

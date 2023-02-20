@@ -1,11 +1,11 @@
+using X11Overlay.Desktop.X11;
 using X11Overlay.Numerics;
 using X11Overlay.Overlays.Simple;
-using X11Overlay.Screen.X11;
 using X11Overlay.Types;
 
 namespace X11Overlay.Overlays;
 
-public class XorgScreen : BaseScreen
+public class XorgScreen : BaseScreen<int>
 {
     private XScreenCapture? _capture;
     private DateTime _freezeCursor = DateTime.MinValue;
@@ -144,6 +144,11 @@ public class XorgScreen : BaseScreen
             _capture?.SendMouse(hitData.uv, XcbMouseButton.WheelUp, true);
             _capture?.SendMouse(hitData.uv, XcbMouseButton.WheelUp, false);
         }
+    }
+
+    public override string ToString()
+    {
+        return $"Scr {Screen}";
     }
 
     public override void Dispose()

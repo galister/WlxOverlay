@@ -1,9 +1,11 @@
 ﻿using System.Runtime.InteropServices;
 using X11Overlay.Core;
+using X11Overlay.Desktop;
+using X11Overlay.Desktop.Wayland;
+using X11Overlay.Desktop.X11;
 using X11Overlay.GFX.OpenGL;
 using X11Overlay.Overlays;
 using X11Overlay.Overlays.Simple;
-using X11Overlay.Screen.X11;
 using X11Overlay.Types;
 
 if (!Config.Load())
@@ -45,16 +47,40 @@ else
     manager.RegisterChild(leftPointer);
 }
 
-IEnumerable<BaseOverlay> GetScreens()
+var screens = new List<BaseOverlay>();
+if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
 {
+    Console.WriteLine("Wayland detected.");
+    EGL.Initialize();
+    WaylandInterface.Initialize();
+    foreach (var output in WaylandInterface.Instance!.Outputs.Values)
+    {
+        BaseWaylandScreen screen;
+
+        if (Config.Instance.WaylandCapture == "dmabuf")
+            screen = new WlDmaBufScreen(output);
+        else
+            screen = new WlScreenCopyScreen(output);
+
+        screen.WantVisible = output.Name == Config.Instance.DefaultScreen;
+        manager.RegisterChild(screen);
+        screens.Add(screen);
+    }
+    KeyboardProvider.Instance = new WaylandKeyboard();
+}
+else
+{
+    Console.WriteLine("X11 desktop detected.");
+    KeyboardProvider.Instance = new X11Keyboard();
     var numScreens = XScreenCapture.NumScreens();
     for (var s = 0; s < numScreens; s++)
     {
-        var screen = new XorgScreen(s) { WantVisible = s == Config.Instance.DefaultScreen };
+        var screen = new XorgScreen(s) { WantVisible = s.ToString() == Config.Instance.DefaultScreen };
         manager.RegisterChild(screen);
-        yield return screen;
+        screens.Add(screen);
     }
 }
+
 
 if (!KeyboardLayout.Load())
 {
@@ -65,7 +91,10 @@ if (!KeyboardLayout.Load())
 var keyboard = new KeyboardOverlay();
 manager.RegisterChild(keyboard);
 
-manager.RegisterChild(new Watch(keyboard, GetScreens().ToList()));
+foreach (var screen in screens)
+    manager.RegisterChild(screen);
+
+manager.RegisterChild(new Watch(keyboard, screens));
 
 var engine = new GlGraphicsEngine();
 engine.StartEventLoop();

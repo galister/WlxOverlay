@@ -23,6 +23,7 @@ public class GlBuffer<TDataType> : IDisposable
             _gl.BufferData(bufferType, (nuint)(data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
         }
         _gl.GetError().AssertNone();
+        Unbind();
     }
 
     public unsafe void Data(Span<TDataType> data)
@@ -34,11 +35,17 @@ public class GlBuffer<TDataType> : IDisposable
             _gl.BufferData(_bufferType, (nuint)(data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
         }
         _gl.GetError().AssertNone();
+        Unbind();
     }
 
     public void Bind()
     {
         _gl.BindBuffer(_bufferType, _handle);
+    }
+
+    public void Unbind()
+    {
+        _gl.BindBuffer(_bufferType, 0);
     }
 
     public void Dispose()

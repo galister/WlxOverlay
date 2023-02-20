@@ -3,10 +3,16 @@
 # the main configuration file for X11Overlay
 
 # which screen to show by default, along with the keyboard
+# x11: zero-based index
+# wayland: output name such as HDMI-1, DP-2
 default_screen: 0
 
 # enable if you cannot see lasers for some reason
 fallback_cursors: false
+
+# wayland screen capture method
+# one of: screencopy, dmabuf
+wayland_capture: screencopy
 
 # additional timezones to display, other than your local time. optional.
 alt_timezone1: Asia/Tokyo

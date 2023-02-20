@@ -1,6 +1,6 @@
+using X11Overlay.Desktop;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
-using X11Overlay.Screen.X11;
 using X11Overlay.Types;
 using Action = System.Action;
 
@@ -13,8 +13,6 @@ public class KeyButton : ButtonBase
     private const int ModeAlt = 2;
 
     public static int Mode = 0;
-
-    private static readonly HashSet<VirtualKey> Modifiers = new(8);
 
     private readonly Label _label2;
 
@@ -32,7 +30,9 @@ public class KeyButton : ButtonBase
     private readonly Action?[] _pressActions = new Action[3];
     private readonly Action?[] _releaseActions = new Action[3];
 
-    private readonly VirtualKey[] _myKeyCodes = new VirtualKey[3];
+    private readonly KeyModifier[] _myModifiers = new KeyModifier[3];
+
+    private static KeyModifier _modifiers;
 
     public KeyButton(uint row, uint col, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
@@ -93,9 +93,9 @@ public class KeyButton : ButtonBase
 
         if (Enum.TryParse(key, out VirtualKey vk))
         {
-            if (KeyboardLayout.Instance.Modifiers.Contains(vk))
+            if (KeyboardLayout.KeysToModifiers.TryGetValue(vk, out var myMod))
             {
-                _myKeyCodes[mode] = vk;
+                _myModifiers[mode] = myMod;
                 _pressActions[mode] = () => OnModifierPressed(vk);
                 _releaseActions[mode] = () => OnModifierReleased(vk);
             }
@@ -108,7 +108,7 @@ public class KeyButton : ButtonBase
         else if (KeyboardLayout.Instance.Macros.TryGetValue(key, out var macro))
         {
             var events = KeyboardLayout.Instance.KeyEventsFromMacro(macro);
-            _pressActions[mode] = () => events.ForEach(e => XScreenCapture.SendKey((int)e.key, e.down));
+            _pressActions[mode] = () => events.ForEach(e => KeyboardProvider.Instance.SendKey(e.key, e.down));
         }
 
         else if (KeyboardLayout.Instance.ExecCommands.TryGetValue(key, out var argv))
@@ -140,7 +140,7 @@ public class KeyButton : ButtonBase
     public override void Update()
     {
         base.Update();
-        if (Modifiers.Contains(_myKeyCodes[Mode]))
+        if ((_modifiers & _myModifiers[Mode]) != 0)
         {
             if (!IsClicked)
             {
@@ -173,51 +173,34 @@ public class KeyButton : ButtonBase
 
     private void OnKeyPressed(VirtualKey key, KeyModifier modifier)
     {
-        if (modifier != KeyModifier.None)
-        {
-            Modifiers.Add(KeyboardLayout.ModifierKeys[modifier].First());
-            foreach (var modKey in KeyboardLayout.ModifierKeys[modifier].Skip(1))
-                Modifiers.Remove(modKey);
-        }
+        _modifiers |= modifier;
 
-        foreach (var mod in Modifiers)
-            XScreenCapture.SendKey((int)mod, true);
-
-        XScreenCapture.SendKey((int)key, true);
+        KeyboardProvider.Instance.SetModifiers(_modifiers);
+        KeyboardProvider.Instance.SendKey(key, true);
     }
 
-    private void OnKeyReleased(VirtualKey key, KeyModifier modifier)
+    private void OnKeyReleased(VirtualKey key, KeyModifier _)
     {
-        if (modifier != KeyModifier.None)
-        {
-            Modifiers.Add(KeyboardLayout.ModifierKeys[modifier].First());
-            foreach (var modKey in KeyboardLayout.ModifierKeys[modifier].Skip(1))
-                Modifiers.Remove(modKey);
-        }
+        KeyboardProvider.Instance.SendKey(key, false);
 
-        XScreenCapture.SendKey((int)key, false);
-
-        foreach (var mod in Modifiers)
-            XScreenCapture.SendKey((int)mod, false);
-        Modifiers.Clear();
+        _modifiers &= KeyModifier.CapsLock | KeyModifier.NumLock;
+        KeyboardProvider.Instance.SetModifiers(_modifiers);
     }
 
+    private bool stickyOnRelease = false;
     private void OnModifierPressed(VirtualKey key)
     {
-        XScreenCapture.SendKey((int)key, true);
+        var myMod = KeyboardLayout.KeysToModifiers[key];
+        stickyOnRelease = (_modifiers & myMod) == 0;
+        _modifiers |= myMod;
+        KeyboardProvider.Instance.SetModifiers(_modifiers);
     }
 
     private void OnModifierReleased(VirtualKey key)
     {
-        XScreenCapture.SendKey((int)key, false);
-
-        if (Modifiers.Contains(key))
-        {
-            Modifiers.Remove(key);
-        }
-        else
-        {
-            Modifiers.Add(key);
-        }
+        if (stickyOnRelease)
+            return;
+        _modifiers &= ~KeyboardLayout.KeysToModifiers[key];
+        KeyboardProvider.Instance.SetModifiers(_modifiers);
     }
 }

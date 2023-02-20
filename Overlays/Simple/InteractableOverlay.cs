@@ -1,4 +1,3 @@
-using Valve.VR;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 using X11Overlay.Types;

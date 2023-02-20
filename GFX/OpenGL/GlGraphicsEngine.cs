@@ -29,7 +29,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         options.IsVisible = false;
         options.Size = new Vector2D<int>(800, 600);
         options.Title = "X11Overlay";
-        options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.Default, new APIVersion(4, 5));
+        options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Compatability, ContextFlags.ForwardCompatible, new APIVersion(4, 5));
         options.VSync = false;
 
         GlfwWindowing.Use();

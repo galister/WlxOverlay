@@ -56,6 +56,8 @@ public class Config
         }
     }
 
+    public string WaylandCapture;
+
     public string[]? VolumeUpCmd;
     public string[]? VolumeDnCmd;
 
@@ -78,7 +80,7 @@ public class Config
 
     public float ClickFreezeTime;
 
-    public int DefaultScreen;
+    public string DefaultScreen;
 
     public bool FallbackCursors;
 

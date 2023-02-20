@@ -2,7 +2,7 @@ namespace X11Overlay.GFX;
 
 public interface ITexture : IDisposable
 {
-    public void LoadRawImage(IntPtr ptr, GraphicsFormat graphicsFormat);
+    public void LoadRawImage(IntPtr ptr, GraphicsFormat graphicsFormat, uint newWidth = 0, uint newHeight = 0);
 
     public void LoadRawSubImage(IntPtr ptr, GraphicsFormat graphicsFormat, int xOffset, int yOffset, int width, int height);
 
