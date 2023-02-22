@@ -14,6 +14,9 @@ fallback_cursors: false
 # one of: screencopy, dmabuf
 wayland_capture: screencopy
 
+# enable if getting weird colors with screencopy
+screencopy_color_swap: false
+
 # additional timezones to display, other than your local time. optional.
 alt_timezone1: Asia/Tokyo
 alt_timezone2: America/Chicago

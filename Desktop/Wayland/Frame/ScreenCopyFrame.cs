@@ -2,6 +2,7 @@ using System.Runtime.InteropServices;
 using Tmds.Linux;
 using WaylandSharp;
 using X11Overlay.GFX;
+using X11Overlay.Types;
 using static Tmds.Linux.LibC;
 
 namespace X11Overlay.Desktop.Wayland.Frame
@@ -36,7 +37,11 @@ namespace X11Overlay.Desktop.Wayland.Frame
         public unsafe void ApplyToTexture(ITexture texture)
         {
             var ptr = mmap((void *)0, _size, 0x01, 0x01, _fd, 0);
-            texture.LoadRawImage(new IntPtr(ptr), GraphicsFormat.BGRA8, _width, _height);
+            var fmt = Config.Instance.ScreencopyColorSwap
+                ? GraphicsFormat.RGBA8
+                : GraphicsFormat.BGRA8;
+            
+            texture.LoadRawImage(new IntPtr(ptr), fmt, _width, _height);
             munmap(ptr, _size);
         }
 
