@@ -294,7 +294,7 @@ public class InputManager : IDisposable
     {
         DeviceStates.Clear();
 
-        if (_hmd == null || _hmd.SoC >= 0)
+        if (_hmd == null)
         {
             _hmd = TrackedDevice.FromDeviceIdx(OpenVR.k_unTrackedDeviceIndex_Hmd);
             if (_hmd != null)
