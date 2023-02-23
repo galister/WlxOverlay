@@ -142,8 +142,10 @@ public class Watch : InteractableOverlay
         for (var s = 1; s <= screens.Count; s++)
         {
             var screen = screens[s - 1];
+            var screenName = screen.ToString() ?? "UNK";
+
             var pushedAt = DateTime.MinValue;
-            _canvas.AddControl(new Button($"Scr {s}", btnWidth * s + 2, 2, (uint)btnWidth - 4U, 36)
+            _canvas.AddControl(new Button(screenName, btnWidth * s + 2, 2, (uint)btnWidth - 4U, 36)
             {
                 PointerDown = () =>
                 {

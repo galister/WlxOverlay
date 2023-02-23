@@ -6,11 +6,11 @@ namespace X11Overlay.Overlays.Simple;
 /// <summary>
 /// An overlay that displays a screen, moves the mouse and sends mouse events.
 /// </summary>
-public class BaseScreen : GrabbableOverlay
+public class BaseScreen<T> : GrabbableOverlay
 {
-    protected readonly int Screen;
+    protected readonly T Screen;
 
-    public BaseScreen(int screen) : base($"Screen{screen}")
+    public BaseScreen(T screen) : base($"Screen_{screen}")
     {
         WidthInMeters = 1;
         Screen = screen;

@@ -1,5 +1,3 @@
-using System.Diagnostics;
-using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 #pragma warning disable CS8618
@@ -46,16 +44,30 @@ public class KeyboardLayout
     public Dictionary<string, string[]> Macros;
     public Dictionary<string, string?[]> Labels;
 
-    public static Dictionary<KeyModifier, VirtualKey[]> ModifierKeys = new()
+    public static Dictionary<KeyModifier, VirtualKey[]> ModifiersToKeys = new()
     {
         [KeyModifier.Shift] = new[] { VirtualKey.RShift, VirtualKey.LShift },
-        [KeyModifier.Super] = new[] { VirtualKey.LSuper, VirtualKey.RSuper },
+        [KeyModifier.CapsLock] = new[] { VirtualKey.Caps },
         [KeyModifier.Ctrl] = new[] { VirtualKey.RCtrl, VirtualKey.LCtrl },
+        [KeyModifier.Alt] = new[] { VirtualKey.LAlt },
+        [KeyModifier.NumLock] = new[] { VirtualKey.NumLock },
+        [KeyModifier.Super] = new[] { VirtualKey.LSuper, VirtualKey.RSuper },
         [KeyModifier.Meta] = new[] { VirtualKey.Meta }
     };
 
-    public VirtualKey[] Modifiers = { VirtualKey.LShift, VirtualKey.RShift, VirtualKey.LSuper, VirtualKey.RSuper,
-        VirtualKey.LCtrl, VirtualKey.RCtrl, VirtualKey.LAlt, VirtualKey.Meta, VirtualKey.Hyper };
+    public static Dictionary<VirtualKey, KeyModifier> KeysToModifiers = new()
+    {
+        [VirtualKey.LShift] = KeyModifier.Shift,
+        [VirtualKey.RShift] = KeyModifier.Shift,
+        [VirtualKey.Caps] = KeyModifier.CapsLock,
+        [VirtualKey.LCtrl] = KeyModifier.Ctrl,
+        [VirtualKey.RCtrl] = KeyModifier.Ctrl,
+        [VirtualKey.LAlt] = KeyModifier.Alt,
+        [VirtualKey.NumLock] = KeyModifier.NumLock,
+        [VirtualKey.LSuper] = KeyModifier.Super,
+        [VirtualKey.RSuper] = KeyModifier.Super,
+        [VirtualKey.Meta] = KeyModifier.Meta,
+    };
 
     public string[] LabelForKey(string key, bool shift = false)
     {
@@ -163,13 +175,17 @@ public class KeyboardLayout
     }
 }
 
-public enum KeyModifier
+[Flags]
+public enum KeyModifier : uint
 {
-    None,
-    Shift,
-    Ctrl,
-    Super,
-    Meta
+    None = 0,
+    Shift = 1 << 0,
+    CapsLock = 1 << 1,
+    Ctrl = 1 << 2,
+    Alt = 1 << 3,
+    NumLock = 1 << 4,
+    Super = 1 << 6,
+    Meta = 1 << 7
 }
 
 public enum AltLayoutMode

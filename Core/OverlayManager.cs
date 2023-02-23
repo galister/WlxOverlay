@@ -1,6 +1,7 @@
 using System.Runtime.InteropServices;
 using OVRSharp;
 using Valve.VR;
+using X11Overlay.Desktop.Wayland;
 using X11Overlay.GFX;
 using X11Overlay.Numerics;
 using X11Overlay.Overlays;
@@ -103,6 +104,8 @@ public class OverlayManager : Application
     private VREvent_t _vrEvent;
     private readonly uint _vrEventSize;
 
+    private List<BaseOverlay> _workOverlays = new(MaxInteractableOverlays);
+
     public void Update()
     {
         if (!_running)
@@ -124,12 +127,19 @@ public class OverlayManager : Application
         foreach (var o in _overlays)
             o.AfterInput(deviceStateUpdated);
 
+        _workOverlays.Clear();
+        _workOverlays.AddRange(_interactables.Where(x => x.Visible));
         foreach (var pointer in _pointers)
-            pointer.TestInteractions(_interactables.Where(o => o.Visible));
-        foreach (var o in _overlays.Where(o => !o.Visible && o.WantVisible && !o.ShowHideBinding))
+            pointer.TestInteractions(_workOverlays.Cast<InteractableOverlay>());
+
+        _workOverlays.Clear();
+        _workOverlays.AddRange(_overlays.Where(o => o is { Visible: false, WantVisible: true, ShowHideBinding: false }));
+        foreach (var o in _workOverlays)
             o.Show();
 
-        foreach (var o in _overlays.Where(o => o.Visible))
+        _workOverlays.Clear();
+        _workOverlays.AddRange(_overlays.Where(o => o.Visible));
+        foreach (var o in _workOverlays)
             o.Render();
 
         while (OVRSystem.PollNextEvent(ref _vrEvent, _vrEventSize))
@@ -147,6 +157,8 @@ public class OverlayManager : Application
                     break;
             }
         }
+
+        WaylandInterface.Instance?.RoundTrip();
 
         // Use this instead of vsync to prevent glfw from using up the entire CPU core
         WaitForEndOfFrame();
@@ -170,11 +182,11 @@ public class OverlayManager : Application
 
     private void WaitForEndOfFrame()
     {
+        var timeToWait = TimeSpan.Zero;
         if (OpenVR.System.GetTimeSinceLastVsync(ref _secondsSinceLastVsync, ref _frameCounter))
-        {
-            var wait = TimeSpan.FromSeconds(_frameTime - _secondsSinceLastVsync);
-            if (wait.Ticks > 0)
-                Thread.Sleep(wait);
-        }
+            timeToWait = TimeSpan.FromSeconds(_frameTime - _secondsSinceLastVsync);
+
+        if (timeToWait > TimeSpan.Zero)
+            Thread.Sleep(timeToWait);
     }
 }

@@ -1,6 +1,7 @@
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
+using X11Overlay.Desktop;
 
 namespace X11Overlay.GFX.OpenGL;
 
@@ -84,8 +85,7 @@ public class GlTexture : ITexture
         //Setting some texture parameters so the texture behaves as expected.
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)GLEnum.ClampToEdge);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)GLEnum.ClampToEdge);
-        _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter,
-            (int)GLEnum.LinearMipmapLinear);
+        _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)GLEnum.Linear);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)GLEnum.Linear);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureBaseLevel, 0);
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
@@ -112,17 +112,23 @@ public class GlTexture : ITexture
 
     public void Dispose()
     {
-        //In order to dispose we need to delete the opengl handle for the texture.
+        //In order to dispose we need to delete the OpenGL handle for the texture.
         _gl.DeleteTexture(Handle);
     }
 
-    public unsafe void LoadRawImage(IntPtr ptr, GraphicsFormat graphicsFormat)
+    public unsafe void LoadRawImage(IntPtr ptr, GraphicsFormat graphicsFormat, uint newWidth = 0, uint newHeight = 0)
     {
         var (pf, pt) = GlGraphicsEngine.GraphicsFormatAsInput(graphicsFormat);
+
+        if (newWidth > 0)
+            Width = newWidth;
+        if (newHeight > 0)
+            Height = newHeight;
 
         var d = ptr.ToPointer();
         Bind();
 
+        //_gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, Width, Height, 0, pf, pt, d);
         _gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, Width, Height, pf, pt, d);
         _gl.GetError().AssertNone();
     }
@@ -151,6 +157,17 @@ public class GlTexture : ITexture
         _gl.CopyImageSubData(Handle, GLEnum.Texture2D, 0, srcX, srcY, 0,
             glTarget.Handle, GLEnum.Texture2D, 0, dstX, dstY, 0,
             width, height, 1);
+    }
+
+    public void LoadEglImage(IntPtr eglImage, uint width, uint height)
+    {
+        Bind();
+
+        EGL.ImageTargetTexture2DOES((int)GLEnum.Texture2D, eglImage);
+        _gl.GetError().AssertNone();
+
+        Width = width;
+        Height = height;
     }
 
     public uint GetWidth()
