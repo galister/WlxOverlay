@@ -66,7 +66,8 @@ if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
         manager.RegisterChild(screen);
         screens.Add(screen);
     }
-    KeyboardProvider.Instance = new WaylandKeyboard();
+
+    KeyboardProvider.Instance = new UInput();
 }
 else
 {

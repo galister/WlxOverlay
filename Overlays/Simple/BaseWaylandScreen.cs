@@ -1,5 +1,6 @@
 using WaylandSharp;
 using X11Overlay.Core;
+using X11Overlay.Desktop;
 using X11Overlay.Desktop.Wayland;
 using X11Overlay.Desktop.Wayland.Frame;
 using X11Overlay.GFX;
@@ -46,7 +47,7 @@ public abstract class BaseWaylandScreen : BaseScreen<WaylandOutput>
 
         Display.Roundtrip();
 
-        _pointer = WaylandInterface.Instance!.GetVirtualPointer();
+        //_pointer = WaylandInterface.Instance!.GetVirtualPointer();
     }
 
     protected abstract void OnGlobal(WlRegistry reg, WlRegistry.GlobalEventArgs e);
@@ -109,27 +110,6 @@ public abstract class BaseWaylandScreen : BaseScreen<WaylandOutput>
         if (wantNewFrame)
             _worker = Task.Run(RequestNewFrame, _cancel.Token);
 
-        // var mouse = _capture.GetMousePosition();
-        //
-        // var w = Texture!.GetWidth();
-        // var h = Texture!.GetHeight();
-        //
-        // if (mouse.X >= 0 && mouse.X < w
-        //                  && mouse.Y >= 0 && mouse.Y < h)
-        // {
-        //     if (Config.Instance.FallbackCursors)
-        //     {
-        //         DrawFallbackCross(mouse.X, mouse.Y, Vector3.One, 8);
-        //         DrawFallbackCross(mouse.X + 1, mouse.Y + 1, Vector3.Zero, 8);
-        //     }
-        //     else
-        //     {
-        //         var uv = new Vector2(mouse.X / (float)w, mouse.Y / (float)h);
-        //         var moveToTransform = CurvedSurfaceTransformFromUv(uv);
-        //         DesktopCursor.Instance.MoveTo(moveToTransform);
-        //     }
-        // }
-
         base.Render();
 
         _pointerSendFrame = _mouseMoved = false;
@@ -160,32 +140,61 @@ public abstract class BaseWaylandScreen : BaseScreen<WaylandOutput>
 
     private void SendMouse(PointerHit hitData, bool pressed)
     {
+        if (KeyboardProvider.Instance is UInput uInput)
+        {
+            var evBtn = hitData.modifier switch
+            {
+                PointerMode.Right => EvBtn.Right,
+                PointerMode.Middle => EvBtn.Middle,
+                _ => EvBtn.Left
+            };
+            
+            uInput.SendButton(evBtn, pressed);
+            return;
+        }
+
         if (_pointer == null)
             return;
 
-        var click = hitData.modifier switch
+        var mic = hitData.modifier switch
         {
             PointerMode.Right => MouseInputCode.Right,
             PointerMode.Middle => MouseInputCode.Middle,
             _ => MouseInputCode.Left
         };
+        
+        
 
-        _pointer.Button(WaylandInterface.Time(), (uint)click, pressed ? WlPointerButtonState.Pressed : WlPointerButtonState.Released);
+        _pointer.Button(WaylandInterface.Time(), (uint)mic, pressed ? WlPointerButtonState.Pressed : WlPointerButtonState.Released);
         _pointerSendFrame = true;
     }
 
     private void MoveMouse(PointerHit hitData)
     {
-        if (_pointer == null)
+        if (KeyboardProvider.Instance is UInput uInput)
+        {
+            var uv = hitData.uv;
+            var posX = uv.x * Screen.Size.X + Screen.Position.X;
+            var posY = uv.y * Screen.Size.Y + Screen.Position.Y;
+            var rectSize = WaylandInterface.Instance!.OutputRect.Size;
+
+            var mulX = UInput.Extent / rectSize.x;
+            var mulY = UInput.Extent / rectSize.y;
+            
+            uInput.MouseMove((int)(posX * mulX), (int)(posY * mulY));
             return;
+        }
 
-        var uv = hitData.uv;
-        var posX = uv.x * Screen.Size.X + Screen.Position.X;
-        var posY = uv.y * Screen.Size.Y + Screen.Position.Y;
-        var extent = WaylandInterface.Instance!.OutputRect.Size;
+        if (_pointer != null)
+        {
+            var uv = hitData.uv;
+            var posX = uv.x * Screen.Size.X + Screen.Position.X;
+            var posY = uv.y * Screen.Size.Y + Screen.Position.Y;
+            var extent = WaylandInterface.Instance!.OutputRect.Size;
 
-        _pointer.MotionAbsolute(WaylandInterface.Time(), (uint)posX, (uint)posY, (uint)extent.x, (uint)extent.y);
-        _pointerSendFrame = _mouseMoved = true;
+            _pointer.MotionAbsolute(WaylandInterface.Time(), (uint)posX, (uint)posY, (uint)extent.x, (uint)extent.y);
+            _pointerSendFrame = _mouseMoved = true;
+        }
     }
 
     protected internal override void OnScroll(PointerHit hitData, float value)
