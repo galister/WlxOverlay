@@ -107,12 +107,12 @@ public class XorgScreen : BaseScreen<int>
         _capture?.SendMouse(hitData.uv, click, pressed);
     }
 
-    private void MoveMouse(PointerHit hitData)
+    protected override bool MoveMouse(PointerHit hitData)
     {
         var adjustedUv = hitData.uv;
         adjustedUv.y = 1 - adjustedUv.y;
         _capture?.MoveMouse(adjustedUv);
-        _mouseMoved = true;
+        return true;
     }
 
     private DateTime _nextScroll = DateTime.MinValue;

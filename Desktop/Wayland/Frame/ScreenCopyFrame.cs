@@ -36,11 +36,11 @@ namespace X11Overlay.Desktop.Wayland.Frame
 
         public unsafe void ApplyToTexture(ITexture texture)
         {
-            var ptr = mmap((void *)0, _size, 0x01, 0x01, _fd, 0);
+            var ptr = mmap((void*)0, _size, 0x01, 0x01, _fd, 0);
             var fmt = Config.Instance.ScreencopyColorSwap
                 ? GraphicsFormat.RGBA8
                 : GraphicsFormat.BGRA8;
-            
+
             texture.LoadRawImage(new IntPtr(ptr), fmt, _width, _height);
             munmap(ptr, _size);
         }
@@ -81,7 +81,7 @@ namespace X11Overlay.Desktop.Wayland.Frame
             _frame.Dispose();
             _disposed = true;
         }
-        
+
         [DllImport("libc")]
         private static extern int shm_open([MarshalAs(UnmanagedType.LPStr)] string name, int oFlags, mode_t mode);
 

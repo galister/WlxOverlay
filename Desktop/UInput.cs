@@ -14,20 +14,22 @@ public unsafe class UInput : IDisposable, IKeyboardProvider
 {
     private const string UInputPath = "/dev/uinput";
     private const string DeviceName = "X11Overlay Keyboard-Mouse Hybrid Thing";
-    
+
     private const int AbsX = 0;
     private const int AbsY = 1;
-    
+    private const int relWheel = 0x8;
+
     private const int UiDevCreate = 0x5501;
     private const int UiDevDestroy = 0x5502;
-    
+
     private const int UiSetEvBit = 0x40045564;
     private const int UiSetKeyBit = 0x40045565;
 
+    private const int uiSetRelBit = 0x40045566;
     private const int UiSetAbsBit = 0x40045567;
     private const int BusUsb = 0x03;
-    
-    
+
+
     private readonly ArrayPool<byte> _bytePool = ArrayPool<byte>.Shared;
     private readonly int _fd;
 
@@ -36,7 +38,7 @@ public unsafe class UInput : IDisposable, IKeyboardProvider
     public UInput()
     {
         InitEventObjects();
-        
+
         var buf = _bytePool.Rent(256);
         var len = Encoding.UTF8.GetBytes(UInputPath, buf);
         buf[len] = 0;
@@ -49,20 +51,23 @@ public unsafe class UInput : IDisposable, IKeyboardProvider
         _bytePool.Return(buf);
 
         RegisterDevice((int)Ev.Key);
-        foreach (var btn in Enum.GetValues<EvBtn>()) 
+        foreach (var btn in Enum.GetValues<EvBtn>())
             Ioctl(UiSetKeyBit, (int)btn);
-        foreach (var key in Enum.GetValues<VirtualKey>()) 
+        foreach (var key in Enum.GetValues<VirtualKey>())
             Ioctl(UiSetKeyBit, (int)key - 8);
-        
+
         RegisterDevice((int)Ev.Abs);
         Ioctl(UiSetAbsBit, AbsX);
         Ioctl(UiSetAbsBit, AbsY);
-        
+
+        RegisterDevice((int)Ev.Rel);
+        Ioctl(uiSetRelBit, relWheel);
+
         var dev = new UiUserDev();
 
         buf = _bytePool.Rent(256);
         len = Encoding.UTF8.GetBytes(DeviceName, buf);
-        
+
         buf[len++] = 0;
         Marshal.Copy(buf, 0, new IntPtr(dev.Name), len);
         _bytePool.Return(buf);
@@ -99,34 +104,43 @@ public unsafe class UInput : IDisposable, IKeyboardProvider
         if (_fd != 0)
             close(_fd);
     }
-    
+
     private void ReleaseDevice()
     {
         Ioctl(UiDevDestroy, 0);
     }
 
     private UiEvent _keyEvent;
-    private readonly UiEvent[] _moveEvents = new UiEvent[2];
-    
+    private readonly UiEvent[] _moveEvents = new UiEvent[3];
+
     private void InitEventObjects()
     {
         _keyEvent.Type = Ev.Key;
-        _moveEvents[AbsX].Type = Ev.Abs;
-        _moveEvents[AbsX].Code = AbsX;
-        _moveEvents[AbsY].Type = Ev.Abs;
-        _moveEvents[AbsY].Code = AbsY;
+        _moveEvents[0].Type = Ev.Abs;
+        _moveEvents[0].Code = AbsX;
+        _moveEvents[1].Type = Ev.Abs;
+        _moveEvents[1].Code = AbsY;
+        _moveEvents[2].Type = Ev.Rel;
+        _moveEvents[2].Code = relWheel;
     }
 
     public void MouseMove(int x, int y)
     {
         if (x == 0 && y == 0)
             y--;
-        
-        _moveEvents[AbsX].Value = x;
-        _moveEvents[AbsY].Value = y;
-        
-        WriteObject(_moveEvents[AbsX]);
-        WriteObject(_moveEvents[AbsY]);
+
+        _moveEvents[0].Value = x;
+        _moveEvents[1].Value = y;
+
+        WriteObject(_moveEvents[0]);
+        WriteObject(_moveEvents[1]);
+        SyncEvents();
+    }
+
+    public void Wheel(int delta)
+    {
+        _moveEvents[2].Value = delta;
+        WriteObject(_moveEvents[2]);
         SyncEvents();
     }
 
@@ -257,8 +271,8 @@ public enum Ev : ushort
 
 public enum EvBtn
 {
-    Left      = 0x110,
-    Right     = 0x111,
-    Middle    = 0x112,
-    Touch     = 0x14a
+    Left = 0x110,
+    Right = 0x111,
+    Middle = 0x112,
+    Touch = 0x14a
 }

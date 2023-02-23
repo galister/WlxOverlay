@@ -12,6 +12,7 @@ if (!Config.Load())
     return;
 
 var manager = OverlayManager.Initialize();
+KeyboardProvider.Instance = new UInput();
 
 void SignalHandler(PosixSignalContext context)
 {
@@ -56,7 +57,6 @@ if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
     foreach (var output in WaylandInterface.Instance!.Outputs.Values)
     {
         BaseWaylandScreen screen;
-
         if (Config.Instance.WaylandCapture == "dmabuf")
             screen = new WlDmaBufScreen(output);
         else
@@ -67,12 +67,10 @@ if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
         screens.Add(screen);
     }
 
-    KeyboardProvider.Instance = new UInput();
 }
 else
 {
     Console.WriteLine("X11 desktop detected.");
-    KeyboardProvider.Instance = new X11Keyboard();
     var numScreens = XScreenCapture.NumScreens();
     for (var s = 0; s < numScreens; s++)
     {
@@ -81,7 +79,6 @@ else
         screens.Add(screen);
     }
 }
-
 
 if (!KeyboardLayout.Load())
 {
