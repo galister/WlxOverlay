@@ -1,0 +1,63 @@
+name: Make Release
+
+on:
+  push:
+    tags:
+      - 'v1.**'
+
+env:
+  APPID: WlxOverlay
+  APPDIR: WlxOverlay.AppDir
+  
+
+jobs:
+  make_release:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Prepare Environment
+        run: |
+          sudo add-apt-repository universe
+          sudo apt-get update
+          sudo apt-get install fuse dotnet-sdk-6.0 liblttng-ust0
+          sudo apt-get install libx11-6 libxtst6 libxcb1 libxcb-randr0 libxcb-shm0 libxcb-xinerama0 libxcb-xfixes0
+
+          test -f linuxdeploy-x86_64.AppImage || wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+          chmod +x linuxdeploy-x86_64.AppImage
+          
+          test -d ${APPDIR} && rm -rf ${APPDIR}
+          mkdir -p ${APPDIR}/usr/bin 
+
+      - name: Dotnet Publish
+        run: |
+          dotnet publish -c Release --sc -r linux-x64 -o ${APPDIR}/usr/bin ${APPID}.csproj
+          chmod +x ${APPDIR}/usr/bin/${APPID}
+
+      - name: Package AppImage
+        run: |
+          export VERSION=$(cat Resources/version.txt)
+          ./linuxdeploy-x86_64.AppImage -dAppRun.desktop -iWlxOverlay.png --appdir=${APPDIR} --output appimage
+          mv WlxOverlay-$VERSION-x86_64.AppImage WlxOverlay-x86_64.AppImage
+
+      - name: Create Release
+        id: create_release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_KEY }}
+        with:
+          tag_name: ${{ github.ref_name }}
+          release_name: WlxOverlay ${{ github.ref_name }}
+          draft: true
+          prerelease: false
+
+      - name: Upload AppImage
+        uses: actions/upload-release-asset@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.RELEASE_KEY }}
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ./WlxOverlay-x86_64.AppImage
+          asset_name: WlxOverlay-${{ github.ref_name }}-x86_64.AppImage
+          asset_content_type: application/octet-stream
+
