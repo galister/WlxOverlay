@@ -12,7 +12,7 @@ fallback_cursors: false
 
 # wayland screen capture method
 # one of: screencopy, dmabuf
-wayland_capture: screencopy
+# wayland_capture: screencopy
 
 # enable if getting weird colors with screencopy
 screencopy_color_swap: false
