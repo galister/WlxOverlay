@@ -1,0 +1,44 @@
+name: Build AppImage
+
+on:
+  - workflow_dispatch
+
+env:
+  APPID: WlxOverlay
+  APPDIR: WlxOverlay.AppDir
+
+jobs:
+  build_appimage:
+    runs-on: ubuntu-20.04
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Prepare Environment
+        run: |
+          sudo add-apt-repository universe
+          sudo apt-get update
+          sudo apt-get install fuse dotnet-sdk-6.0 liblttng-ust0
+          sudo apt-get install libx11-6 libxtst6 libxcb1 libxcb-randr0 libxcb-shm0 libxcb-xinerama0 libxcb-xfixes0
+
+          test -f linuxdeploy-x86_64.AppImage || wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
+          chmod +x linuxdeploy-x86_64.AppImage
+          
+          test -d ${APPDIR} && rm -rf ${APPDIR}
+          mkdir -p ${APPDIR}/usr/bin 
+
+      - name: Dotnet Publish
+        run: |
+          dotnet publish -c Release --sc -r linux-x64 -o ${APPDIR}/usr/bin ${APPID}.csproj
+          chmod +x ${APPDIR}/usr/bin/${APPID}
+
+      - name: Package AppImage
+        run: |
+          export VERSION=$(cat Resources/version.txt)
+          ./linuxdeploy-x86_64.AppImage -dAppRun.desktop -iWlxOverlay.png --appdir=${APPDIR} --output appimage
+          mv WlxOverlay-$VERSION-x86_64.AppImage WlxOverlay-x86_64.AppImage
+      - name: Upload AppImage
+        uses: actions/upload-artifact@v3
+        with:
+          path: ./WlxOverlay-x86_64.AppImage
+          name: WlxOverlay-x86_64.AppImage
+

@@ -8,6 +8,15 @@ using WlxOverlay.Overlays;
 using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Types;
 
+var version = "unknown-version";
+try
+{
+    version = File.ReadAllText("Resources/version.txt");
+}
+catch { /* */ }
+
+Console.WriteLine($"WlxOverlay {version}");
+
 if (!Config.Load())
     return;
 

@@ -2,6 +2,7 @@ using WlxOverlay.Core;
 using WlxOverlay.GFX;
 using WlxOverlay.Numerics;
 using WlxOverlay.Overlays.Simple;
+using WlxOverlay.Types;
 
 namespace WlxOverlay.Overlays;
 
@@ -26,7 +27,10 @@ public class DesktopCursor : BaseOverlay
 
     protected override void Initialize()
     {
-        Texture = GraphicsEngine.Instance.TextureFromFile("Resources/arrow.png");
+        if (!Config.TryGetFile("arrow.png", out var filePath, true))
+            throw new ApplicationException($"Could not load resource.");
+        
+        Texture = GraphicsEngine.Instance.TextureFromFile(filePath);
 
         var controllerTip = InputManager.HmdTransform;
         var centerPoint = controllerTip.TranslatedLocal(Vector3.Forward);

@@ -26,10 +26,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <Content Include="actions.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
-      <Content Include="actions_binding_knuckles.json">
+      <Content Include="Resources\actions.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
       <Content Include="Shaders\color.frag">
@@ -89,17 +86,20 @@
       <Content Include="Resources\config.yaml">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
-      <None Update="actions_binding_oculus.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="manifest.vrmanifest">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
-      <None Update="actions_binding_vive.json">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </None>
       <None Remove="libEGL.so.1" />
       <None Remove="Resources\keymap.xkb" />
+      <None Update="Resources\manifest.vrmanifest">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\actions_binding_vive.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <None Update="Resources\actions_binding_oculus.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </None>
+      <Content Update="Resources\actions_binding_knuckles.json">
+        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      </Content>
     </ItemGroup>
 
     <ItemGroup>
@@ -131,5 +131,9 @@
   <ItemGroup>
     <Folder Include="Desktop\Wayland\Base" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="git describe --tags --dirty --always &gt; Resources/version.txt" />
+  </Target>
 
 </Project>

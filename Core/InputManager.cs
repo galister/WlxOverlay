@@ -76,7 +76,8 @@ public class InputManager : IDisposable
 
     private void LoadActionSets()
     {
-        var actionsPath = Path.Combine(Directory.GetCurrentDirectory(), "actions.json");
+        if (!Config.TryGetFile("actions.json", out var actionsPath, true))
+            return;
 
         var err = OpenVR.Input.SetActionManifestPath(actionsPath);
         if (err != EVRInputError.None)

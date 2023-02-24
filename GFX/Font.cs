@@ -1,4 +1,5 @@
 using FreeTypeSharp.Native;
+using WlxOverlay.Types;
 using static FreeTypeSharp.Native.FT;
 
 namespace WlxOverlay.GFX;
@@ -20,11 +21,14 @@ public class Font : IDisposable
 
     private void LoadFont()
     {
+        if (!Config.TryGetFile(_font, out var filePath, true))
+            throw new ApplicationException($"Could not load resource.");
+
         var err = FT_Init_FreeType(out var ftLib);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not load FreeType library: {err}");
 
-        err = FT_New_Face(ftLib, $"Resources/{_font}", 0, out var ftFace);
+        err = FT_New_Face(ftLib, filePath, 0, out var ftFace);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not load font {_font}: {err}");
 
