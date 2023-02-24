@@ -7,7 +7,7 @@ using System.Text.RegularExpressions;
 // ReSharper disable MemberCanBePrivate.Global
 // ReSharper disable UnassignedField.Global
 
-namespace X11Overlay.Types;
+namespace WlxOverlay.Types;
 
 public class KeyboardLayout
 {

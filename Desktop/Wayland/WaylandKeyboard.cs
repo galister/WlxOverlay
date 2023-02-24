@@ -1,7 +1,7 @@
 using WaylandSharp;
-using X11Overlay.Types;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Desktop.Wayland;
+namespace WlxOverlay.Desktop.Wayland;
 
 public class WaylandKeyboard : IKeyboardProvider
 {

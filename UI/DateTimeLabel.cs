@@ -1,4 +1,4 @@
-namespace X11Overlay.UI;
+namespace WlxOverlay.UI;
 
 public class DateTimeLabel : Label
 {

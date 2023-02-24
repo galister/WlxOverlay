@@ -1,7 +1,7 @@
 using Valve.VR;
-using X11Overlay.Types;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Core;
+namespace WlxOverlay.Core;
 
 public class ManifestInstaller
 {

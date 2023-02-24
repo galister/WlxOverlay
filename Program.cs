@@ -1,12 +1,12 @@
 ﻿using System.Runtime.InteropServices;
-using X11Overlay.Core;
-using X11Overlay.Desktop;
-using X11Overlay.Desktop.Wayland;
-using X11Overlay.Desktop.X11;
-using X11Overlay.GFX.OpenGL;
-using X11Overlay.Overlays;
-using X11Overlay.Overlays.Simple;
-using X11Overlay.Types;
+using WlxOverlay.Core;
+using WlxOverlay.Desktop;
+using WlxOverlay.Desktop.Wayland;
+using WlxOverlay.Desktop.X11;
+using WlxOverlay.GFX.OpenGL;
+using WlxOverlay.Overlays;
+using WlxOverlay.Overlays.Simple;
+using WlxOverlay.Types;
 
 if (!Config.Load())
     return;
@@ -24,7 +24,7 @@ PosixSignalRegistration.Create(PosixSignal.SIGINT, SignalHandler);
 PosixSignalRegistration.Create(PosixSignal.SIGHUP, SignalHandler);
 PosixSignalRegistration.Create(PosixSignal.SIGTERM, SignalHandler);
 
-ManifestInstaller.EnsureInstalled("galister.x11overlay");
+ManifestInstaller.EnsureInstalled("galister.wlxoverlay");
 
 if (!Config.Instance.FallbackCursors)
     manager.RegisterChild(new DesktopCursor());

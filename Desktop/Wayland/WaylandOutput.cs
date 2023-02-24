@@ -1,7 +1,7 @@
 using WaylandSharp;
-using X11Overlay.Numerics;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.Desktop.Wayland;
+namespace WlxOverlay.Desktop.Wayland;
 
 public class WaylandOutput : IDisposable
 {

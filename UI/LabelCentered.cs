@@ -1,6 +1,6 @@
-using X11Overlay.GFX;
+using WlxOverlay.GFX;
 
-namespace X11Overlay.UI;
+namespace WlxOverlay.UI;
 
 public class LabelCentered : Label
 {

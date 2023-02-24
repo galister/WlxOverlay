@@ -1,8 +1,8 @@
 using System.Runtime.InteropServices;
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.Desktop.X11
+namespace WlxOverlay.Desktop.X11
 {
     public class XScreenCapture : IDisposable
     {

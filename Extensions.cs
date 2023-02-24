@@ -1,7 +1,7 @@
 using Valve.VR;
-using X11Overlay.Numerics;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay;
+namespace WlxOverlay;
 
 public static class Extensions
 {

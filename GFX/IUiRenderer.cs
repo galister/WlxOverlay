@@ -1,6 +1,6 @@
-using X11Overlay.Numerics;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.GFX;
+namespace WlxOverlay.GFX;
 
 public interface IUiRenderer
 {

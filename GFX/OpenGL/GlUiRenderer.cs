@@ -1,8 +1,8 @@
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using X11Overlay.Numerics;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.GFX.OpenGL;
+namespace WlxOverlay.GFX.OpenGL;
 
 public class GlUiRenderer : IUiRenderer, IDisposable
 {

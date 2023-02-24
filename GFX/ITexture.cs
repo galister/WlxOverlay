@@ -1,4 +1,4 @@
-namespace X11Overlay.GFX;
+namespace WlxOverlay.GFX;
 
 public interface ITexture : IDisposable
 {

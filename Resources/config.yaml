@@ -1,6 +1,6 @@
 ---
 
-# the main configuration file for X11Overlay
+# the main configuration file for WlxOverlay
 
 # which screen to show by default, along with the keyboard
 # x11: zero-based index
@@ -92,4 +92,4 @@ click_freeze_time: 0.3
 # Value is a file that will be written with the value on every frame (recommend tmpfs)
 # Types of Single, Vector1, Vector2 and Vector3 are all exported as Vector3, with the missing values set to 0.
 # export_inputs:
-#  Right.Scroll: /dev/shm/x11overlay_scroll_r
+#  Right.Scroll: /dev/shm/wlxoverlay_scroll_r

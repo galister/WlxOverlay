@@ -1,6 +1,6 @@
 {
    "action_manifest_version" : 0,
-   "app_key" : "galister.x11overlay",
+   "app_key" : "galister.wlxoverlay",
    "bindings" : {
       "/actions/default" : {
          "poses" : [
@@ -154,7 +154,7 @@
    "controller_type" : "knuckles",
    "description" : "Ver1",
    "interaction_profile" : "",
-   "name" : "X11Overlay configuration for Index Controller",
+   "name" : "WlxOverlay configuration for Index Controller",
    "options" : {
       "mirror_actions" : false,
       "simulated_controller_type" : "none"

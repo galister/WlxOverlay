@@ -1,6 +1,6 @@
 using System.Diagnostics;
 
-namespace X11Overlay.Types;
+namespace WlxOverlay.Types;
 
 public static class Runner
 {

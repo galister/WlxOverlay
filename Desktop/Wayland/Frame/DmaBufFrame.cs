@@ -1,10 +1,10 @@
 using System.Buffers;
 using System.Runtime.InteropServices;
 using WaylandSharp;
-using X11Overlay.GFX;
-using X11Overlay.GFX.OpenGL;
+using WlxOverlay.GFX;
+using WlxOverlay.GFX.OpenGL;
 
-namespace X11Overlay.Desktop.Wayland.Frame;
+namespace WlxOverlay.Desktop.Wayland.Frame;
 
 public class DmaBufFrame : IWaylandFrame
 {

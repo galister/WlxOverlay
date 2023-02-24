@@ -1,13 +1,13 @@
 using System.Runtime.InteropServices;
 using OVRSharp;
 using Valve.VR;
-using X11Overlay.Desktop.Wayland;
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
-using X11Overlay.Overlays;
-using X11Overlay.Overlays.Simple;
+using WlxOverlay.Desktop.Wayland;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
+using WlxOverlay.Overlays;
+using WlxOverlay.Overlays.Simple;
 
-namespace X11Overlay.Core;
+namespace WlxOverlay.Core;
 
 public class OverlayManager : Application
 {

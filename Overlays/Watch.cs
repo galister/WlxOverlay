@@ -1,11 +1,11 @@
-using X11Overlay.Core;
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
-using X11Overlay.Overlays.Simple;
-using X11Overlay.Types;
-using X11Overlay.UI;
+using WlxOverlay.Core;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
+using WlxOverlay.Overlays.Simple;
+using WlxOverlay.Types;
+using WlxOverlay.UI;
 
-namespace X11Overlay.Overlays;
+namespace WlxOverlay.Overlays;
 
 /// <summary>
 /// An overlay that shows time and has some buttons

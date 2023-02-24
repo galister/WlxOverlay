@@ -1,7 +1,7 @@
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.UI;
+namespace WlxOverlay.UI;
 
 /// <summary>
 /// A rectangle with a background color

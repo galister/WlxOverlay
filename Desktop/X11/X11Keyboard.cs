@@ -1,7 +1,7 @@
 using System.Runtime.InteropServices;
-using X11Overlay.Types;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Desktop.X11;
+namespace WlxOverlay.Desktop.X11;
 
 public class X11Keyboard : IKeyboardProvider
 {

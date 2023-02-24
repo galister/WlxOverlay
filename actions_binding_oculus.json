@@ -1,6 +1,6 @@
 {
    "action_manifest_version" : 0,
-   "app_key" : "galister.x11overlay",
+   "app_key" : "galister.wlxoverlay",
    "bindings" : {
       "/actions/default" : {
          "sources" : [
@@ -110,7 +110,7 @@
    "controller_type" : "oculus_touch",
    "description" : "Ver1",
    "interaction_profile" : "",
-   "name" : "X11Overlay configuration for Oculus Touch Controller",
+   "name" : "WlxOverlay configuration for Oculus Touch Controller",
    "options" : {
       "mirror_actions" : false,
       "simulated_controller_type" : "none"

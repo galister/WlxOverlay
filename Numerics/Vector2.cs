@@ -22,7 +22,7 @@
 using System.Runtime.InteropServices;
 using Valve.VR;
 
-namespace X11Overlay.Numerics;
+namespace WlxOverlay.Numerics;
 
 /// <summary>
 /// 2-element structure that can be used to represent positions in 2D space or any other pair of numeric values.

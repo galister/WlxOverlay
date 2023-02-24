@@ -21,7 +21,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace X11Overlay.Numerics;
+namespace WlxOverlay.Numerics;
 
 /// <summary>
 /// A unit quaternion used for representing 3D rotations.

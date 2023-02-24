@@ -1,9 +1,9 @@
-using X11Overlay.Desktop.X11;
-using X11Overlay.Numerics;
-using X11Overlay.Overlays.Simple;
-using X11Overlay.Types;
+using WlxOverlay.Desktop.X11;
+using WlxOverlay.Numerics;
+using WlxOverlay.Overlays.Simple;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Overlays;
+namespace WlxOverlay.Overlays;
 
 public class XorgScreen : BaseScreen<int>
 {

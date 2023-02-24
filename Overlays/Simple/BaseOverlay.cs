@@ -1,9 +1,9 @@
 using OVRSharp;
 using Valve.VR;
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.Overlays.Simple;
+namespace WlxOverlay.Overlays.Simple;
 
 public class BaseOverlay : IDisposable
 {
@@ -33,7 +33,7 @@ public class BaseOverlay : IDisposable
     protected static VROverlayIntersectionParams_t IntersectionParams = new() { eOrigin = ETrackingUniverseOrigin.TrackingUniverseStanding };
     protected static VROverlayIntersectionResults_t IntersectionResults;
 
-    private const string Prefix = "X11Overlay_";
+    private const string Prefix = "WlxOverlay_";
 
     public BaseOverlay(string key)
     {

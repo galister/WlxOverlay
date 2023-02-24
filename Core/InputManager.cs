@@ -2,11 +2,11 @@ using System.Runtime.InteropServices;
 using System.Text;
 using Newtonsoft.Json;
 using Valve.VR;
-using X11Overlay.Numerics;
-using X11Overlay.Overlays;
-using X11Overlay.Types;
+using WlxOverlay.Numerics;
+using WlxOverlay.Overlays;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Core;
+namespace WlxOverlay.Core;
 
 public class InputManager : IDisposable
 {

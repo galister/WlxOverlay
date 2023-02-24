@@ -1,6 +1,6 @@
-using X11Overlay.Types;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Desktop;
+namespace WlxOverlay.Desktop;
 
 public interface IKeyboardProvider
 {

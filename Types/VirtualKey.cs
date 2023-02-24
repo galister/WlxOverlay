@@ -1,6 +1,6 @@
 using System.Diagnostics.CodeAnalysis;
 
-namespace X11Overlay.Types;
+namespace WlxOverlay.Types;
 
 [SuppressMessage("ReSharper", "InconsistentNaming")]
 [SuppressMessage("ReSharper", "UnusedMember.Global")]

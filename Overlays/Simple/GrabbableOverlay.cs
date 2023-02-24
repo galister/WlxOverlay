@@ -1,7 +1,7 @@
-using X11Overlay.Core;
-using X11Overlay.Numerics;
+using WlxOverlay.Core;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.Overlays.Simple;
+namespace WlxOverlay.Overlays.Simple;
 
 /// <summary>
 /// An interactable overlay that exists in world space and can be moved by grabbing.

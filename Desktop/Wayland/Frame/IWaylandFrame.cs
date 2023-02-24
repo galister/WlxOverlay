@@ -1,6 +1,6 @@
-using X11Overlay.GFX;
+using WlxOverlay.GFX;
 
-namespace X11Overlay.Desktop.Wayland.Frame;
+namespace WlxOverlay.Desktop.Wayland.Frame;
 
 public interface IWaylandFrame : IDisposable
 {

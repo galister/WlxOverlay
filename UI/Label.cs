@@ -1,9 +1,10 @@
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
+
 // ReSharper disable MemberCanBeProtected.Global
 // ReSharper disable PropertyCanBeMadeInitOnly.Global
 
-namespace X11Overlay.UI;
+namespace WlxOverlay.UI;
 
 /// <summary>
 /// An UI element that renders text.

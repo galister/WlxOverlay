@@ -1,7 +1,7 @@
 using System.Diagnostics;
-using X11Overlay.Types;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Overlays;
+namespace WlxOverlay.Overlays;
 
 /// <summary>
 /// A laser pointer with a PTT button

@@ -1,11 +1,11 @@
 #if DEBUG
 
-using X11Overlay.Core;
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
-using X11Overlay.Overlays.Simple;
+using WlxOverlay.Core;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
+using WlxOverlay.Overlays.Simple;
 
-namespace X11Overlay.Overlays;
+namespace WlxOverlay.Overlays;
 
 /// <summary>
 /// Use this to help visualize issues during development

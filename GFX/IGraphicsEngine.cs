@@ -1,6 +1,6 @@
 using Valve.VR;
 
-namespace X11Overlay.GFX;
+namespace WlxOverlay.GFX;
 
 public static class GraphicsEngine
 {

@@ -1,4 +1,4 @@
-namespace X11Overlay.Desktop.X11
+namespace WlxOverlay.Desktop.X11
 {
     public enum XcbMouseButton : byte
     {

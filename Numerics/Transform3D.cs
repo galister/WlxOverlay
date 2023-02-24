@@ -21,7 +21,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace X11Overlay.Numerics;
+namespace WlxOverlay.Numerics;
 
 /// <summary>
 /// 3×4 matrix (3 rows, 4 columns) used for 3D linear transformations.

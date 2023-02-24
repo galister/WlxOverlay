@@ -1,7 +1,7 @@
 using FreeTypeSharp.Native;
 using static FreeTypeSharp.Native.FT;
 
-namespace X11Overlay.GFX;
+namespace WlxOverlay.GFX;
 
 public class Font : IDisposable
 {

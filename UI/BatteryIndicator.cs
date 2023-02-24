@@ -1,8 +1,8 @@
-using X11Overlay.Core;
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
+using WlxOverlay.Core;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.UI;
+namespace WlxOverlay.UI;
 
 public class BatteryIndicator : Panel
 {

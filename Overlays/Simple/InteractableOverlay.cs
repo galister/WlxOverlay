@@ -1,8 +1,8 @@
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
-using X11Overlay.Types;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Overlays.Simple;
+namespace WlxOverlay.Overlays.Simple;
 
 /// <summary>
 /// Base class for all overlays supporting pointer events.

@@ -21,7 +21,7 @@
 
 using System.Runtime.InteropServices;
 
-namespace X11Overlay.Numerics;
+namespace WlxOverlay.Numerics;
 
 /// <summary>
 /// Specifies which order Euler angle rotations should be in.

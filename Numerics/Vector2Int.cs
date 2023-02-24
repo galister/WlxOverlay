@@ -1,4 +1,4 @@
-namespace X11Overlay.Numerics;
+namespace WlxOverlay.Numerics;
 
 public struct Vector2Int
 {

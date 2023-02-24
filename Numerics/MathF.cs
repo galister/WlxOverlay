@@ -19,7 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-namespace X11Overlay.Numerics;
+namespace WlxOverlay.Numerics;
 
 /// <summary>
 /// Provides constants and static methods for common mathematical functions.

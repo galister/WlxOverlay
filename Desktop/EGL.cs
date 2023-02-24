@@ -2,7 +2,7 @@ using System.Runtime.InteropServices;
 
 // ReSharper disable InconsistentNaming
 
-namespace X11Overlay.Desktop;
+namespace WlxOverlay.Desktop;
 
 public static class EGL
 {

@@ -1,6 +1,6 @@
 // ReSharper disable InconsistentNaming
 // ReSharper disable UnusedMember.Global
-namespace X11Overlay.Types;
+namespace WlxOverlay.Types;
 
 public class Actions
 {

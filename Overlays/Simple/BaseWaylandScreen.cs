@@ -1,11 +1,11 @@
 using WaylandSharp;
-using X11Overlay.Core;
-using X11Overlay.Desktop;
-using X11Overlay.Desktop.Wayland;
-using X11Overlay.Desktop.Wayland.Frame;
-using X11Overlay.GFX;
+using WlxOverlay.Core;
+using WlxOverlay.Desktop;
+using WlxOverlay.Desktop.Wayland;
+using WlxOverlay.Desktop.Wayland.Frame;
+using WlxOverlay.GFX;
 
-namespace X11Overlay.Overlays.Simple;
+namespace WlxOverlay.Overlays.Simple;
 
 public abstract class BaseWaylandScreen : BaseScreen<WaylandOutput>
 {

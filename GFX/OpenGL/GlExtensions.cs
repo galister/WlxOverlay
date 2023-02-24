@@ -1,6 +1,6 @@
 using Silk.NET.OpenGL;
 
-namespace X11Overlay.GFX.OpenGL;
+namespace WlxOverlay.GFX.OpenGL;
 
 public static class GlExtensions
 {

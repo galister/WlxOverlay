@@ -1,5 +1,5 @@
 using System.Reflection;
-using X11Overlay.Overlays;
+using WlxOverlay.Overlays;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
 
@@ -7,7 +7,7 @@ using YamlDotNet.Serialization.NamingConventions;
 // ReSharper disable ClassNeverInstantiated.Global
 // ReSharper disable UnassignedField.Global
 
-namespace X11Overlay.Types;
+namespace WlxOverlay.Types;
 
 public class Config
 {
@@ -17,7 +17,8 @@ public class Config
 
     public static readonly string[] ConfigFolders =
     {
-        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "x11overlay"),
+        Path.Combine("/home", Environment.UserName, ".config", "wlxoverlay"),
+        Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "x11overlay"), // old branding
         "Resources"
     };
 

@@ -1,9 +1,9 @@
-using X11Overlay.Core;
-using X11Overlay.Desktop;
-using X11Overlay.Numerics;
-using X11Overlay.Types;
+using WlxOverlay.Core;
+using WlxOverlay.Desktop;
+using WlxOverlay.Numerics;
+using WlxOverlay.Types;
 
-namespace X11Overlay.Overlays.Simple;
+namespace WlxOverlay.Overlays.Simple;
 
 /// <summary>
 /// An overlay that displays a screen, moves the mouse and sends mouse events.

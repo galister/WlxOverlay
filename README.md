@@ -1,9 +1,9 @@
-# X11Overlay
-A lightweight X11 desktop overlay for OpenVR / SteamVR, inspired by XSOverlay.
+# WlxOverlay
+A lightweight OpenVR overlay for Wayland and X11 desktops, inspired by XSOverlay.
 
 Primarily made this because I couldn't find a proper desktop overlay for Linux.
 
-A reimplementation of [OVR4X11](https://github.com/galister/OVR4X11) using a lighter toolkit.
+Formerly known as X11Overlay
 
 Features:
 - Access your screens from within OpenVR / SteamVR
@@ -17,10 +17,9 @@ Features:
   - Toggles for screens / keyboard
   
 Planned:
-- Wayland support 
 - Notifications system
 
-![Image](https://github.com/galister/X11Overlay/blob/github/screenshot.jpeg?raw=true)
+![Image](https://github.com/galister/X11Overlay/blob/github/screenshot2.jpeg?raw=true)
 
 # Getting Started
 
@@ -28,13 +27,10 @@ Planned:
 
 Join the discussion here: https://discord.gg/gHwJ2vwSWV
 
-# Non-planned Features
-- Displaying individual windows (XComposite) as this does not work well when using workspaces (windows getting culled and display black)
-- Windows support
-
 # Known Issues
 - Dragging curved displays very close may make them disappear. Long click the toggle on the watch to force respawn.
-- App will not start with "invalid keyboard layout" if the keys in the config are dead on your layout. This can happen if you use a non-US layout for your physical keyboard. Workaround is to `setxkbmap us` before you start the app, or change the keyboard.yaml to reflect your local layout. (You may revert `setxkbmap` after launching the app.)
+- Wayland: It's possible that your compositor does not implement some of the required protocols. Please create a ticket to let us know in that case.
+- Wayland: screencopy can crash, especially with multiple screens up. this is being investigated, recommend wrapping in a restart loop for practical use in the meantime.
 
 # Works Used
 - [FreeTypeSharp](https://github.com/ryancheung/FreeTypeSharp), MIT License
@@ -46,4 +42,6 @@ Join the discussion here: https://discord.gg/gHwJ2vwSWV
 - [OVRSharp](https://github.com/OVRTools/OVRSharp), MIT License
 - [Silk.NET](https://github.com/dotnet/Silk.NET), MIT License
 - [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp), Apache v2 License
+- [bendahl/uinput](https://github.com/bendahl/uinput), MIT License
+- [WaylandSharp](https://github.com/X9VoiD/WaylandSharp), MIT License
 - [YamlDotNet](SixLabors/ImageSharp), MIT License

@@ -1,9 +1,9 @@
 using Silk.NET.OpenGL;
 using SixLabors.ImageSharp;
 using SixLabors.ImageSharp.PixelFormats;
-using X11Overlay.Desktop;
+using WlxOverlay.Desktop;
 
-namespace X11Overlay.GFX.OpenGL;
+namespace WlxOverlay.GFX.OpenGL;
 
 
 public class GlTexture : ITexture

@@ -1,10 +1,10 @@
-using X11Overlay.GFX;
-using X11Overlay.Numerics;
-using X11Overlay.Overlays;
-using X11Overlay.Types;
+using WlxOverlay.GFX;
+using WlxOverlay.Numerics;
+using WlxOverlay.Overlays;
+using WlxOverlay.Types;
 using Action = System.Action;
 
-namespace X11Overlay.UI;
+namespace WlxOverlay.UI;
 
 /// <summary>
 /// Renders Controls onto a texture

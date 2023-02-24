@@ -3,9 +3,9 @@ using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Glfw;
 using Valve.VR;
-using X11Overlay.Core;
+using WlxOverlay.Core;
 
-namespace X11Overlay.GFX.OpenGL;
+namespace WlxOverlay.GFX.OpenGL;
 
 public sealed class GlGraphicsEngine : IGraphicsEngine
 {
@@ -28,7 +28,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         var options = WindowOptions.Default;
         options.IsVisible = false;
         options.Size = new Vector2D<int>(800, 600);
-        options.Title = "X11Overlay";
+        options.Title = "WlxOverlay";
         options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Compatability, ContextFlags.ForwardCompatible, new APIVersion(4, 5));
         options.VSync = false;
 

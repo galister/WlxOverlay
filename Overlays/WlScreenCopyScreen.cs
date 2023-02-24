@@ -1,9 +1,9 @@
 using WaylandSharp;
-using X11Overlay.Desktop.Wayland;
-using X11Overlay.Desktop.Wayland.Frame;
-using X11Overlay.Overlays.Simple;
+using WlxOverlay.Desktop.Wayland;
+using WlxOverlay.Desktop.Wayland.Frame;
+using WlxOverlay.Overlays.Simple;
 
-namespace X11Overlay.Overlays;
+namespace WlxOverlay.Overlays;
 
 public class WlScreenCopyScreen : BaseWaylandScreen
 {

@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "X11Overlay", "X11Overlay.csproj", "{16E2D307-3657-49B8-89AB-1BD4B5E5480D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WlxOverlay", "WlxOverlay.csproj", "{16E2D307-3657-49B8-89AB-1BD4B5E5480D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

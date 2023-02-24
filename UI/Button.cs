@@ -1,4 +1,4 @@
-namespace X11Overlay.UI;
+namespace WlxOverlay.UI;
 
 /// <summary>
 /// A clickable button with a label in the middle

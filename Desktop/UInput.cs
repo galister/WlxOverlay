@@ -5,15 +5,15 @@ using System.Buffers;
 using System.Runtime.InteropServices;
 using System.Text;
 using Tmds.Linux;
-using X11Overlay.Types;
+using WlxOverlay.Types;
 using static Tmds.Linux.LibC;
 
-namespace X11Overlay.Desktop;
+namespace WlxOverlay.Desktop;
 
 public unsafe class UInput : IDisposable, IKeyboardProvider
 {
     private const string UInputPath = "/dev/uinput";
-    private const string DeviceName = "X11Overlay Keyboard-Mouse Hybrid Thing";
+    private const string DeviceName = "WlxOverlay Keyboard-Mouse Hybrid Thing";
 
     private const int AbsX = 0;
     private const int AbsY = 1;

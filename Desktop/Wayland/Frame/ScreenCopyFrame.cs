@@ -1,11 +1,11 @@
 using System.Runtime.InteropServices;
 using Tmds.Linux;
 using WaylandSharp;
-using X11Overlay.GFX;
-using X11Overlay.Types;
+using WlxOverlay.GFX;
+using WlxOverlay.Types;
 using static Tmds.Linux.LibC;
 
-namespace X11Overlay.Desktop.Wayland.Frame
+namespace WlxOverlay.Desktop.Wayland.Frame
 {
     public class ScreenCopyFrame : IWaylandFrame
     {
@@ -61,8 +61,8 @@ namespace X11Overlay.Desktop.Wayland.Frame
             _height = e.Height;
             _size = e.Stride * e.Height;
 
-            _fd = shm_open("/x11overlay-screencopy", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
-            shm_unlink("/x11overlay-screencopy");
+            _fd = shm_open("/wlxoverlay-screencopy", O_CREAT | O_RDWR, S_IRUSR | S_IWUSR);
+            shm_unlink("/wlxoverlay-screencopy");
             ftruncate(_fd, _size);
 
             _pool = _shm.CreatePool(_fd, (int)_size);

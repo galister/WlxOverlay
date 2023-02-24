@@ -1,4 +1,4 @@
-namespace X11Overlay.Types;
+namespace WlxOverlay.Types;
 
 public enum DesktopBackend
 {
