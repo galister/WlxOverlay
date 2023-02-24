@@ -13,7 +13,7 @@ public class Config
 {
     public static readonly IDeserializer YamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
 
-    private static readonly string AppDir = Environment.GetEnvironmentVariable("APPDIR") != null 
+    public static readonly string AppDir = Environment.GetEnvironmentVariable("APPDIR") != null 
                                             ? Path.Combine(Environment.GetEnvironmentVariable("APPDIR")!, "usr", "bin")
                                             : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 

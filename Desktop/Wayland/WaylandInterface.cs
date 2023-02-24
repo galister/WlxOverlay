@@ -12,14 +12,7 @@ public class WaylandInterface : IDisposable
 
     private readonly WlDisplay _display;
     private ZxdgOutputManagerV1? _outputManager;
-    private ZwlrVirtualPointerManagerV1? _pointerManager;
-    private ZwlrVirtualPointerV1? _pointer;
-    private ZwpVirtualKeyboardManagerV1? _keyboardManager;
-    private ZwpVirtualKeyboardV1? _keyboard;
     private WlSeat? _seat;
-
-    private static readonly DateTime _epoch = DateTime.UtcNow.Date;
-    public static uint Time() => (uint)(DateTime.UtcNow - _epoch).TotalMilliseconds;
 
     public static void Initialize()
     {
@@ -28,45 +21,6 @@ public class WaylandInterface : IDisposable
 
         Instance = new WaylandInterface();
         Instance._display.Roundtrip();
-    }
-
-    public ZwpVirtualKeyboardV1? GetVirtualKeyboard()
-    {
-        if (_keyboard == null)
-        {
-            if (_keyboardManager == null)
-            {
-                Console.WriteLine("ERROR Your Wayland compositor does not support zwp_virtual_keyboard_v1");
-                Console.WriteLine("ERROR The keyboard will not function.");
-            }
-            else if (_seat == null)
-                Console.WriteLine("ERROR wl_seat could not be loaded.");
-            else
-            {
-                _keyboard = _keyboardManager.CreateVirtualKeyboard(_seat);
-                using var wlKeyboard = _seat.GetKeyboard();
-                wlKeyboard.Keymap += (_, e) => _keyboard.Keymap((uint)e.Format, e.Fd, e.Size);
-                _display.Roundtrip();
-            }
-        }
-        return _keyboard;
-    }
-
-    public ZwlrVirtualPointerV1? GetVirtualPointer()
-    {
-        if (_pointer == null)
-        {
-            if (_pointerManager == null)
-            {
-                Console.WriteLine("ERROR Your Wayland compositor does not support zwlr_virtual_pointer_v1");
-                Console.WriteLine("ERROR The mouse pointer will not function.");
-            }
-            else if (_seat == null)
-                Console.WriteLine("ERROR wl_seat could not be loaded.");
-            else
-                _pointer = _pointerManager.CreateVirtualPointer(_seat);
-        }
-        return _pointer;
     }
 
     public void RoundTrip()
@@ -87,10 +41,6 @@ public class WaylandInterface : IDisposable
                 CreateOutput(reg, e);
             else if (e.Interface == WlInterface.WlSeat.Name)
                 _seat = reg.Bind<WlSeat>(e.Name, e.Interface, e.Version);
-            else if (e.Interface == WlInterface.ZwpVirtualKeyboardManagerV1.Name)
-                _keyboardManager = reg.Bind<ZwpVirtualKeyboardManagerV1>(e.Name, e.Interface, e.Version);
-            else if (e.Interface == WlInterface.ZwlrVirtualPointerManagerV1.Name)
-                _pointerManager = reg.Bind<ZwlrVirtualPointerManagerV1>(e.Name, e.Interface, e.Version);
             else if (e.Interface == WlInterface.ZxdgOutputManagerV1.Name)
                 _outputManager = reg.Bind<ZxdgOutputManagerV1>(e.Name, e.Interface, e.Version);
         };
@@ -138,10 +88,6 @@ public class WaylandInterface : IDisposable
         foreach (var output in Outputs.Values)
             output.Dispose();
 
-        _keyboard?.Dispose();
-        _keyboardManager?.Dispose();
-        _pointer?.Dispose();
-        _pointerManager?.Dispose();
         _seat?.Dispose();
         _outputManager?.Dispose();
         _display.Dispose();

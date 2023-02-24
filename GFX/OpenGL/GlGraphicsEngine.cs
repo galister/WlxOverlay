@@ -4,6 +4,7 @@ using Silk.NET.Windowing;
 using Silk.NET.Windowing.Glfw;
 using Valve.VR;
 using WlxOverlay.Core;
+using WlxOverlay.Types;
 
 namespace WlxOverlay.GFX.OpenGL;
 
@@ -49,11 +50,18 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         _gl.GetError();
         Console.WriteLine("GL Context initialized");
 
-        SpriteShader = new GlShader(_gl, "Shaders/common.vert", "Shaders/sprite.frag");
-        ColorShader = new GlShader(_gl, "Shaders/common.vert", "Shaders/color.frag");
-        FontShader = new GlShader(_gl, "Shaders/common.vert", "Shaders/font.frag");
+        var vertShader = GetShaderPath("common.vert");
+        
+        SpriteShader = new GlShader(_gl, vertShader, "sprite.frag");
+        ColorShader = new GlShader(_gl, vertShader, "color.frag");
+        FontShader = new GlShader(_gl, vertShader, "font.frag");
 
         GraphicsEngine.UiRenderer = new GlUiRenderer(_gl);
+    }
+
+    private string GetShaderPath(string shader)
+    {
+        return Path.Combine(Config.AppDir, "Shaders", shader);
     }
 
     private void OnRender(double _)
