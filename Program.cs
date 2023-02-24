@@ -1,4 +1,5 @@
-﻿using System.Runtime.InteropServices;
+﻿using System.Reflection;
+using System.Runtime.InteropServices;
 using WlxOverlay.Core;
 using WlxOverlay.Desktop;
 using WlxOverlay.Desktop.Wayland;
@@ -11,7 +12,7 @@ using WlxOverlay.Types;
 var version = "unknown-version";
 try
 {
-    version = File.ReadAllText(Path.Combine(Config.AppDir, "Resources", "version.txt"));
+    version = File.ReadAllText(Path.Combine(Config.AppDir, "Resources", "version.txt")).Trim();
 }
 catch { /* */ }
 
@@ -63,14 +64,11 @@ if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
     Console.WriteLine("Wayland detected.");
     EGL.Initialize();
     WaylandInterface.Initialize();
+    var screenType = WaylandInterface.Instance!.GetScreenTypeToUse();
+    
     foreach (var output in WaylandInterface.Instance!.Outputs.Values)
     {
-        BaseWaylandScreen screen;
-        if (Config.Instance.WaylandCapture == "dmabuf")
-            screen = new WlDmaBufScreen(output);
-        else
-            screen = new WlScreenCopyScreen(output);
-
+        var screen = (BaseWaylandScreen)Activator.CreateInstance(screenType, output)!;
         screen.WantVisible = output.Name == Config.Instance.DefaultScreen;
         manager.RegisterChild(screen);
         screens.Add(screen);

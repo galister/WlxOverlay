@@ -1,5 +1,7 @@
 using WaylandSharp;
 using WlxOverlay.Numerics;
+using WlxOverlay.Overlays;
+using WlxOverlay.Types;
 
 namespace WlxOverlay.Desktop.Wayland;
 
@@ -9,6 +11,9 @@ public class WaylandInterface : IDisposable
 
     public readonly Dictionary<uint, WaylandOutput> Outputs = new();
     public Rect2 OutputRect;
+
+    public bool HasDmabuf;
+    public bool HasScreencopy;
 
     private readonly WlDisplay _display;
     private ZxdgOutputManagerV1? _outputManager;
@@ -28,6 +33,34 @@ public class WaylandInterface : IDisposable
         _display.Roundtrip();
     }
 
+    public Type GetScreenTypeToUse()
+    {
+        if (Config.Instance.WaylandCapture == "dmabuf")
+        {
+            Console.WriteLine("Using DMA-BUF capture.");
+            return typeof(WlDmaBufScreen);
+        }
+        if (Config.Instance.WaylandCapture == "screencopy")
+        {
+            Console.WriteLine("Using ScreenCopy capture.");
+            return typeof(WlScreenCopyScreen);
+        }
+        if (HasDmabuf)
+        {
+            Console.WriteLine("Using DMA-BUF capture.");
+            return typeof(WlDmaBufScreen);
+        }
+        if (HasScreencopy)
+        {
+            Console.WriteLine("Using ScreenCopy capture.");
+            return typeof(WlScreenCopyScreen);
+        }
+        
+        Console.WriteLine("FATAL WlxOverlay requires either wlr_export_dmabuf_v1 or wlr_screencopy_v1 protocols.");
+        Console.WriteLine("FATAL Your Wayland compositor does not seem to support either.");
+        throw new ApplicationException();
+    }
+
     private WaylandInterface()
     {
         _display = WlDisplay.Connect();
@@ -43,6 +76,10 @@ public class WaylandInterface : IDisposable
                 _seat = reg.Bind<WlSeat>(e.Name, e.Interface, e.Version);
             else if (e.Interface == WlInterface.ZxdgOutputManagerV1.Name)
                 _outputManager = reg.Bind<ZxdgOutputManagerV1>(e.Name, e.Interface, e.Version);
+            else if (e.Interface == WlInterface.ZwlrExportDmabufManagerV1.Name)
+                HasDmabuf = true;
+            else if (e.Interface == WlInterface.ZwlrScreencopyManagerV1.Name)
+                HasScreencopy = true;
         };
 
         reg.GlobalRemove += (_, e) =>

@@ -5,3 +5,5 @@ riderModule.iml
 /_ReSharper.Caches/
 .idea/
 .vscode/
+*.user
+version.txt

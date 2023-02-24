@@ -1,15 +1,15 @@
 using System.Buffers;
-using System.Runtime.InteropServices;
 using WaylandSharp;
 using WlxOverlay.GFX;
 using WlxOverlay.GFX.OpenGL;
+using static Tmds.Linux.LibC;
 
 namespace WlxOverlay.Desktop.Wayland.Frame;
 
 public class DmaBufFrame : IWaylandFrame
 {
-    private static readonly ArrayPool<uint> _uintPool = ArrayPool<uint>.Shared;
-    private static readonly ArrayPool<int> _intPool = ArrayPool<int>.Shared;
+    private static readonly ArrayPool<uint> UintPool = ArrayPool<uint>.Shared;
+    private static readonly ArrayPool<int> IntPool = ArrayPool<int>.Shared;
 
     private readonly ZwlrExportDmabufFrameV1 _frame;
 
@@ -88,9 +88,7 @@ public class DmaBufFrame : IWaylandFrame
 
     private void OnReady(object? _, ZwlrExportDmabufFrameV1.ReadyEventArgs e)
     {
-        _status = _eglImage != IntPtr.Zero
-            ? CaptureStatus.FrameReady
-            : CaptureStatus.Fatal;
+        _status = CaptureStatus.FrameReady;
     }
 
     private void OnCancel(object? _, ZwlrExportDmabufFrameV1.CancelEventArgs e)
@@ -116,9 +114,9 @@ public class DmaBufFrame : IWaylandFrame
         _modHi = e.ModHigh;
         _numObjects = e.NumObjects;
 
-        _fds = _intPool.Rent((int)e.NumObjects);
-        _pitches = _uintPool.Rent((int)e.NumObjects);
-        _offsets = _uintPool.Rent((int)e.NumObjects);
+        _fds = IntPool.Rent((int)e.NumObjects);
+        _pitches = UintPool.Rent((int)e.NumObjects);
+        _offsets = UintPool.Rent((int)e.NumObjects);
     }
 
     public void Dispose()
@@ -129,20 +127,17 @@ public class DmaBufFrame : IWaylandFrame
                 if (_fds[i] != 0)
                     close(_fds[i]);
 
-            _intPool.Return(_fds);
+            IntPool.Return(_fds);
         }
 
         if (_pitches != null)
-            _uintPool.Return(_pitches);
+            UintPool.Return(_pitches);
 
         if (_offsets != null)
-            _uintPool.Return(_offsets);
+            UintPool.Return(_offsets);
 
         if (_eglImage != IntPtr.Zero)
             EGL.DestroyImage(EGL.Display, _eglImage);
         _frame.Dispose();
     }
-
-    [DllImport("libc", SetLastError = true)]
-    private static extern int close(int fileDescriptor);
 }
