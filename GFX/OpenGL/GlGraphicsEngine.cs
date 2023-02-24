@@ -51,10 +51,9 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         Console.WriteLine("GL Context initialized");
 
         var vertShader = GetShaderPath("common.vert");
-        
-        SpriteShader = new GlShader(_gl, vertShader, "sprite.frag");
-        ColorShader = new GlShader(_gl, vertShader, "color.frag");
-        FontShader = new GlShader(_gl, vertShader, "font.frag");
+        SpriteShader = new GlShader(_gl, vertShader, GetShaderPath("sprite.frag"));
+        ColorShader = new GlShader(_gl, vertShader, GetShaderPath("color.frag"));
+        FontShader = new GlShader(_gl, vertShader, GetShaderPath("font.frag"));
 
         GraphicsEngine.UiRenderer = new GlUiRenderer(_gl);
     }

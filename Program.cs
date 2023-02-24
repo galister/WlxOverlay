@@ -11,7 +11,7 @@ using WlxOverlay.Types;
 var version = "unknown-version";
 try
 {
-    version = File.ReadAllText("Resources/version.txt");
+    version = File.ReadAllText(Path.Combine(Config.AppDir, "Resources", "version.txt"));
 }
 catch { /* */ }
 
