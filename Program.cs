@@ -22,7 +22,17 @@ if (!Config.Load())
     return;
 
 var manager = OverlayManager.Initialize();
-KeyboardProvider.Instance = new UInput();
+try 
+{
+    KeyboardProvider.Instance = new UInput();
+}
+catch (ApplicationException) 
+{
+    Console.WriteLine("FATAL Could not register uinput device.");
+    Console.WriteLine("FATAL Check that you are in the `input` group or otherwise have access.");
+    Console.WriteLine("FATAL Try: sudo usermod -a -G input $USER");
+    return;
+}
 
 void SignalHandler(PosixSignalContext context)
 {
