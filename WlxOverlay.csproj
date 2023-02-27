@@ -99,9 +99,9 @@
       <None Update="Resources\actions_binding_oculus.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
-      <Content Update="Resources\actions_binding_knuckles.json">
+      <None Update="Resources\actions_binding_knuckles.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
+      </None>
       <None Update="Resources\version.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
