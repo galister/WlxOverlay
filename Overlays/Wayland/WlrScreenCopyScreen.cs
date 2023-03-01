@@ -3,14 +3,14 @@ using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.Wayland.Frame;
 using WlxOverlay.Overlays.Simple;
 
-namespace WlxOverlay.Overlays;
+namespace WlxOverlay.Overlays.Wayland;
 
-public class WlScreenCopyScreen : BaseWaylandScreen
+public class WlrScreenCopyScreen : BaseWlrScreen
 {
     private WlShm? _shm;
     private ZwlrScreencopyManagerV1? _screencopyManager;
 
-    public WlScreenCopyScreen(WaylandOutput output) : base(output) { }
+    public WlrScreenCopyScreen(WaylandOutput output) : base(output) { }
 
     protected override void Initialize()
     {

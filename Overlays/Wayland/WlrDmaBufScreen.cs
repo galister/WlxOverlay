@@ -3,14 +3,14 @@ using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.Wayland.Frame;
 using WlxOverlay.Overlays.Simple;
 
-namespace WlxOverlay.Overlays;
+namespace WlxOverlay.Overlays.Wayland;
 
-public class WlDmaBufScreen : BaseWaylandScreen
+public class WlrDmaBufScreen : BaseWlrScreen
 {
     private ZwlrExportDmabufManagerV1? _dmabufManager;
     private IWaylandFrame? _lastFrame;
 
-    public WlDmaBufScreen(WaylandOutput output) : base(output) { }
+    public WlrDmaBufScreen(WaylandOutput output) : base(output) { }
 
     protected override void Initialize()
     {

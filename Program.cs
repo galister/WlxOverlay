@@ -7,6 +7,7 @@ using WlxOverlay.Desktop.X11;
 using WlxOverlay.GFX.OpenGL;
 using WlxOverlay.Overlays;
 using WlxOverlay.Overlays.Simple;
+using WlxOverlay.Overlays.Wayland;
 using WlxOverlay.Types;
 
 var version = "unknown-version";

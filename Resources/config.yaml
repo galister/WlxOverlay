@@ -11,8 +11,9 @@ default_screen: 0
 fallback_cursors: false
 
 # wayland screen capture method
-# one of: screencopy, dmabuf
-# wayland_capture: screencopy
+# one of: dmabuf, screencopy, auto
+# performance: dmabuf >> screencopy (auto selects first available in this order)
+wayland_capture: auto
 
 # enable if getting weird colors with screencopy
 screencopy_color_swap: false

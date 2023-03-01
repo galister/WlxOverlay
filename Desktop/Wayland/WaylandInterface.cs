@@ -1,6 +1,7 @@
 using WaylandSharp;
 using WlxOverlay.Numerics;
 using WlxOverlay.Overlays;
+using WlxOverlay.Overlays.Wayland;
 using WlxOverlay.Types;
 
 namespace WlxOverlay.Desktop.Wayland;
@@ -12,8 +13,7 @@ public class WaylandInterface : IDisposable
     public readonly Dictionary<uint, WaylandOutput> Outputs = new();
     public Rect2 OutputRect;
 
-    public bool HasDmabuf;
-    public bool HasScreencopy;
+    private List<Type> _supportedScreenTypes = new();
 
     private readonly WlDisplay _display;
     private ZxdgOutputManagerV1? _outputManager;
@@ -38,23 +38,19 @@ public class WaylandInterface : IDisposable
         if (Config.Instance.WaylandCapture == "dmabuf")
         {
             Console.WriteLine("Using DMA-BUF capture.");
-            return typeof(WlDmaBufScreen);
+            return typeof(WlrDmaBufScreen);
         }
         if (Config.Instance.WaylandCapture == "screencopy")
         {
             Console.WriteLine("Using ScreenCopy capture.");
-            return typeof(WlScreenCopyScreen);
+            return typeof(WlrScreenCopyScreen);
         }
-        if (HasDmabuf)
-        {
-            Console.WriteLine("Using DMA-BUF capture.");
-            return typeof(WlDmaBufScreen);
-        }
-        if (HasScreencopy)
-        {
-            Console.WriteLine("Using ScreenCopy capture.");
-            return typeof(WlScreenCopyScreen);
-        }
+
+        if (_supportedScreenTypes.Contains(typeof(ZwlrExportDmabufManagerV1)))
+            return typeof(ZwlrExportDmabufManagerV1);
+        
+        if (_supportedScreenTypes.Contains(typeof(ZwlrScreencopyManagerV1)))
+            return typeof(ZwlrScreencopyManagerV1);
         
         Console.WriteLine("FATAL WlxOverlay requires either wlr_export_dmabuf_v1 or wlr_screencopy_v1 protocols.");
         Console.WriteLine("FATAL Your Wayland compositor does not seem to support either.");
@@ -77,9 +73,9 @@ public class WaylandInterface : IDisposable
             else if (e.Interface == WlInterface.ZxdgOutputManagerV1.Name)
                 _outputManager = reg.Bind<ZxdgOutputManagerV1>(e.Name, e.Interface, e.Version);
             else if (e.Interface == WlInterface.ZwlrExportDmabufManagerV1.Name)
-                HasDmabuf = true;
+                _supportedScreenTypes.Add(typeof(WlrDmaBufScreen));
             else if (e.Interface == WlInterface.ZwlrScreencopyManagerV1.Name)
-                HasScreencopy = true;
+                _supportedScreenTypes.Add(typeof(WlrScreenCopyScreen));
         };
 
         reg.GlobalRemove += (_, e) =>
