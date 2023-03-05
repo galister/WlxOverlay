@@ -82,6 +82,12 @@ public class Config
     public bool RightClickOrientation;
     public bool MiddleClickOrientation;
 
+    public bool ExperimentalFeatures;
+
+    public string NotificationsEndpoint;
+    public float NotificationsFadeTime;
+    public string NotificationsFont;
+
     public float ClickFreezeTime;
 
     public string DefaultScreen;

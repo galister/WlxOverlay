@@ -1,5 +1,6 @@
 using OVRSharp;
 using Valve.VR;
+using WlxOverlay.Core;
 using WlxOverlay.GFX;
 using WlxOverlay.Numerics;
 
@@ -202,5 +203,8 @@ public class BaseOverlay : IDisposable
 
     public virtual void Dispose()
     {
+        Hide();
+        _overlay?.Destroy();
+        OverlayManager.Instance?.UnregisterChild(this);
     }
 }

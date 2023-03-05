@@ -36,7 +36,7 @@ public class Label : Control
         }
     }
 
-    public readonly Font Font;
+    public readonly FontCollection Font;
 
     public Label(string? text, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
@@ -51,9 +51,8 @@ public class Label : Control
             return;
 
         var curX = X;
-        foreach (var c in _text)
+        foreach (var g in Font.GetTextures(_text))
         {
-            var g = Font.GetTexture(c);
             if (g == null)
                 continue;
 

@@ -14,7 +14,7 @@ public class Canvas : IDisposable
     // These will be inherited by new controls upon creation.
     public static Vector3 CurrentBgColor;
     public static Vector3 CurrentFgColor;
-    public static Font? CurrentFont;
+    public static FontCollection? CurrentFont;
 
     public readonly uint Width;
     public readonly uint Height;

@@ -25,14 +25,21 @@ public class OverlayManager : Application
     private readonly List<BaseOverlay> _overlays = new();
     private readonly List<InteractableOverlay> _interactables = new();
     private readonly List<LaserPointer> _pointers = new();
+
+    private readonly object _lockObject = new();
+    private readonly Queue<(DateTime notBefore, Action action)> ScheduledTasks = new();
+
     private bool _showHideState = false;
 
     private float _secondsSinceLastVsync;
     private ulong _frameCounter;
+    
+    public List<Func<InteractionArgs, InteractionResult>> PointerInteractions = new();
 
     public OverlayManager() : base(ApplicationType.Overlay)
     {
         Instance = this;
+        Console.WriteLine($"OpenVR Version: {OpenVR.System.GetRuntimeVersion()}");
 
         var error = EVRInitError.None;
         OpenVR.GetGenericInterface(OpenVR.IVROverlay_Version, ref error);
@@ -41,7 +48,7 @@ public class OverlayManager : Application
             Console.WriteLine(OpenVR.GetStringForHmdError(error));
             Environment.Exit(1);
         }
-        Console.WriteLine("IVROverlay: pass");
+        Console.WriteLine($"{OpenVR.IVROverlay_Version}: pass");
 
         OpenVR.GetGenericInterface(OpenVR.IVRCompositor_Version, ref error);
         if (error != EVRInitError.None)
@@ -49,18 +56,26 @@ public class OverlayManager : Application
             Console.WriteLine(OpenVR.GetStringForHmdError(error));
             Environment.Exit(1);
         }
-        Console.WriteLine("IVRCompositor: pass");
+        Console.WriteLine($"{OpenVR.IVRCompositor_Version}: pass");
 
         var err = new ETrackedPropertyError();
         var displayFrequency = OpenVR.System.GetFloatTrackedDeviceProperty(OpenVR.k_unTrackedDeviceIndex_Hmd,
             ETrackedDeviceProperty.Prop_DisplayFrequency_Float, ref err);
         _frameTime = Mathf.Floor(1000f / displayFrequency) * 0.001f;
 
-        Console.WriteLine($"HMD running @ {displayFrequency} Hz");
-
         InputManager.Initialize();
-
+        
+        Console.WriteLine($"HMD running @ {displayFrequency} Hz");
+        
         _vrEventSize = (uint)Marshal.SizeOf(typeof(VREvent_t));
+    }
+    
+    public void ScheduleTask(DateTime notBefore, Action action)
+    {
+        lock (_lockObject)
+        {
+            ScheduledTasks.Enqueue((notBefore, action));
+        }
     }
 
     public void RegisterChild(BaseOverlay o)
@@ -104,7 +119,7 @@ public class OverlayManager : Application
     private VREvent_t _vrEvent;
     private readonly uint _vrEventSize;
 
-    private List<BaseOverlay> _workOverlays = new(MaxInteractableOverlays);
+    private readonly List<BaseOverlay> _workOverlays = new(MaxInteractableOverlays);
 
     public void Update()
     {
@@ -123,12 +138,21 @@ public class OverlayManager : Application
             _nextDeviceUpdate = DateTime.UtcNow.AddSeconds(10);
             deviceStateUpdated = true;
         }
+        
+        lock (_lockObject)
+            while (ScheduledTasks.TryPeek(out var task) && task.notBefore < DateTime.UtcNow)
+            {
+                ScheduledTasks.Dequeue();
+                task.action();
+            }
 
-        foreach (var o in _overlays)
+        _workOverlays.Clear();
+        _workOverlays.AddRange(_overlays);
+        foreach (var o in _workOverlays)
             o.AfterInput(deviceStateUpdated);
 
         _workOverlays.Clear();
-        _workOverlays.AddRange(_interactables.Where(x => x.Visible));
+        _workOverlays.AddRange(_interactables.Where(x => x.Visible).Reverse());
         foreach (var pointer in _pointers)
             pointer.TestInteractions(_workOverlays.Cast<InteractableOverlay>());
 
@@ -137,6 +161,8 @@ public class OverlayManager : Application
         foreach (var o in _workOverlays)
             o.Show();
 
+        ChaperoneManager.Instance.Render();
+        
         _workOverlays.Clear();
         _workOverlays.AddRange(_overlays.Where(o => o.Visible));
         foreach (var o in _workOverlays)
@@ -173,7 +199,9 @@ public class OverlayManager : Application
     {
         Console.WriteLine("Shutting down.");
 
-        foreach (var baseOverlay in _overlays)
+        _workOverlays.Clear();
+        _workOverlays.AddRange(_overlays);
+        foreach (var baseOverlay in _workOverlays)
             baseOverlay.Dispose();
 
         OpenVR.Shutdown();

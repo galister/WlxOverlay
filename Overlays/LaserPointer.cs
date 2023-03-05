@@ -27,6 +27,7 @@ public class LaserPointer : BaseOverlay
     private Vector2 _grabbedUv;
 
     private float _length;
+    private float? _interactLength;
 
     private static readonly float RotationOffset = Mathf.DegToRad(-90);
 
@@ -150,7 +151,7 @@ public class LaserPointer : BaseOverlay
 
     private void RecalculateTransform()
     {
-        _length = _lastHit?.distance ?? 25f;
+        _length = _lastHit?.distance ?? _interactLength ?? 25f;
         var hmd = InputManager.HmdTransform;
 
         Transform = HandTransform
@@ -185,7 +186,7 @@ public class LaserPointer : BaseOverlay
 
     private readonly List<PointerHit> _pointerHits = new(OverlayManager.MaxInteractableOverlays);
     private PointerHit? _lastHit;
-
+    
     public void TestInteractions(IEnumerable<InteractableOverlay> targets)
     {
         if (_grabbedTarget != null)
@@ -217,6 +218,8 @@ public class LaserPointer : BaseOverlay
 
             if (!Visible)
                 Show();
+
+            Color = ModeColors[(int)Mode];
         }
         else
         {
@@ -226,6 +229,25 @@ public class LaserPointer : BaseOverlay
                 _lastHit = null;
             }
 
+            _interactLength = null;
+
+            foreach (var func in OverlayManager.Instance.PointerInteractions)
+            {
+                var result = func.Invoke(new InteractionArgs { Hand = Hand, Mode = Mode, HandTransform = HandTransform, Click = ClickNow && !ClickBefore });
+                if (!result.Handled)
+                    continue;
+                
+                if (result.Length > float.Epsilon)
+                {
+                    Color = result.Color;
+                    _interactLength = result.Length;
+                    if (!Visible)
+                        Show();
+                    return;
+                }
+                break;
+            }
+            
             if (Visible)
                 Hide();
         }
@@ -308,7 +330,6 @@ public class LaserPointer : BaseOverlay
     protected internal override void Render()
     {
         RecalculateTransform();
-        Color = ModeColors[(int)Mode];
         UploadColor();
     }
 
@@ -317,6 +338,23 @@ public class LaserPointer : BaseOverlay
         Brightness = brightness;
         // don't upload, since we'll do that later
     }
+}
+
+public class InteractionArgs
+{
+    public Transform3D HandTransform;
+    public PointerMode Mode;
+    public LeftRight Hand;
+    public bool Click;
+}
+
+public struct InteractionResult
+{
+    public bool Handled;
+    public float Length;
+    public Vector3 Color;
+
+    public static readonly InteractionResult Unhandled = new() { Handled = false };
 }
 
 public class PointerHit
@@ -360,3 +398,4 @@ public enum LeftRight : uint
     Left = 0U,
     Right = 1U
 }
+

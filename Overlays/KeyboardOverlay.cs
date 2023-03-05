@@ -38,7 +38,7 @@ public class KeyboardOverlay : GrabbableOverlay
         _canvas.AddControl(new Panel(0, 0, _canvas.Width, _canvas.Height));
 
 
-        Canvas.CurrentFont = new Font("LiberationSans-Bold.ttf", 18);
+        Canvas.CurrentFont = FontCollection.Get(18, FontStyle.Bold);
         Canvas.CurrentBgColor = HexColor.FromRgb("#202020");
 
         var unitSize = _canvas.Width / (uint)layout.RowSize;
@@ -111,12 +111,5 @@ public class KeyboardOverlay : GrabbableOverlay
     {
         base.OnPointerLeft(hand);
         _canvas.OnPointerLeft(hand);
-    }
-
-    protected internal override void AfterInput(bool batteryStateUpdated)
-    {
-        base.AfterInput(batteryStateUpdated);
-
-
     }
 }

@@ -68,7 +68,7 @@ public class InputManager : IDisposable
             Console.WriteLine(OpenVR.GetStringForHmdError(error));
             Environment.Exit(1);
         }
-        Console.WriteLine("IVRInput: pass");
+        Console.WriteLine($"{OpenVR.IVRInput_Version}: pass");
 
         Instance.LoadActionSets();
         Instance.InitExportFileHandles();
@@ -295,14 +295,11 @@ public class InputManager : IDisposable
     {
         DeviceStates.Clear();
 
-        if (_hmd == null)
+        _hmd = TrackedDevice.FromDeviceIdx(OpenVR.k_unTrackedDeviceIndex_Hmd);
+        if (_hmd != null)
         {
-            _hmd = TrackedDevice.FromDeviceIdx(OpenVR.k_unTrackedDeviceIndex_Hmd);
-            if (_hmd != null)
-            {
-                _hmd.Role = TrackedDeviceRole.Hmd;
-                DeviceStates[_hmd.Serial] = _hmd;
-            }
+            _hmd.Role = TrackedDeviceRole.Hmd;
+            DeviceStates[_hmd.Serial] = _hmd;
         }
 
         var numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.Controller, _deviceIds, 0);
@@ -341,6 +338,7 @@ public class InputManager : IDisposable
 
         DeviceStatesSorted.Clear();
         DeviceStatesSorted.AddRange(DeviceStates.Values.Where(dev => dev.Role != TrackedDeviceRole.None && dev.SoC >= 0).OrderBy(dev => dev.Role).ThenBy(dev => dev.Serial));
+        GC.Collect();
     }
 
     public void Dispose()
@@ -377,6 +375,7 @@ public class TrackedDevice
     public string Serial = null!;
     public uint Index;
     public float SoC;
+    public float LastSoC;
     public bool Charging;
     public TrackedDeviceRole Role;
 
@@ -394,6 +393,7 @@ public class TrackedDevice
         device.Serial = Sb.ToString();
         Sb.Clear();
 
+        device.LastSoC = device.SoC;
         device.SoC = OpenVR.System.GetFloatTrackedDeviceProperty(deviceIdx,
             ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float, ref lastErr);
         if (lastErr == ETrackedPropertyError.TrackedProp_Success)

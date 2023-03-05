@@ -98,6 +98,9 @@ else
     }
 }
 
+if (!string.IsNullOrWhiteSpace(Config.Instance.NotificationsEndpoint))
+    NotificationsManager.Initialize();
+
 if (!KeyboardLayout.Load())
 {
     Console.WriteLine("[Fatal] Keyboard layout is invalid.");

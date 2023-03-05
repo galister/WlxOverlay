@@ -48,14 +48,12 @@ public class Watch : InteractableOverlay
 
         Canvas.CurrentFgColor = HexColor.FromRgb("#FFFFFF");
 
-        Canvas.CurrentFont = new Font("LiberationSans-Bold.ttf", 46);
+        Canvas.CurrentFont = FontCollection.Get(46, FontStyle.Bold);
         _canvas.AddControl(new DateTimeLabel("HH:mm", TimeZoneInfo.Local, 19, 107, 200, 50));
 
-        var b14Pt = Canvas.CurrentFont = new Font("LiberationSans-Bold.ttf", 14);
+        Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
         _canvas.AddControl(new DateTimeLabel("d", TimeZoneInfo.Local, 20, 80, 200, 50));
         _canvas.AddControl(new DateTimeLabel("dddd", TimeZoneInfo.Local, 20, 60, 200, 50));
-
-        Font? b24Pt = null;
 
         if (Config.Instance.AltTimezone1 != null)
         {
@@ -64,10 +62,10 @@ public class Watch : InteractableOverlay
             var tz = TimeZoneInfo.FindSystemTimeZoneById(Config.Instance.AltTimezone1);
             var tzDisplay = Config.Instance.AltTimezone1.Split('/').Last();
 
-            Canvas.CurrentFont = b14Pt;
+            Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
             _canvas.AddControl(new Label(tzDisplay, 210, 137, 200, 50));
 
-            b24Pt = Canvas.CurrentFont = new Font("LiberationSans-Bold.ttf", 24);
+            Canvas.CurrentFont = FontCollection.Get(24, FontStyle.Bold);
             _canvas.AddControl(new DateTimeLabel("HH:mm", tz, 210, 107, 200, 50));
         }
 
@@ -77,11 +75,10 @@ public class Watch : InteractableOverlay
             var tz = TimeZoneInfo.FindSystemTimeZoneById(Config.Instance.AltTimezone2);
             var tzDisplay = Config.Instance.AltTimezone2.Split('/').Last();
 
-            Canvas.CurrentFont = b14Pt;
+            Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
             _canvas.AddControl(new Label(tzDisplay, 210, 82, 200, 50));
 
-            b24Pt ??= new Font("LiberationSans-Bold.ttf", 24);
-            Canvas.CurrentFont = b24Pt;
+            Canvas.CurrentFont = FontCollection.Get(24, FontStyle.Bold);
             _canvas.AddControl(new DateTimeLabel("HH:mm", tz, 210, 52, 200, 50));
         }
 
@@ -89,7 +86,7 @@ public class Watch : InteractableOverlay
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#222222");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AAAAAA");
-        Canvas.CurrentFont = b14Pt;
+        Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
 
         _canvas.AddControl(new Panel(325, 114, 50, 36));
         _canvas.AddControl(new Panel(325, 50, 50, 36));
@@ -112,15 +109,35 @@ public class Watch : InteractableOverlay
             });
 
         // Bottom row
+        Canvas.CurrentBgColor = HexColor.FromRgb("#406050");
+        Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");
+
+        int bottomRowStart = 0;
+        
+        if (Config.Instance.ExperimentalFeatures)
+        {
+            _canvas.AddControl(new Button("C", 2, 2, 36, 36)
+            {
+                PointerDown = () =>
+                {
+                    WantVisible = false;
+                    Hide();
+                    var chaperoneSettings = new ChaperoneSettings(this);
+                    OverlayManager.Instance.RegisterChild(chaperoneSettings);
+                    chaperoneSettings.Show();
+                }
+            });
+            bottomRowStart = 40;
+        }
 
         var numButtons = screens.Count + 1;
-        var btnWidth = 400 / numButtons;
+        var btnWidth = (400-bottomRowStart) / numButtons;
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#406050");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");
 
         var kbPushedAt = DateTime.MinValue;
-        _canvas.AddControl(new Button("Kbd", 2, 2, (uint)btnWidth - 4U, 36)
+        _canvas.AddControl(new Button("Kbd", bottomRowStart + 2, 2, (uint)btnWidth - 4U, 36)
         {
             PointerDown = () =>
             {
@@ -145,7 +162,7 @@ public class Watch : InteractableOverlay
             var screenName = screen.ToString() ?? "UNK";
 
             var pushedAt = DateTime.MinValue;
-            _canvas.AddControl(new Button(screenName, btnWidth * s + 2, 2, (uint)btnWidth - 4U, 36)
+            _canvas.AddControl(new Button(screenName, btnWidth * s + bottomRowStart + 2, 2, (uint)btnWidth - 4U, 36)
             {
                 PointerDown = () =>
                 {

@@ -1,63 +1,93 @@
 using FreeTypeSharp.Native;
-using WlxOverlay.Types;
 using static FreeTypeSharp.Native.FT;
 
 namespace WlxOverlay.GFX;
 
-public class Font : IDisposable
+internal class Font : IDisposable
 {
-    private readonly Dictionary<char, Glyph?> _glyphTextures = new();
-
     private static FT_Vector _nullVector;
-    private string _font;
-    private int _size;
-    private bool _loaded;
+    
+    private readonly Dictionary<int, uint> _glyphIndices = new();
+    private readonly Dictionary<int, Glyph?> _glyphTextures = new();
 
-    public Font(string font, int size)
+    private readonly string _font;
+    private readonly int _size;
+    private readonly string _path;
+    private readonly int _index;
+
+    internal Font(string path, int index, int size)
     {
-        _font = font;
+        _font = Path.GetFileNameWithoutExtension(path);
+        _path = path;
+        _index = index;
         _size = size;
+        
+        LoaderInit();
+        LoadGlyphIndices();
     }
 
-    private void LoadFont()
+    private IntPtr _ftLib = IntPtr.Zero;
+    private IntPtr _ftFace = IntPtr.Zero;
+    private void LoaderInit()
     {
-        if (!Config.TryGetFile(_font, out var filePath, true))
-            throw new ApplicationException($"Could not load resource.");
+        if (_ftLib != IntPtr.Zero)
+            return;
 
-        var err = FT_Init_FreeType(out var ftLib);
+        var err = FT_Init_FreeType(out _ftLib);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not load FreeType library: {err}");
-
-        err = FT_New_Face(ftLib, filePath, 0, out var ftFace);
+        
+        
+        err = FT_New_Face(_ftLib, _path, _index, out _ftFace);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not load font {_font}: {err}");
 
-        err = FT_Set_Char_Size(ftFace, (IntPtr)(_size << 6), (IntPtr)(_size << 6), 96, 96);
+        err = FT_Select_Charmap(_ftFace, FT_Encoding.FT_ENCODING_UNICODE);
+        if (err != FT_Error.FT_Err_Ok)
+            throw new ApplicationException($"Could not use unicode char map on {_font}: {err}");
+        
+        err = FT_Set_Char_Size(_ftFace, (IntPtr)(_size << 6), (IntPtr)(_size << 6), 96, 96);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not set size to {_size}px for {_font}: {err}");
-
-        for (var c = (char)1; c < 255; c++)
-        {
-            LoadGlyph(c, ftFace);
-        }
-
-        FT_Done_Face(ftFace);
-        FT_Done_FreeType(ftLib);
     }
 
-    private unsafe void LoadGlyph(char ch, IntPtr ftFace)
+    private void LoadGlyphIndices()
     {
-        var chIdx = FT_Get_Char_Index(ftFace, ch);
+        var ch = FT_Get_First_Char(_ftFace, out var gl);
+        while (gl != 0)
+        {
+            _glyphIndices[(int)ch] = gl;
+            ch = FT_Get_Next_Char(_ftFace, ch, out gl);
+        }
+    }
 
-        var err = FT_Load_Glyph(ftFace, chIdx, FT_LOAD_DEFAULT);
+    public IEnumerable<int> GetSupportedCodePoints() => _glyphIndices.Keys;
+
+    private void LoaderDone()
+    {
+        if (_ftLib == IntPtr.Zero)
+            return;
+         
+        FT_Done_Face(_ftFace);
+        FT_Done_FreeType(_ftLib);
+        
+        _ftFace = IntPtr.Zero;
+        _ftLib = IntPtr.Zero;
+    }
+
+    private unsafe void LoadGlyph(int ch)
+    {
+        var chIdx = _glyphIndices.GetValueOrDefault(ch, 0U);
+
+        var err = FT_Load_Glyph(_ftFace, chIdx, FT_LOAD_DEFAULT);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not Load_Glyph for {ch}: {err}");
+            throw new ApplicationException($"Could not Load_Glyph for U+{ch:X4} - {err}");
 
-        var ftFaceRec = (FT_FaceRec*)ftFace;
+        var ftFaceRec = (FT_FaceRec*)_ftFace;
 
         err = FT_Get_Glyph((IntPtr)ftFaceRec->glyph, out var glyph);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not Get_Glyph for {ch}: {err}");
+            throw new ApplicationException($"Could not Get_Glyph for U+{ch:X4} - {err}");
 
         FT_Glyph_To_Bitmap(ref glyph, FT_Render_Mode.FT_RENDER_MODE_NORMAL, ref _nullVector, true);
 
@@ -88,12 +118,12 @@ public class Font : IDisposable
                     throw new ApplicationException($"Unsupported FT_Pixel_Mode: {bitmap.pixel_mode}");
             }
 
-            var gSlot = ((FT_FaceRec*)ftFace)->glyph;
+            var gSlot = ((FT_FaceRec*)_ftFace)->glyph;
 
             var g = new Glyph
             {
                 Texture = GraphicsEngine.Instance.TextureFromRaw(bitmap.width, bitmap.rows, inputFormat, bitmap.buffer, GraphicsFormat.R8),
-                Left = ((int)gSlot->metrics.horiBearingX >> 6),
+                Left = (int)gSlot->metrics.horiBearingX >> 6,
                 Top = (int)bitmap.rows - ((int)gSlot->metrics.horiBearingY >> 6),
                 AdvX = (int)gSlot->metrics.horiAdvance >> 6
             };
@@ -102,21 +132,19 @@ public class Font : IDisposable
         }
     }
 
-    public Glyph? GetTexture(char c)
+    public Glyph? GetTexture(int cp)
     {
-        if (!_loaded)
+        if (!_glyphTextures.TryGetValue(cp, out var g))
         {
-            LoadFont();
-            _loaded = true;
+            LoadGlyph(cp);
+            g = _glyphTextures[cp];
         }
-
-        return _glyphTextures.GetValueOrDefault(c, null);
+        return g;
     }
-
-    public int Size() => _size;
 
     public void Dispose()
     {
+        LoaderDone();
         foreach (var glyph in _glyphTextures.Values)
             glyph!.Texture.Dispose();
     }

@@ -1,5 +1,3 @@
-using WaylandSharp;
-using WlxOverlay.Core;
 using WlxOverlay.Desktop;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.Wayland.Frame;
@@ -11,7 +9,8 @@ namespace WlxOverlay.Overlays.Simple;
 public abstract class BaseWlrScreen : BaseWaylandScreen
 {
     protected IWaylandFrame? Frame;
-
+    protected TimeSpan RoundTripSleepTime = TimeSpan.FromMilliseconds(1);
+    
     private readonly CancellationTokenSource _cancel = new();
     private Task? _worker;
 
@@ -59,7 +58,6 @@ public abstract class BaseWlrScreen : BaseWaylandScreen
                     Console.WriteLine($"{Screen.Name}: Frame was skipped.");
                     break;
                 case CaptureStatus.Fatal:
-                    OverlayManager.Instance.UnregisterChild(this);
                     Dispose();
                     return;
             }

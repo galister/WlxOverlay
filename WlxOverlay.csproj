@@ -29,7 +29,6 @@
         <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
       </PackageReference>
       <PackageReference Include="Tmds.LibC" Version="0.5.0" />
-      <PackageReference Include="WaylandSharp" Version="0.2.1" />
       <PackageReference Include="YamlDotNet" Version="12.0.2" />
     </ItemGroup>
 
@@ -63,6 +62,10 @@
       <None Remove="Shaders\blend.vert" />
       <None Remove="Resources\FreeSansBold.otf" />
       <None Remove="Shaders\common.vert1" />
+      <None Include=".Trash\org.freedesktop.portal.ProxyResolver.xml" />
+      <None Include=".Trash\org.freedesktop.portal.Request.xml" />
+      <None Include=".Trash\org.freedesktop.portal.ScreenCast.xml" />
+      <None Include=".Trash\org.freedesktop.portal.Session.xml" />
       <None Include="Shaders\common.vert">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
@@ -71,21 +74,9 @@
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
       <None Remove="Resources\LiberationSans-Regular.ttf" />
-      <Content Include="Resources\LiberationSans-Regular.ttf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Resources\LiberationSans-Bold.ttf" />
-      <Content Include="Resources\LiberationSans-Bold.ttf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Resources\LiberationMono-Regular.ttf" />
-      <Content Include="Resources\LiberationMono-Regular.ttf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Resources\LiberationMono-Bold.ttf" />
-      <Content Include="Resources\LiberationMono-Bold.ttf">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <None Remove="Resources\keyboard.yaml" />
       <Content Include="Resources\keyboard.yaml">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -111,6 +102,13 @@
       <None Update="Resources\version.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
+      <None Remove=".Trash\**" />
+      <None Remove="build.sh" />
+      <None Remove="knuckles.json" />
+      <Compile Remove="Desktop\Desktop.DBus.cs" />
+      <None Include="Desktop\Desktop.DBus.cs" />
+      <Compile Remove="Overlays\Wayland\XdgPortalScreen.cs" />
+      <None Include="Overlays\Wayland\XdgPortalScreen.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -134,11 +132,23 @@
     <AdditionalFiles Include="Protocols\xdg-output-unstable-v1.xml">
       <WaylandProtocol>client</WaylandProtocol>
     </AdditionalFiles>
+    <CompilerVisibleItemMetadata Remove="AdditionalFiles" />
   </ItemGroup>
   
   
   <ItemGroup>
     <Folder Include="Desktop\Wayland\Base" />
+  </ItemGroup>
+  
+  
+  <ItemGroup>
+    <Compile Include=".Trash\Snippets.cs" />
+    <Compile Remove=".Trash\**" />
+  </ItemGroup>
+  
+  
+  <ItemGroup>
+    <EmbeddedResource Remove=".Trash\**" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

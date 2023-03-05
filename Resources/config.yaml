@@ -18,6 +18,13 @@ wayland_capture: auto
 # enable if getting weird colors with screencopy
 screencopy_color_swap: false
 
+# enable features that are not completely polished
+experimental_features: false
+
+# listen to XSO-style notifications if not empty
+notifications_endpoint: 127.0.0.1:42069
+notifications_fade_time: 2.5
+
 # additional timezones to display, other than your local time. optional.
 alt_timezone1: Asia/Tokyo
 alt_timezone2: America/Chicago

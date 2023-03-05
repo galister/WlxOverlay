@@ -34,8 +34,12 @@ public class WlrScreenCopyScreen : BaseWlrScreen
     {
         Frame?.Dispose();
         Frame = new ScreenCopyFrame(Output!, _screencopyManager!, _shm!);
+        Display.Roundtrip();
         while (Frame.GetStatus() == CaptureStatus.Pending)
+        {
+            Thread.Sleep(RoundTripSleepTime);
             Display.Roundtrip();
+        }
     }
 
     protected override void Suspend()

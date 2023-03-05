@@ -17,15 +17,15 @@ public class LabelCentered : Label
 
         if (Dirty)
         {
-            _textWidth = Text.Sum(x => Font.GetTexture(x)?.AdvX ?? 0);
+            _textWidth = Font.GetTextWidth(Text);
             Dirty = false;
         }
 
         var y = (int)(Y + Height / 2 - Font.Size() / 2);
         var curX = (int)(X + Width / 2 - _textWidth / 2);
-        foreach (var c in Text)
+        
+        foreach (var g in Font.GetTextures(Text))
         {
-            var g = Font.GetTexture(c);
             if (g == null)
             {
                 curX += Font.Size() / 3;

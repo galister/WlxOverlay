@@ -34,8 +34,12 @@ public class WlrDmaBufScreen : BaseWlrScreen
         _lastFrame?.Dispose();
         _lastFrame = Frame;
         Frame = new DmaBufFrame(Output!, _dmabufManager!);
+        Display.Roundtrip();
         while (Frame.GetStatus() == CaptureStatus.Pending)
+        {
+            Thread.Sleep(RoundTripSleepTime);
             Display.Roundtrip();
+        }
     }
 
     protected override void Suspend()

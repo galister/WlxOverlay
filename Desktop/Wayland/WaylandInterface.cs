@@ -67,7 +67,8 @@ public class WaylandInterface : IDisposable
         {
             if (e.Interface == WlInterface.WlOutput.Name)
 #pragma warning disable CS4014
-                CreateOutput(reg, e);
+#pragma warning disable VSTHRD110
+                CreateOutputAsync(reg, e);
             else if (e.Interface == WlInterface.WlSeat.Name)
                 _seat = reg.Bind<WlSeat>(e.Name, e.Interface, e.Version);
             else if (e.Interface == WlInterface.ZxdgOutputManagerV1.Name)
@@ -88,7 +89,7 @@ public class WaylandInterface : IDisposable
         };
     }
 
-    private async Task CreateOutput(WlRegistry reg, WlRegistry.GlobalEventArgs e)
+    private async Task CreateOutputAsync(WlRegistry reg, WlRegistry.GlobalEventArgs e)
     {
         var wlOutput = reg.Bind<WlOutput>(e.Name, e.Interface, e.Version);
 
