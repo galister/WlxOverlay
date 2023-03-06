@@ -17,6 +17,7 @@ public class FontCollection
         return collection;
     }
 
+    private readonly List<Font> _loadedFonts = new();
     private readonly Dictionary<int, Font> _codePointToFont = new();
     
     private readonly int _size;
@@ -53,6 +54,13 @@ public class FontCollection
 
     public int Size() => _size;
 
+    public static void FrameEnded()
+    {
+        foreach (var fontCollection in _collections.Values)
+        foreach (var font in fontCollection._loadedFonts)
+            font.FrameEnded();
+    }
+
     private void LoadFontForCodePoint(int codepoint, int size, FontStyle style)
     {
         var psi = new ProcessStartInfo("fc-match")
@@ -73,6 +81,7 @@ public class FontCollection
         }
         
         var font = new Font(parts[0], int.Parse(parts[1]), size);
+        _loadedFonts.Add(font);
         foreach (var cp in font.GetSupportedCodePoints()) 
             _codePointToFont.TryAdd(cp, font);
     }

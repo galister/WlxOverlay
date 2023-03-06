@@ -115,6 +115,7 @@ public class OverlayManager : Application
             o.SetBrightness(f);
     }
 
+    private DateTime _nextRoundTrip = DateTime.MinValue;
     private DateTime _nextDeviceUpdate = DateTime.MinValue;
     private VREvent_t _vrEvent;
     private readonly uint _vrEventSize;
@@ -184,7 +185,11 @@ public class OverlayManager : Application
             }
         }
 
-        WaylandInterface.Instance?.RoundTrip();
+        if (_nextRoundTrip < DateTime.UtcNow)
+        {
+            WaylandInterface.Instance?.RoundTrip();
+            _nextRoundTrip = DateTime.UtcNow.AddSeconds(1);
+        }
 
         // Use this instead of vsync to prevent glfw from using up the entire CPU core
         WaitForEndOfFrame();

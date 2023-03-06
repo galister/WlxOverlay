@@ -86,7 +86,7 @@ public class Config
 
     public string NotificationsEndpoint;
     public float NotificationsFadeTime;
-    public string NotificationsFont;
+    public bool DbusNotifications;
 
     public float ClickFreezeTime;
 

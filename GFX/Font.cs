@@ -24,6 +24,7 @@ internal class Font : IDisposable
         
         LoaderInit();
         LoadGlyphIndices();
+        LoaderDone();
     }
 
     private IntPtr _ftLib = IntPtr.Zero;
@@ -74,6 +75,8 @@ internal class Font : IDisposable
         _ftFace = IntPtr.Zero;
         _ftLib = IntPtr.Zero;
     }
+    
+    
 
     private unsafe void LoadGlyph(int ch)
     {
@@ -136,15 +139,20 @@ internal class Font : IDisposable
     {
         if (!_glyphTextures.TryGetValue(cp, out var g))
         {
+            LoaderInit();
             LoadGlyph(cp);
             g = _glyphTextures[cp];
         }
         return g;
     }
 
-    public void Dispose()
+    public void FrameEnded()
     {
         LoaderDone();
+    }
+
+    public void Dispose()
+    {
         foreach (var glyph in _glyphTextures.Values)
             glyph!.Texture.Dispose();
     }

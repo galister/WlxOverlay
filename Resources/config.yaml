@@ -24,6 +24,8 @@ experimental_features: false
 # listen to XSO-style notifications if not empty
 notifications_endpoint: 127.0.0.1:42069
 notifications_fade_time: 2.5
+# show desktop notifications on overlay
+dbus_notifications: true
 
 # additional timezones to display, other than your local time. optional.
 alt_timezone1: Asia/Tokyo

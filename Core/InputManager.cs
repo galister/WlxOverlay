@@ -18,8 +18,7 @@ public class InputManager : IDisposable
     public static readonly Dictionary<string, bool[]> BooleanState = new();
     public static readonly Dictionary<string, Vector3[]> Vector3State = new();
     public static readonly Dictionary<string, Transform3D> PoseState = new();
-    public static readonly Dictionary<string, TrackedDevice> DeviceStates = new();
-    public static readonly List<TrackedDevice> DeviceStatesSorted = new();
+    public static readonly List<TrackedDevice> DeviceStates = new();
 
     public static Transform3D HmdTransform;
 
@@ -43,8 +42,8 @@ public class InputManager : IDisposable
 
     private readonly Dictionary<(LeftRight hand, string action), FileStream> _exportFiles = new();
 
-    private readonly TrackedDevice?[] _controllers = new TrackedDevice?[2];
-    private TrackedDevice? _hmd = null;
+    private readonly TrackedDevice[] _controllers = new TrackedDevice[2];
+    private TrackedDevice _hmd;
 
     private InputManager()
     {
@@ -204,7 +203,7 @@ public class InputManager : IDisposable
         for (var side = 0; side < 2; side++)
         {
             var controller = _controllers[side];
-            if (controller == null)
+            if (!controller.Valid)
                 continue;
 
             pose = _poses[controller.Index];
@@ -252,7 +251,7 @@ public class InputManager : IDisposable
                             bVal = false;
                         }
                         else
-                            bVal = _digitalActionData.bActive && _digitalActionData.bState;
+                            bVal = _digitalActionData is { bActive: true, bState: true };
 
                         BooleanState[inputAction.Name][s] = bVal;
                         TryExportInput(inputAction.Name, (LeftRight)s, bVal ? "1" : "0");
@@ -295,19 +294,17 @@ public class InputManager : IDisposable
     {
         DeviceStates.Clear();
 
-        _hmd = TrackedDevice.FromDeviceIdx(OpenVR.k_unTrackedDeviceIndex_Hmd);
-        if (_hmd != null)
+        if (TrackedDevice.TryCreateFromIndex(OpenVR.k_unTrackedDeviceIndex_Hmd, out _hmd))
         {
             _hmd.Role = TrackedDeviceRole.Hmd;
-            DeviceStates[_hmd.Serial] = _hmd;
+            DeviceStates.Add(_hmd);
         }
 
         var numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.Controller, _deviceIds, 0);
 
         for (var i = 0U; i < numDevs; i++)
         {
-            var device = TrackedDevice.FromDeviceIdx(_deviceIds[i]);
-            if (device == null)
+            if (!TrackedDevice.TryCreateFromIndex(_deviceIds[i], out var device))
                 continue;
 
             var nativeRole = OpenVR.System.GetControllerRoleForTrackedDeviceIndex(_deviceIds[i]);
@@ -316,28 +313,22 @@ public class InputManager : IDisposable
                 var controllerIdx = nativeRole - ETrackedControllerRole.LeftHand;
                 device.Role = TrackedDeviceRole.LeftHand + controllerIdx;
                 _controllers[controllerIdx] = device;
+                DeviceStates.Add(device);
             }
-            else
-                device.Role = TrackedDeviceRole.None;
-
-            DeviceStates[device.Serial] = device;
         }
 
         numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.GenericTracker, _deviceIds, 0);
 
         for (var i = 0U; i < numDevs; i++)
         {
-            var device = TrackedDevice.FromDeviceIdx(_deviceIds[i]);
-            if (device == null)
+            if (!TrackedDevice.TryCreateFromIndex(_deviceIds[i], out var device))
                 continue;
 
             device.Role = TrackedDeviceRole.Tracker;
-
-            DeviceStates[device.Serial] = device;
+            DeviceStates.Add(device);
         }
 
-        DeviceStatesSorted.Clear();
-        DeviceStatesSorted.AddRange(DeviceStates.Values.Where(dev => dev.Role != TrackedDeviceRole.None && dev.SoC >= 0).OrderBy(dev => dev.Role).ThenBy(dev => dev.Serial));
+        DeviceStates.Sort((a,b) => a.Role.CompareTo(b.Role) * 2 + a.Index.CompareTo(b.Index));
         GC.Collect();
     }
 
@@ -370,30 +361,27 @@ public class OpenVrInputAction
     }
 }
 
-public class TrackedDevice
+public struct TrackedDevice
 {
-    public string Serial = null!;
+    public bool Valid;
     public uint Index;
     public float SoC;
-    public float LastSoC;
     public bool Charging;
     public TrackedDeviceRole Role;
 
     private static readonly StringBuilder Sb = new((int)OpenVR.k_unMaxPropertyStringSize);
-    public static TrackedDevice? FromDeviceIdx(uint deviceIdx)
+    public static bool TryCreateFromIndex(uint deviceIdx, out TrackedDevice device)
     {
-        var device = new TrackedDevice();
+        device = new TrackedDevice();
         var lastErr = ETrackedPropertyError.TrackedProp_Success;
 
         OpenVR.System.GetStringTrackedDeviceProperty(deviceIdx, ETrackedDeviceProperty.Prop_SerialNumber_String, Sb, OpenVR.k_unMaxPropertyStringSize, ref lastErr);
         if (TryPrintError(lastErr, "GetStringTrackedDeviceProperty(Prop_SerialNumber_String)"))
-            return null;
+            return false;
 
         device.Index = deviceIdx;
-        device.Serial = Sb.ToString();
         Sb.Clear();
 
-        device.LastSoC = device.SoC;
         device.SoC = OpenVR.System.GetFloatTrackedDeviceProperty(deviceIdx,
             ETrackedDeviceProperty.Prop_DeviceBatteryPercentage_Float, ref lastErr);
         if (lastErr == ETrackedPropertyError.TrackedProp_Success)
@@ -406,7 +394,9 @@ public class TrackedDevice
         else // no battery
             device.SoC = -1;
 
-        return device;
+        device.Valid = true;
+        
+        return true;
     }
 
     private static bool TryPrintError(ETrackedPropertyError err, string message)

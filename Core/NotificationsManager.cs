@@ -1,7 +1,9 @@
 using System.Net;
 using System.Net.Sockets;
 using System.Text;
+using Desktop.DBus;
 using Newtonsoft.Json;
+using Tmds.DBus.Protocol;
 using WlxOverlay.Overlays;
 using WlxOverlay.Types;
 
@@ -16,7 +18,7 @@ public class NotificationsManager : IDisposable
     private readonly byte[] _listenBuffer = new byte[1024*16];
     
     private readonly CancellationTokenSource _cancel = new();
-    private Task? _listener;
+    private Task? _udpListener;
     private Task? _notifier;
 
     private readonly object _lockObject = new();
@@ -32,15 +34,16 @@ public class NotificationsManager : IDisposable
 
     public static void Toast(string title, string content, float timeout = 10)
     {
-        _instance._messages.Enqueue(new XSOMessage
-        {
-            timeout = timeout,
-            height = 110f,
-            messageType = 1,
-            content = content,
-            title = title,
-            opacity = 1
-        });
+        lock(_instance._lockObject)
+            _instance._messages.Enqueue(new XSOMessage
+            {
+                timeout = timeout,
+                height = 110f,
+                messageType = 1,
+                content = content,
+                title = title,
+                opacity = 1
+            });
     }
     
     private NotificationsManager()
@@ -59,11 +62,54 @@ public class NotificationsManager : IDisposable
     
     private void Start()
     {
-        _listener = ListenerAsync(_cancel.Token);
+        var _ = RegisterDbusAsync();
+        _udpListener = UdpListenerAsync(_cancel.Token);
         _notifier = NotifierAsync(_cancel.Token);
     }
 
-    private async Task ListenerAsync(CancellationToken _cancellationToken)
+    private async Task RegisterDbusAsync()
+    {
+        var dbus = Connection.Session;
+
+        var rule = new MatchRule
+        {
+            Member = "Notify",
+            Interface = "org.freedesktop.Notifications",
+            Path = "/org/freedesktop/Notifications",
+            Type = MessageType.MethodCall,
+            Eavesdrop = true
+        };
+
+        await dbus.AddMatchAsync(rule, (m, _) =>
+        {
+            var reader = m.GetBodyReader();
+            var unused = reader.ReadString();
+            var unused1 = reader.ReadUInt32();
+            var unused2 = reader.ReadString();
+            var summary = reader.ReadString();
+            var body = reader.ReadString();
+
+            return new XSOMessage
+            {
+                timeout = 3,
+                height = 110f,
+                messageType = 1,
+                content = body,
+                title = summary,
+                opacity = 1
+            };
+
+        }, (e, t, _, _) =>
+        {
+            if (e != null)
+                return;
+
+            lock (_lockObject)
+                _messages.Enqueue(t);
+        });
+    }
+    
+    private async Task UdpListenerAsync(CancellationToken _cancellationToken)
     {
         try
         {
@@ -129,7 +175,7 @@ public class NotificationsManager : IDisposable
     {
         _cancel.Cancel();
         
-        _listener?.Dispose();
+        _udpListener?.Dispose();
         _notifier?.Dispose();
         _cancel.Dispose();
         _listenSocket.Dispose();
