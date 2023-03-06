@@ -1,6 +1,6 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
+﻿using System.Runtime.InteropServices;
 using WlxOverlay.Core;
+using WlxOverlay.Data;
 using WlxOverlay.Desktop;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.X11;
@@ -113,7 +113,8 @@ manager.RegisterChild(keyboard);
 foreach (var screen in screens)
     manager.RegisterChild(screen);
 
-manager.RegisterChild(new Watch(keyboard, screens));
+var watch = new Watch(keyboard, screens);
+manager.RegisterChild(watch);
 
 try
 {

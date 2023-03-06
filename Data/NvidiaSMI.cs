@@ -1,9 +1,7 @@
 using System.Diagnostics;
-using System;
-using System.Linq;
 using System.Globalization;
 
-namespace X11Overlay.Data;
+namespace WlxOverlay.Data;
 
 // TODO: Create Interface for AMD/Intel maybe
 class NvidiaSMI : IDisposable

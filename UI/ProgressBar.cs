@@ -1,6 +1,6 @@
-using X11Overlay.Numerics;
+using WlxOverlay.Numerics;
 
-namespace X11Overlay.UI;
+namespace WlxOverlay.UI;
 
 public class ProgressBar : Panel
 {
