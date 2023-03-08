@@ -17,9 +17,12 @@ public class Config
                                             ? Path.Combine(Environment.GetEnvironmentVariable("APPDIR")!, "usr", "bin")
                                             : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
+    public static readonly string UserConfigFolder =
+        Path.Combine(Environment.GetEnvironmentVariable("HOME")!, ".config", "wlxoverlay");
+
     public static readonly string[] ConfigFolders =
     {
-        Path.Combine(Environment.GetEnvironmentVariable("HOME")!, ".config", "wlxoverlay"),
+        UserConfigFolder,
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "x11overlay"), // old branding
         Path.Combine(AppDir, "Resources")
     };

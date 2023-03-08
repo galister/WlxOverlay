@@ -1,6 +1,7 @@
 using WaylandSharp;
 using WlxOverlay.Numerics;
 using WlxOverlay.Overlays;
+using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Overlays.Wayland;
 using WlxOverlay.Types;
 
@@ -33,28 +34,47 @@ public class WaylandInterface : IDisposable
         _display.Roundtrip();
     }
 
-    public Type GetScreenTypeToUse()
+    public IEnumerable<BaseOverlay> CreateScreens()
     {
-        if (Config.Instance.WaylandCapture == "dmabuf")
-        {
+        IEnumerable<BaseOverlay> UseDmaBuf()
+        {   
             Console.WriteLine("Using DMA-BUF capture.");
-            return typeof(WlrDmaBufScreen);
-        }
-        if (Config.Instance.WaylandCapture == "screencopy")
-        {
-            Console.WriteLine("Using ScreenCopy capture.");
-            return typeof(WlrScreenCopyScreen);
+            return Outputs.Values.Select(x => new WlrDmaBufScreen(x));
         }
 
-        if (_supportedScreenTypes.Contains(typeof(ZwlrExportDmabufManagerV1)))
-            return typeof(ZwlrExportDmabufManagerV1);
+        IEnumerable<BaseOverlay> UseScreenCopy()
+        {   
+            Console.WriteLine("Using ScreenCopy capture.");
+            return Outputs.Values.Select(x => new WlrScreenCopyScreen(x));
+        }
         
-        if (_supportedScreenTypes.Contains(typeof(ZwlrScreencopyManagerV1)))
-            return typeof(ZwlrScreencopyManagerV1);
-        
-        Console.WriteLine("FATAL WlxOverlay requires either wlr_export_dmabuf_v1 or wlr_screencopy_v1 protocols.");
-        Console.WriteLine("FATAL Your Wayland compositor does not seem to support either.");
-        throw new ApplicationException();
+        IEnumerable<BaseOverlay> UsePipeWire()
+        {
+            Console.WriteLine("Using PipeWire capture. Select your screens in the next dialog.");
+            while (true)
+            {
+                var data = XdgScreenCastHandler.PromptUserAsync().GetAwaiter().GetResult();
+                if (data == null)
+                    yield break;
+                yield return new PipeWireScreen(data);
+            }
+        }
+
+        switch (Config.Instance.WaylandCapture)
+        {
+            case "dmabuf":
+                return UseDmaBuf();
+            case "screencopy":
+                return UseScreenCopy();
+            case "pipewire":
+                return UsePipeWire();
+            default:
+                if (_supportedScreenTypes.Contains(typeof(ZwlrExportDmabufManagerV1)))
+                    return UseDmaBuf();
+                if (_supportedScreenTypes.Contains(typeof(ZwlrScreencopyManagerV1)))
+                    return UseScreenCopy();
+                return UsePipeWire();
+        }
     }
 
     private WaylandInterface()

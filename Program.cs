@@ -75,12 +75,9 @@ if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
     Console.WriteLine("Wayland detected.");
     EGL.Initialize();
     WaylandInterface.Initialize();
-    var screenType = WaylandInterface.Instance!.GetScreenTypeToUse();
     
-    foreach (var output in WaylandInterface.Instance!.Outputs.Values)
+    foreach (var screen in WaylandInterface.Instance!.CreateScreens())
     {
-        var screen = (BaseWaylandScreen)Activator.CreateInstance(screenType, output)!;
-        screen.WantVisible = output.Name == Config.Instance.DefaultScreen;
         manager.RegisterChild(screen);
         screens.Add(screen);
     }
@@ -92,7 +89,7 @@ else
     var numScreens = XScreenCapture.NumScreens();
     for (var s = 0; s < numScreens; s++)
     {
-        var screen = new XorgScreen(s) { WantVisible = s.ToString() == Config.Instance.DefaultScreen };
+        var screen = new XorgScreen(s);
         manager.RegisterChild(screen);
         screens.Add(screen);
     }

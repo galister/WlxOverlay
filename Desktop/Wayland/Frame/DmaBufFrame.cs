@@ -27,13 +27,6 @@ public class DmaBufFrame : IWaylandFrame
     private CaptureStatus _status;
     private IntPtr _eglImage;
 
-    private static readonly EglEnum[,] ObjectAttributes = {
-        { EglEnum.DmaBufPlane0FdExt, EglEnum.DmaBufPlane0OffsetExt, EglEnum.DmaBufPlane0PitchExt, EglEnum.DmaBufPlane0ModifierLoExt, EglEnum.DmaBufPlane0ModifierHiExt },
-        { EglEnum.DmaBufPlane1FdExt, EglEnum.DmaBufPlane1OffsetExt, EglEnum.DmaBufPlane1PitchExt, EglEnum.DmaBufPlane1ModifierLoExt, EglEnum.DmaBufPlane1ModifierHiExt },
-        { EglEnum.DmaBufPlane2FdExt, EglEnum.DmaBufPlane2OffsetExt, EglEnum.DmaBufPlane2PitchExt, EglEnum.DmaBufPlane2ModifierLoExt, EglEnum.DmaBufPlane2ModifierHiExt },
-        { EglEnum.DmaBufPlane3FdExt, EglEnum.DmaBufPlane3OffsetExt, EglEnum.DmaBufPlane3PitchExt, EglEnum.DmaBufPlane3ModifierLoExt, EglEnum.DmaBufPlane3ModifierHiExt },
-    };
-
     public DmaBufFrame(WlOutput output, ZwlrExportDmabufManagerV1 dmabufManager)
     {
         _frame = dmabufManager.CaptureOutput(1, output);
@@ -62,15 +55,15 @@ public class DmaBufFrame : IWaylandFrame
 
         for (var p = 0; p < _numObjects; p++)
         {
-            attribs[i++] = (IntPtr)ObjectAttributes[p, 0];
+            attribs[i++] = (IntPtr)EGL.DmaBufAttribs[p, 0];
             attribs[i++] = (IntPtr)_fds![p];
-            attribs[i++] = (IntPtr)ObjectAttributes[p, 1];
+            attribs[i++] = (IntPtr)EGL.DmaBufAttribs[p, 1];
             attribs[i++] = (IntPtr)_offsets![p];
-            attribs[i++] = (IntPtr)ObjectAttributes[p, 2];
+            attribs[i++] = (IntPtr)EGL.DmaBufAttribs[p, 2];
             attribs[i++] = (IntPtr)_pitches![p];
-            attribs[i++] = (IntPtr)ObjectAttributes[p, 3];
+            attribs[i++] = (IntPtr)EGL.DmaBufAttribs[p, 3];
             attribs[i++] = (IntPtr)_modLo;
-            attribs[i++] = (IntPtr)ObjectAttributes[p, 4];
+            attribs[i++] = (IntPtr)EGL.DmaBufAttribs[p, 4];
             attribs[i++] = (IntPtr)_modHi;
         }
 

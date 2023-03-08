@@ -10,7 +10,7 @@ namespace WlxOverlay.Overlays.Simple;
 /// </summary>
 public abstract class BaseScreen<T> : GrabbableOverlay
 {
-    protected readonly T Screen;
+    public readonly T Screen;
     protected readonly UInput? UInp;
 
     private DateTime _freezeCursor = DateTime.MinValue;
@@ -21,6 +21,7 @@ public abstract class BaseScreen<T> : GrabbableOverlay
     {
         WidthInMeters = 1;
         Screen = screen;
+        WantVisible = Screen!.ToString() == Config.Instance.DefaultScreen;
 
         if (KeyboardProvider.Instance is UInput uInput)
             UInp = uInput;

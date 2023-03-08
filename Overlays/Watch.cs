@@ -196,8 +196,6 @@ public class Watch : InteractableOverlay
             for (var s = 0; s < numStates; s++)
             {
                 var device = InputManager.DeviceStates[s];
-                if (device.SoC < float.Epsilon)
-                    continue;
 
                 var indicator = new BatteryIndicator(device, stateWidth * s + 2, 162, (uint)stateWidth - 4U, 36);
                 _canvas.AddControl(indicator);

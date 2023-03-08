@@ -84,6 +84,9 @@ public class FontCollection
         _loadedFonts.Add(font);
         foreach (var cp in font.GetSupportedCodePoints()) 
             _codePointToFont.TryAdd(cp, font);
+
+        if (!_codePointToFont.ContainsKey(codepoint))
+            _codePointToFont[codepoint] = _codePointToFont[0];
     }
 }
 

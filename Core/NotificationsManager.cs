@@ -1,7 +1,5 @@
 using System.Net;
 using System.Net.Sockets;
-using System.Text;
-using Desktop.DBus;
 using Newtonsoft.Json;
 using Tmds.DBus.Protocol;
 using WlxOverlay.Overlays;

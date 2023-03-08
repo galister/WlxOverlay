@@ -297,7 +297,8 @@ public class InputManager : IDisposable
         if (TrackedDevice.TryCreateFromIndex(OpenVR.k_unTrackedDeviceIndex_Hmd, out _hmd))
         {
             _hmd.Role = TrackedDeviceRole.Hmd;
-            DeviceStates.Add(_hmd);
+            if (_hmd.SoC >= 0)
+                DeviceStates.Add(_hmd);
         }
 
         var numDevs = OpenVR.System.GetSortedTrackedDeviceIndicesOfClass(ETrackedDeviceClass.Controller, _deviceIds, 0);
@@ -313,7 +314,8 @@ public class InputManager : IDisposable
                 var controllerIdx = nativeRole - ETrackedControllerRole.LeftHand;
                 device.Role = TrackedDeviceRole.LeftHand + controllerIdx;
                 _controllers[controllerIdx] = device;
-                DeviceStates.Add(device);
+                if (device.SoC >= 0)
+                    DeviceStates.Add(device);
             }
         }
 
@@ -325,7 +327,8 @@ public class InputManager : IDisposable
                 continue;
 
             device.Role = TrackedDeviceRole.Tracker;
-            DeviceStates.Add(device);
+            if (device.SoC >= 0)
+                DeviceStates.Add(device);
         }
 
         DeviceStates.Sort((a,b) => a.Role.CompareTo(b.Role) * 2 + a.Index.CompareTo(b.Index));

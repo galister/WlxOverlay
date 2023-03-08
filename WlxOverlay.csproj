@@ -23,10 +23,6 @@
       <PackageReference Include="Silk.NET.OpenGL" Version="2.16.0" />
       <PackageReference Include="Silk.NET.Windowing.Glfw" Version="2.16.0" />
       <PackageReference Include="SixLabors.ImageSharp" Version="2.1.3" />
-      <PackageReference Include="Tmds.DBus.SourceGenerator" Version="0.0.2">
-        <PrivateAssets>all</PrivateAssets>
-        <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
-      </PackageReference>
       <PackageReference Include="Tmds.LibC" Version="0.5.0" />
       <PackageReference Include="YamlDotNet" Version="12.0.2" />
     </ItemGroup>
@@ -61,10 +57,6 @@
       <None Remove="Shaders\blend.vert" />
       <None Remove="Resources\FreeSansBold.otf" />
       <None Remove="Shaders\common.vert1" />
-      <None Include=".Trash\org.freedesktop.portal.ProxyResolver.xml" />
-      <None Include=".Trash\org.freedesktop.portal.Request.xml" />
-      <None Include=".Trash\org.freedesktop.portal.ScreenCast.xml" />
-      <None Include=".Trash\org.freedesktop.portal.Session.xml" />
       <None Include="Shaders\common.vert">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </None>
@@ -101,13 +93,8 @@
       <None Update="Resources\version.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Remove=".Trash\**" />
       <None Remove="build.sh" />
       <None Remove="knuckles.json" />
-      <Compile Remove="Overlays\Wayland\XdgPortalScreen.cs" />
-      <None Include="Overlays\Wayland\XdgPortalScreen.cs" />
-      <Compile Remove="Desktop\Desktop.DBus.cs" />
-      <None Include="Desktop\Desktop.DBus.cs" />
     </ItemGroup>
 
     <ItemGroup>
@@ -137,17 +124,6 @@
   
   <ItemGroup>
     <Folder Include="Desktop\Wayland\Base" />
-  </ItemGroup>
-  
-  
-  <ItemGroup>
-    <Compile Include=".Trash\Snippets.cs" />
-    <Compile Remove=".Trash\**" />
-  </ItemGroup>
-  
-  
-  <ItemGroup>
-    <EmbeddedResource Remove=".Trash\**" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
