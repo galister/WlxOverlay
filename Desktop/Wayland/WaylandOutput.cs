@@ -1,17 +1,14 @@
 using WaylandSharp;
+using WlxOverlay.Desktop.Wayland.Base;
 using WlxOverlay.Numerics;
 
 namespace WlxOverlay.Desktop.Wayland;
 
-public class WaylandOutput : IDisposable
+public class WaylandOutput : BaseOutput, IDisposable
 {
     public readonly WlOutput Handle;
 
     public readonly uint IdName;
-    public string Name { get; private set; } = null!;
-
-    public Vector2Int Size { get; private set; }
-    public Vector2Int Position { get; private set; }
 
     public WaylandOutput(uint idName, WlOutput handle)
     {

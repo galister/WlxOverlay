@@ -3780,6 +3780,41 @@ namespace WaylandSharp
         Metadata = 4
     }
 
+    public unsafe partial class ZkdeScreencastUnstableV1 : WlClientObject
+    {
+        internal ZkdeScreencastUnstableV1(_WlProxy* proxyObject) : base(proxyObject)
+        {
+        }
+
+        public ZkdeScreencastStreamUnstableV1 StreamOutput(WlOutput output, uint pointer)
+        {
+            CheckIfDisposed();
+            var interfacePtr = WlInterface.ZkdeScreencastStreamUnstableV1.ToBlittable();
+            var arg0 = (_WlProxy*)null;
+            var arg1 = output._proxyObject;
+            var arg2 = pointer;
+            var newId = WlProxyMarshalFlags(_proxyObject, 0, interfacePtr, WlProxyGetVersion(_proxyObject), 0, arg0, arg1, arg2);
+            return new ZkdeScreencastStreamUnstableV1(newId);
+        }
+
+        public ZkdeScreencastStreamUnstableV1 StreamWindow(string window_uuid, uint pointer)
+        {
+            CheckIfDisposed();
+            var interfacePtr = WlInterface.ZkdeScreencastStreamUnstableV1.ToBlittable();
+            var arg0 = (_WlProxy*)null;
+            var arg1 = (char*)Marshal.StringToHGlobalAnsi(window_uuid)!;
+            var arg2 = pointer;
+            var newId = WlProxyMarshalFlags(_proxyObject, 1, interfacePtr, WlProxyGetVersion(_proxyObject), 0, arg0, arg1, arg2);
+            return new ZkdeScreencastStreamUnstableV1(newId);
+        }
+
+        public void Destroy()
+        {
+            CheckIfDisposed();
+            WlProxyMarshalFlags(_proxyObject, 2, null, WlProxyGetVersion(_proxyObject), 0);
+        }
+    }
+
     public unsafe partial class ZkdeScreencastStreamUnstableV1 : WlClientObject
     {
         internal ZkdeScreencastStreamUnstableV1(_WlProxy* proxyObject) : base(proxyObject)
@@ -4118,6 +4153,7 @@ namespace WaylandSharp
                 "zwlr_export_dmabuf_frame_v1" => new ZwlrExportDmabufFrameV1(proxy),
                 "zwlr_screencopy_manager_v1" => new ZwlrScreencopyManagerV1(proxy),
                 "zwlr_screencopy_frame_v1" => new ZwlrScreencopyFrameV1(proxy),
+                "zkde_screencast_unstable_v1" => new ZkdeScreencastUnstableV1(proxy),
                 "zkde_screencast_stream_unstable_v1" => new ZkdeScreencastStreamUnstableV1(proxy),
                 "zxdg_output_manager_v1" => new ZxdgOutputManagerV1(proxy),
                 "zxdg_output_v1" => new ZxdgOutputV1(proxy),

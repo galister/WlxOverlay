@@ -1,4 +1,3 @@
-using System.Reflection;
 using Desktop.DBus;
 using Tmds.DBus.Protocol;
 using WlxOverlay.Numerics;
@@ -19,7 +18,7 @@ internal static class XdgScreenCastHandler
     }
 }
 
-internal class XdgScreenData : PipeWireScreenData, IDisposable
+internal class XdgScreenData : PipewireOutput, IDisposable
 {
     private Connection _dbus = null!;
     private DesktopService _service = null!;
@@ -250,16 +249,6 @@ internal class XdgScreenData : PipeWireScreenData, IDisposable
             await Task.Delay(100);
         watcher.Dispose();
         return retVal.Value;
-    }
-    
-    private async Task<bool> OpenPipeWireRemoteAsync()
-    {
-        var options = new Dictionary<string, object>();
-
-        var handle = await _screenCast.OpenPipeWireRemoteAsync(_sessionPath!, options);
-
-        Fd = handle.DangerousGetHandle();
-        return true;
     }
 
     private struct ScreenCastResponse

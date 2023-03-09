@@ -1,6 +1,5 @@
 using WaylandSharp;
 using WlxOverlay.Numerics;
-using WlxOverlay.Overlays;
 using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Overlays.Wayland;
 using WlxOverlay.Types;
@@ -36,21 +35,28 @@ public class WaylandInterface : IDisposable
 
     public IEnumerable<BaseOverlay> CreateScreens()
     {
-        IEnumerable<BaseOverlay> UseDmaBuf()
+        IEnumerable<BaseOverlay> UseWlrDmaBuf()
         {   
-            Console.WriteLine("Using DMA-BUF capture.");
+            Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZwlrExportDmabufManagerV1.Name}");
             return Outputs.Values.Select(x => new WlrDmaBufScreen(x));
         }
 
-        IEnumerable<BaseOverlay> UseScreenCopy()
+        IEnumerable<BaseOverlay> UseWlrScreenCopy()
         {   
-            Console.WriteLine("Using ScreenCopy capture.");
+            Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZwlrScreencopyManagerV1.Name}");
+            return Outputs.Values.Select(x => new WlrScreenCopyScreen(x));
+        }
+
+        IEnumerable<BaseOverlay> UseKdeScreenCast()
+        {   
+            Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZkdeScreencastUnstableV1.Name}");
             return Outputs.Values.Select(x => new WlrScreenCopyScreen(x));
         }
         
         IEnumerable<BaseOverlay> UsePipeWire()
         {
-            Console.WriteLine("Using PipeWire capture. Select your screens in the next dialog.");
+            Console.WriteLine("Using Fallback PipeWire capture. ");
+            Console.WriteLine("--- Select one screen at a time using the popup dialogs, then press Cancel. ---");
             while (true)
             {
                 var data = XdgScreenCastHandler.PromptUserAsync().GetAwaiter().GetResult();
@@ -63,16 +69,20 @@ public class WaylandInterface : IDisposable
         switch (Config.Instance.WaylandCapture)
         {
             case "dmabuf":
-                return UseDmaBuf();
+                return UseWlrDmaBuf();
             case "screencopy":
-                return UseScreenCopy();
+                return UseWlrScreenCopy();
+            case "kde":
+                return UseKdeScreenCast();
             case "pipewire":
                 return UsePipeWire();
             default:
                 if (_supportedScreenTypes.Contains(typeof(ZwlrExportDmabufManagerV1)))
-                    return UseDmaBuf();
+                    return UseWlrDmaBuf();
                 if (_supportedScreenTypes.Contains(typeof(ZwlrScreencopyManagerV1)))
-                    return UseScreenCopy();
+                    return UseWlrScreenCopy();
+                if (_supportedScreenTypes.Contains(typeof(ZkdeScreencastUnstableV1Pointer)))
+                    return UseKdeScreenCast();
                 return UsePipeWire();
         }
     }

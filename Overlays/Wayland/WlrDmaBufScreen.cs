@@ -2,6 +2,7 @@ using WaylandSharp;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.Wayland.Frame;
 using WlxOverlay.Overlays.Simple;
+using WlxOverlay.Overlays.Wayland.Abstract;
 
 namespace WlxOverlay.Overlays.Wayland;
 
@@ -17,8 +18,8 @@ public class WlrDmaBufScreen : BaseWlrScreen
         base.Initialize();
         if (_dmabufManager == null)
         {
-            Console.WriteLine("FATAL Your Wayland compositor does not support wlr_export_dmabuf_v1");
-            Console.WriteLine("FATAL Edit your `config.yaml` and set `wayland_capture: screencopy`");
+            Console.WriteLine("FATAL Your Wayland compositor does not support " + WlInterface.ZwlrExportDmabufManagerV1.Name);
+            Console.WriteLine("FATAL Check your `config.yaml`!");
             throw new ApplicationException();
         }
     }

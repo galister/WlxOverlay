@@ -118,12 +118,6 @@
     <AdditionalFiles Include="Protocols\xdg-output-unstable-v1.xml">
       <WaylandProtocol>client</WaylandProtocol>
     </AdditionalFiles>
-    <CompilerVisibleItemMetadata Remove="AdditionalFiles" />
-  </ItemGroup>
-  
-  
-  <ItemGroup>
-    <Folder Include="Desktop\Wayland\Base" />
   </ItemGroup>
 
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">

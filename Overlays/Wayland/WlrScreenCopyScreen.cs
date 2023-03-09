@@ -2,6 +2,7 @@ using WaylandSharp;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.Wayland.Frame;
 using WlxOverlay.Overlays.Simple;
+using WlxOverlay.Overlays.Wayland.Abstract;
 
 namespace WlxOverlay.Overlays.Wayland;
 
@@ -17,8 +18,8 @@ public class WlrScreenCopyScreen : BaseWlrScreen
         base.Initialize();
         if (_screencopyManager == null)
         {
-            Console.WriteLine("FATAL Your Wayland compositor does not support wlr_screencopy_v1");
-            Console.WriteLine("FATAL Edit your `config.yaml` and set `wayland_capture: dmabuf`");
+            Console.WriteLine("FATAL Your Wayland compositor does not support " + WlInterface.ZwlrScreencopyManagerV1.Name);
+            Console.WriteLine("FATAL Check your `config.yaml`!");
             throw new ApplicationException();
         }
     }

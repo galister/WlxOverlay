@@ -1,12 +1,13 @@
 using WlxOverlay.Desktop;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.Wayland.Frame;
-using WlxOverlay.GFX;
-using WlxOverlay.Overlays.Wayland;
 
-namespace WlxOverlay.Overlays.Simple;
+namespace WlxOverlay.Overlays.Wayland.Abstract;
 
-public abstract class BaseWlrScreen : BaseWaylandScreen
+/// <summary>
+/// Base of all Wayland screens that use the wlr frame-request workflow.
+/// </summary>
+public abstract class BaseWlrScreen : BaseWlOutputScreen
 {
     protected IWaylandFrame? Frame;
     protected TimeSpan RoundTripSleepTime = TimeSpan.FromMilliseconds(1);
@@ -18,16 +19,6 @@ public abstract class BaseWlrScreen : BaseWaylandScreen
     
     protected abstract void RequestNewFrame();
     protected abstract void Suspend();
-
-    protected override void Initialize()
-    {
-        base.Initialize();
-
-        Texture = GraphicsEngine.Instance.EmptyTexture((uint)Screen.Size.X, (uint)Screen.Size.Y, internalFormat: GraphicsFormat.RGB8, dynamic: true);
-
-        UpdateInteractionTransform();
-        UploadCurvature();
-    }
 
     protected internal override void AfterInput(bool batteryStateUpdated)
     {
@@ -69,34 +60,5 @@ public abstract class BaseWlrScreen : BaseWaylandScreen
             _worker = Task.Run(RequestNewFrame, _cancel.Token);
 
         base.Render();
-    }
-
-    protected override bool MoveMouse(PointerHit hitData)
-    {
-        if (UInp == null)
-            return false;
-
-        var uv = hitData.uv;
-        var posX = uv.x * Screen.Size.X + Screen.Position.X;
-        var posY = uv.y * Screen.Size.Y + Screen.Position.Y;
-        var rectSize = WaylandInterface.Instance!.OutputRect.Size;
-
-        var mulX = UInput.Extent / rectSize.x;
-        var mulY = UInput.Extent / rectSize.y;
-
-        UInp.MouseMove((int)(posX * mulX), (int)(posY * mulY));
-        return true;
-    }
-
-    public override string ToString()
-    {
-        return Screen.Name;
-    }
-
-    public override void Dispose()
-    {
-        _cancel.Cancel();
-        Texture?.Dispose();
-        base.Dispose();
     }
 }
