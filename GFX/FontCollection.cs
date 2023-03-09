@@ -54,11 +54,11 @@ public class FontCollection
 
     public int Size() => _size;
 
-    public static void FrameEnded()
+    public static void CloseHandles()
     {
         foreach (var fontCollection in _collections.Values)
         foreach (var font in fontCollection._loadedFonts)
-            font.FrameEnded();
+            font.CloseHandles();
     }
 
     private void LoadFontForCodePoint(int codepoint, int size, FontStyle style)

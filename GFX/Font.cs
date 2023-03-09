@@ -146,7 +146,7 @@ internal class Font : IDisposable
         return g;
     }
 
-    public void FrameEnded()
+    public void CloseHandles()
     {
         LoaderDone();
     }

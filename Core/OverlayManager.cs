@@ -190,6 +190,8 @@ public class OverlayManager : Application
             WaylandInterface.Instance?.RoundTrip();
             _nextRoundTrip = DateTime.UtcNow.AddSeconds(1);
         }
+        
+        FontCollection.CloseHandles();
 
         // Use this instead of vsync to prevent glfw from using up the entire CPU core
         WaitForEndOfFrame();
