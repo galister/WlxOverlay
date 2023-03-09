@@ -31,11 +31,6 @@ public class WaylandOutput : BaseOutput, IDisposable
         Name = e.Name;
     }
 
-    public override string ToString()
-    {
-        return Name;
-    }
-
     public void Dispose()
     {
         Handle.Dispose();

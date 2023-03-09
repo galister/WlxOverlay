@@ -37,7 +37,7 @@ namespace WlxOverlay.Desktop.Wayland.Frame
         public unsafe void ApplyToTexture(ITexture texture)
         {
             var ptr = mmap((void*)0, _size, 0x01, 0x01, _fd, 0);
-            var fmt = Config.Instance.ScreencopyColorSwap
+            var fmt = Config.Instance.WaylandColorSwap
                 ? GraphicsFormat.RGBA8
                 : GraphicsFormat.BGRA8;
 

@@ -19,8 +19,8 @@ fallback_cursors: false
 #           select one screen upon each popup, when all screens are selected, press cancel
 wayland_capture: auto
 
-# enable if getting weird colors with screencopy
-screencopy_color_swap: false
+# enable to swap red and blue channels
+wayland_color_swap: false
 
 # enable features that are not completely polished
 experimental_features: false

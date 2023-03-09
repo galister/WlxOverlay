@@ -9,12 +9,13 @@ public class PipeWireScreen : BaseWaylandScreen<PipewireOutput>
     private PipeWireCapture? _pipewire;
     
     public PipeWireScreen(PipewireOutput screen) : base(screen)
-    { }
+    { 
+        _pipewire = new PipeWireCapture(Screen.NodeId, Screen.Name, (uint) Screen.Size.X, (uint) Screen.Size.Y);
+    }
     
     protected override void Initialize()
     {
         base.Initialize();
-        _pipewire = new PipeWireCapture(Screen.NodeId, Screen.Name, (uint) Screen.Size.X, (uint) Screen.Size.Y);
     }
 
     protected internal override void Render()

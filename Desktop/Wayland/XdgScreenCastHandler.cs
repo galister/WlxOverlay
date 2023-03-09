@@ -30,6 +30,7 @@ internal class XdgScreenData : PipewireOutput, IDisposable
 
     public XdgScreenData(int number)
     {
+        Name = "Scr " + number;
         _token = $"xdg_screen_{number}";
     }
 
@@ -46,7 +47,6 @@ internal class XdgScreenData : PipewireOutput, IDisposable
 
         if (await CreateSessionAsync() && await SelectSourcesAsync() && await StartCaptureAsync())
         {
-            Console.WriteLine("ScreenCast session started");
             return true;
         }
 
@@ -145,7 +145,8 @@ internal class XdgScreenData : PipewireOutput, IDisposable
                 }
                 if (t.Response != 0)
                 {
-                    Console.WriteLine($"ERR Could not select ScreenCast source: {t.Response}");
+                    if (t.Response != 1)
+                        Console.WriteLine($"ERR Could not select ScreenCast source: {t.Response}");
                     retVal = false;
                     return;
                 }
@@ -220,7 +221,6 @@ internal class XdgScreenData : PipewireOutput, IDisposable
                 }
                 
                 NodeId = streams[0].Item1;
-                Console.WriteLine(NodeId);
                 if (streams[0].Item2["position"] is ValueTuple<int,int> pos)
                     Position = new Vector2Int(pos.Item1, pos.Item2);
                 else

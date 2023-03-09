@@ -14,6 +14,8 @@ public class PipeWireCapture : IDisposable
     private nint _loop;
     private nint _context;
     private nint _stream;
+    
+    private SpaHook? _spaHook;
 
     private nint _eglImage;
     private nint _lastEglImage;
@@ -27,6 +29,8 @@ public class PipeWireCapture : IDisposable
         _name = name;
         _width = width;
         _height = height;
+        
+        Initialize();
     }
 
 
@@ -55,7 +59,7 @@ public class PipeWireCapture : IDisposable
             }
             else if (_attribs[0] != 0)
             {
-                var fmt = Config.Instance.ScreencopyColorSwap
+                var fmt = Config.Instance.WaylandColorSwap
                     ? GraphicsFormat.RGBA8
                     : GraphicsFormat.BGRA8;
 
@@ -65,8 +69,8 @@ public class PipeWireCapture : IDisposable
             _attribs[0] = IntPtr.Zero;
         }
     }
-    
-    public void Initialize()
+
+    private void Initialize()
     {
         pw_init(0, IntPtr.Zero);
         
@@ -84,7 +88,7 @@ public class PipeWireCapture : IDisposable
 
             var props = pw_properties_new_string("media.type=Video media.category=Capture media.role=Screen");
             
-            _stream = pw_stream_new(core, $"WlxOverlay-{_name}", props);
+            _stream = pw_stream_new(core, $"WlxOverlay-{_nodeId}", props);
             if (_stream == IntPtr.Zero)
                 throw new Exception("Failed to create PipeWire stream");
             
@@ -95,8 +99,8 @@ public class PipeWireCapture : IDisposable
                 process = 
                     Marshal.GetFunctionPointerForDelegate(new PwStreamProcessFunc(OnStreamProcess))
             };
-            var spaHook = new SpaHook();
-            pw_stream_add_listener(_stream, spaHook.Ptr, ref events, IntPtr.Zero);
+            _spaHook = new SpaHook();
+            pw_stream_add_listener(_stream, _spaHook.Ptr, ref events, IntPtr.Zero);
             pw_stream_connect(_stream, PwDirection.Input, _nodeId, PwStreamFlags.AutoConnect | PwStreamFlags.MapBuffers, IntPtr.Zero, 0);
         }
         finally
@@ -105,7 +109,7 @@ public class PipeWireCapture : IDisposable
         }
     }
     
-    private unsafe void OnStreamProcess (nint data)
+    private unsafe void OnStreamProcess(nint data)
     {
         var buf = IntPtr.Zero;
         while (true)
@@ -137,7 +141,10 @@ public class PipeWireCapture : IDisposable
                 _attribs[i++] = (nint)EglEnum.Height;
                 _attribs[i++] = (nint)_height;
                 _attribs[i++] = (nint)EglEnum.LinuxDrmFourccExt;
-                _attribs[i++] = (nint)DrmFormat.DRM_FORMAT_ARGB8888;
+                
+                _attribs[i++] = Config.Instance.WaylandColorSwap
+                    ? (nint)DrmFormat.DRM_FORMAT_ARGB8888
+                    : (nint)DrmFormat.DRM_FORMAT_ABGR8888;
 
                 for (var p = 0U; p < planes; p++)
                 {
@@ -165,9 +172,9 @@ public class PipeWireCapture : IDisposable
         pw_stream_queue_buffer(_stream, buf);
     }
 
-    private void OnStreamStateChanged (nint stream, PwStreamState oldState, PwStreamState newState, string error)
+    private void OnStreamStateChanged (nint _, PwStreamState oldState, PwStreamState newState, string error)
     {
-        Console.WriteLine($"Stream state changed: {oldState} -> {newState}");  
+        Console.WriteLine($"{_name} state changed: {oldState} -> {newState}");  
     }
 
     public void Dispose()
@@ -186,6 +193,8 @@ public class PipeWireCapture : IDisposable
 
         if (_lastEglImage != IntPtr.Zero) 
             EGL.DestroyImage(EGL.Display, _lastEglImage);
+        
+        _spaHook?.Dispose();
     }
     
     

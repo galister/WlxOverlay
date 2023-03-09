@@ -63,7 +63,7 @@ public class Config
     }
 
     public string WaylandCapture;
-    public bool ScreencopyColorSwap;
+    public bool WaylandColorSwap;
 
     public string[]? VolumeUpCmd;
     public string[]? VolumeDnCmd;
