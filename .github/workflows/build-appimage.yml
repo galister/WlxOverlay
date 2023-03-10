@@ -29,9 +29,10 @@ jobs:
           
           test -d ${APPDIR} && rm -rf ${APPDIR}
           mkdir -p ${APPDIR}/usr/bin 
-
+          
       - name: Dotnet Publish
         run: |
+          ./prebuild.sh
           dotnet publish -c Release --sc -r linux-x64 -o ${APPDIR}/usr/bin ${APPID}.csproj
           chmod +x ${APPDIR}/usr/bin/${APPID}
 

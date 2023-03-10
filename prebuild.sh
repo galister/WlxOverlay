@@ -2,14 +2,14 @@
 
 git describe --tags --dirty --always > Resources/version.txt
 
-cd lib/wlxpw
+cd lib/wlxpw || exit 1
 cmake .
 make
-
+mv libwlxpw.so ../../
 cd ../..
 
-cd lib/wlxshm
+cd lib/wlxshm || exit 1
 cmake .
 make
-
+mv libwlxshm.so ../../
 cd ../..
