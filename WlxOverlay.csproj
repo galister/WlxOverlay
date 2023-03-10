@@ -41,9 +41,6 @@
       <None Remove="Resources\binding_knuckles.json" />
       <None Remove="libsteam_api.so" />
       <None Remove="Resources\arrow.png" />
-      <Content Include="libxshm_cap.so">
-        <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      </Content>
       <Content Include="Resources\arrow.png">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>
@@ -93,8 +90,13 @@
       <None Update="Resources\version.txt">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>
-      <None Remove="build.sh" />
       <None Remove="knuckles.json" />
+      <None Update="libwlxshm.so">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
+      <None Update="libwlxpw.so">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </None>
     </ItemGroup>
 
     <ItemGroup>
@@ -120,8 +122,12 @@
     </AdditionalFiles>
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="lib" />
+  </ItemGroup>
+
   <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="git describe --tags --dirty --always &gt; Resources/version.txt" />
+    <Exec Command="./prebuild.sh" />
   </Target>
 
 </Project>

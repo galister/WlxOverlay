@@ -6,7 +6,7 @@ namespace WlxOverlay.Overlays;
 public class ChaperoneLine : BaseLine
 {
     private static int _counter;
-    
+
     public ChaperoneLine() : base($"Chaperone{_counter++}")
     {
     }

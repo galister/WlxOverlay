@@ -29,7 +29,7 @@ public class DebugLine : BaseLine
             line.Show();
         line.Render();
     }
-    
+
     private DebugLine(Vector3 color) : base($"Debug-{color}")
     {
         ZOrder = 100;
@@ -41,7 +41,7 @@ public class DebugLine : BaseLine
     public override void SetPoints(Vector3 start, Vector3 end, bool upload = true)
     {
         base.SetPoints(start, end, false);
-        
+
         var hmd = InputManager.HmdTransform;
         // billboard towards hmd
         var viewDirection = hmd.origin - start;
@@ -54,7 +54,7 @@ public class DebugLine : BaseLine
             pies *= -1;
 
         Transform = Transform.RotatedLocal(Vector3.Up, pies);
-        
+
         if (upload)
             UploadTransform();
     }

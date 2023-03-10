@@ -23,7 +23,7 @@ public class LabelCentered : Label
 
         var y = (int)(Y + Height / 2 - Font.Size() / 2);
         var curX = (int)(X + Width / 2 - _textWidth / 2);
-        
+
         foreach (var g in Font.GetTextures(Text))
         {
             if (g == null)

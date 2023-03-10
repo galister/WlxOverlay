@@ -10,18 +10,18 @@ namespace WlxOverlay.Core;
 public class NotificationsManager : IDisposable
 {
     private static NotificationsManager _instance = null!;
-    
+
     private readonly IPEndPoint _listenEndpoint;
     private readonly Socket _listenSocket;
-    private readonly byte[] _listenBuffer = new byte[1024*16];
-    
+    private readonly byte[] _listenBuffer = new byte[1024 * 16];
+
     private readonly CancellationTokenSource _cancel = new();
     private Task? _udpListener;
     private Task? _notifier;
 
     private readonly object _lockObject = new();
     private readonly Queue<XSOMessage> _messages = new(10);
-    
+
     private DateTime _nextToast = DateTime.MinValue;
 
     public static void Initialize()
@@ -32,7 +32,7 @@ public class NotificationsManager : IDisposable
 
     public static void Toast(string title, string content, float timeout = 10)
     {
-        lock(_instance._lockObject)
+        lock (_instance._lockObject)
             _instance._messages.Enqueue(new XSOMessage
             {
                 timeout = timeout,
@@ -43,7 +43,7 @@ public class NotificationsManager : IDisposable
                 opacity = 1
             });
     }
-    
+
     private NotificationsManager()
     {
         try
@@ -57,7 +57,7 @@ public class NotificationsManager : IDisposable
         }
         _listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
     }
-    
+
     private void Start()
     {
         var _ = RegisterDbusAsync();
@@ -106,12 +106,12 @@ public class NotificationsManager : IDisposable
                 _messages.Enqueue(t);
         });
     }
-    
+
     private async Task UdpListenerAsync(CancellationToken _cancellationToken)
     {
         try
         {
-            try 
+            try
             {
                 _listenSocket.Bind(_listenEndpoint);
                 Console.WriteLine($"Listening for notifications @ {_listenEndpoint.Address}:{_listenEndpoint.Port}");
@@ -146,8 +146,8 @@ public class NotificationsManager : IDisposable
     {
         var json = Encoding.UTF8.GetString(bytes);
         var message = JsonConvert.DeserializeObject<XSOMessage>(json);
-        
-        if ( message.messageType == 1)
+
+        if (message.messageType == 1)
             lock (_lockObject)
                 _messages.Enqueue(message);
     }
@@ -172,7 +172,7 @@ public class NotificationsManager : IDisposable
     public void Dispose()
     {
         _cancel.Cancel();
-        
+
         _udpListener?.Dispose();
         _notifier?.Dispose();
         _cancel.Dispose();

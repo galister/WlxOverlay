@@ -331,7 +331,7 @@ public class InputManager : IDisposable
                 DeviceStates.Add(device);
         }
 
-        DeviceStates.Sort((a,b) => a.Role.CompareTo(b.Role) * 2 + a.Index.CompareTo(b.Index));
+        DeviceStates.Sort((a, b) => a.Role.CompareTo(b.Role) * 2 + a.Index.CompareTo(b.Index));
         GC.Collect();
     }
 
@@ -398,7 +398,7 @@ public struct TrackedDevice
             device.SoC = -1;
 
         device.Valid = true;
-        
+
         return true;
     }
 

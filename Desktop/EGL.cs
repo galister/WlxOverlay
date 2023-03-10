@@ -13,7 +13,7 @@ public static class EGL
         { EglEnum.DmaBufPlane2FdExt, EglEnum.DmaBufPlane2OffsetExt, EglEnum.DmaBufPlane2PitchExt, EglEnum.DmaBufPlane2ModifierLoExt, EglEnum.DmaBufPlane2ModifierHiExt },
         { EglEnum.DmaBufPlane3FdExt, EglEnum.DmaBufPlane3OffsetExt, EglEnum.DmaBufPlane3PitchExt, EglEnum.DmaBufPlane3ModifierLoExt, EglEnum.DmaBufPlane3ModifierHiExt },
     };
-    
+
     public static IntPtr Display { get; private set; }
 
     public static void Initialize()

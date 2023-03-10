@@ -1,5 +1,6 @@
 using WlxOverlay.Core;
 using WlxOverlay.Desktop;
+using WlxOverlay.GFX;
 using WlxOverlay.Numerics;
 using WlxOverlay.Types;
 
@@ -8,14 +9,17 @@ namespace WlxOverlay.Overlays.Simple;
 /// <summary>
 /// An overlay that displays a screen, moves the mouse and sends mouse events.
 /// </summary>
-public abstract class BaseScreen<T> : GrabbableOverlay
+public abstract class BaseScreen<T> : GrabbableOverlay where T : BaseOutput
 {
+    // ReSharper disable once StaticMemberInGenericType
+    private static bool _mouseMoved;
+
     public readonly T Screen;
     protected readonly UInput? UInp;
 
     private DateTime _freezeCursor = DateTime.MinValue;
-    // ReSharper disable once StaticMemberInGenericType
-    private static bool _mouseMoved;
+
+    protected abstract Rect2 OutputRect { get; }
 
     protected BaseScreen(T screen) : base($"Screen_{screen}")
     {
@@ -38,6 +42,11 @@ public abstract class BaseScreen<T> : GrabbableOverlay
         Transform = hmd.LookingAt(centerPoint.origin, hmd.basis.y * hmd.basis.Inverse()).ScaledLocal(LocalScale);
         Transform.origin = centerPoint.origin;
         OnOrientationChanged();
+
+        Texture = GraphicsEngine.Instance.EmptyTexture((uint)Screen.Size.X, (uint)Screen.Size.Y, internalFormat: GraphicsFormat.RGB8, dynamic: true);
+
+        UpdateInteractionTransform();
+        UploadCurvature();
 
         base.Initialize();
     }
@@ -94,8 +103,22 @@ public abstract class BaseScreen<T> : GrabbableOverlay
         }
     }
 
-    protected abstract bool MoveMouse(PointerHit hitData);
+    protected virtual bool MoveMouse(PointerHit hitData)
+    {
+        if (UInp == null)
+            return false;
 
+        var uv = hitData.uv;
+        var posX = uv.x * Screen.Size.X + Screen.Position.X;
+        var posY = uv.y * Screen.Size.Y + Screen.Position.Y;
+        var rectSize = OutputRect.Size;
+
+        var mulX = UInput.Extent / rectSize.x;
+        var mulY = UInput.Extent / rectSize.y;
+
+        UInp.MouseMove((int)(posX * mulX), (int)(posY * mulY));
+        return true;
+    }
 
     private DateTime _nextScroll = DateTime.MinValue;
     protected internal override void OnScroll(PointerHit hitData, float value)
@@ -130,5 +153,16 @@ public abstract class BaseScreen<T> : GrabbableOverlay
         // TODO high quality overlays
 
         base.OnAltClickWhileHeld();
+    }
+
+    public override string ToString()
+    {
+        return Screen.Name;
+    }
+
+    public override void Dispose()
+    {
+        Texture?.Dispose();
+        base.Dispose();
     }
 }

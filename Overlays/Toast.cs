@@ -37,11 +37,11 @@ public class Toast : BaseOverlay
 
     protected override void Initialize()
     {
-        var width = (uint) Font.GetTextWidth(_content ?? _title) + Padding;
+        var width = (uint)Font.GetTextWidth(_content ?? _title) + Padding;
         WidthInMeters = width / 2000f;
-        
+
         _canvas = new Canvas(width, _height);
-        
+
         Canvas.CurrentFont = Font;
         Canvas.CurrentBgColor = HexColor.FromRgb("#353535");
         Canvas.CurrentFgColor = HexColor.FromRgb("#aaaaaa");
@@ -54,17 +54,17 @@ public class Toast : BaseOverlay
         else
         {
             _canvas.AddControl(new LabelCentered(_content, 0, 0, width, _height - 36U));
-            
+
             Canvas.CurrentBgColor = HexColor.FromRgb("#666666");
-            _canvas.AddControl(new Panel(0, (int)_height-36, width, _height));
+            _canvas.AddControl(new Panel(0, (int)_height - 36, width, _height));
             Canvas.CurrentFgColor = HexColor.FromRgb("#000000");
             _canvas.AddControl(new LabelCentered(_title, 0, (int)_height - 36, width, 36U));
         }
         Texture = _canvas.Initialize();
-        
+
         base.Initialize();
     }
-    
+
     protected internal override void AfterInput(bool batteryStateUpdated)
     {
         if (_fadeEnd < DateTime.UtcNow)
@@ -80,7 +80,7 @@ public class Toast : BaseOverlay
         }
 
         var moveProgress = (float)((_fadeEnd - DateTime.UtcNow) / _totalFadeTime);
-        
+
         base.AfterInput(batteryStateUpdated);
         Transform = InputManager.HmdTransform
             .TranslatedLocal(Vector3.Forward * (0.5f + 0.05f * moveProgress))

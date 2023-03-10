@@ -33,8 +33,9 @@ public class OverlayManager : Application
 
     private float _secondsSinceLastVsync;
     private ulong _frameCounter;
-    
+
     public List<Func<InteractionArgs, InteractionResult>> PointerInteractions = new();
+    public float DisplayFrequency;
 
     public OverlayManager() : base(ApplicationType.Overlay)
     {
@@ -59,17 +60,17 @@ public class OverlayManager : Application
         Console.WriteLine($"{OpenVR.IVRCompositor_Version}: pass");
 
         var err = new ETrackedPropertyError();
-        var displayFrequency = OpenVR.System.GetFloatTrackedDeviceProperty(OpenVR.k_unTrackedDeviceIndex_Hmd,
+        DisplayFrequency = OpenVR.System.GetFloatTrackedDeviceProperty(OpenVR.k_unTrackedDeviceIndex_Hmd,
             ETrackedDeviceProperty.Prop_DisplayFrequency_Float, ref err);
-        _frameTime = Mathf.Floor(1000f / displayFrequency) * 0.001f;
+        _frameTime = Mathf.Floor(1000f / DisplayFrequency) * 0.001f;
 
         InputManager.Initialize();
-        
-        Console.WriteLine($"HMD running @ {displayFrequency} Hz");
-        
+
+        Console.WriteLine($"HMD running @ {DisplayFrequency} Hz");
+
         _vrEventSize = (uint)Marshal.SizeOf(typeof(VREvent_t));
     }
-    
+
     public void ScheduleTask(DateTime notBefore, Action action)
     {
         lock (_lockObject)
@@ -139,7 +140,7 @@ public class OverlayManager : Application
             _nextDeviceUpdate = DateTime.UtcNow.AddSeconds(10);
             deviceStateUpdated = true;
         }
-        
+
         lock (_lockObject)
             while (ScheduledTasks.TryPeek(out var task) && task.notBefore < DateTime.UtcNow)
             {
@@ -163,7 +164,7 @@ public class OverlayManager : Application
             o.Show();
 
         ChaperoneManager.Instance.Render();
-        
+
         _workOverlays.Clear();
         _workOverlays.AddRange(_overlays.Where(o => o.Visible));
         foreach (var o in _workOverlays)
@@ -190,7 +191,7 @@ public class OverlayManager : Application
             WaylandInterface.Instance?.RoundTrip();
             _nextRoundTrip = DateTime.UtcNow.AddSeconds(1);
         }
-        
+
         FontCollection.CloseHandles();
 
         // Use this instead of vsync to prevent glfw from using up the entire CPU core

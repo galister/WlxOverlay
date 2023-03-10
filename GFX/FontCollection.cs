@@ -19,7 +19,7 @@ public class FontCollection
 
     private readonly List<Font> _loadedFonts = new();
     private readonly Dictionary<int, Font> _codePointToFont = new();
-    
+
     private readonly int _size;
     private readonly FontStyle _style;
 
@@ -27,7 +27,7 @@ public class FontCollection
     {
         _size = size;
         _style = style;
-        
+
         LoadFontForCodePoint('a', size, style);
         _codePointToFont[0] = _codePointToFont['a'];
     }
@@ -47,7 +47,7 @@ public class FontCollection
                 LoadFontForCodePoint(cp, _size, _style);
                 font = _codePointToFont[cp];
             }
-            
+
             yield return font.GetTexture(cp);
         }
     }
@@ -57,8 +57,8 @@ public class FontCollection
     public static void CloseHandles()
     {
         foreach (var fontCollection in _collections.Values)
-        foreach (var font in fontCollection._loadedFonts)
-            font.CloseHandles();
+            foreach (var font in fontCollection._loadedFonts)
+                font.CloseHandles();
     }
 
     private void LoadFontForCodePoint(int codepoint, int size, FontStyle style)
@@ -79,10 +79,10 @@ public class FontCollection
             _codePointToFont[codepoint] = _codePointToFont[0];
             return;
         }
-        
+
         var font = new Font(parts[0], int.Parse(parts[1]), size);
         _loadedFonts.Add(font);
-        foreach (var cp in font.GetSupportedCodePoints()) 
+        foreach (var cp in font.GetSupportedCodePoints())
             _codePointToFont.TryAdd(cp, font);
 
         if (!_codePointToFont.ContainsKey(codepoint))
@@ -91,7 +91,7 @@ public class FontCollection
 }
 
 public enum FontStyle
-{    
+{
     Regular,
     Bold,
 }

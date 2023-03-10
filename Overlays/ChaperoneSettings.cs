@@ -49,7 +49,7 @@ public class ChaperoneSettings : InteractableOverlay
         Canvas.CurrentFgColor = HexColor.FromRgb("#222222");
 
         var label = new LabelCentered("", 0, 180, 400, 40);
-        
+
         _canvas.AddControl(new Button("Toast", 200, 100, 50, 36)
         {
             PointerDown = () =>
@@ -78,7 +78,7 @@ public class ChaperoneSettings : InteractableOverlay
                     var i1 = i;
                     OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(1), () =>
                     {
-                        label.Text = $"Loading in {10-i1}s...";
+                        label.Text = $"Loading in {10 - i1}s...";
                     });
                 }
                 OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(10), () =>
@@ -97,7 +97,7 @@ public class ChaperoneSettings : InteractableOverlay
                     var i1 = i;
                     OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(1), () =>
                     {
-                        label.Text = $"Saving in {10-i1}s...";
+                        label.Text = $"Saving in {10 - i1}s...";
                     });
                 }
                 OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(10), () =>
@@ -120,7 +120,7 @@ public class ChaperoneSettings : InteractableOverlay
                     ChaperoneManager.Instance.PolygonsChanged();
                     _selection = null;
                 }
-                
+
                 Dispose();
                 parent.WantVisible = true;
                 parent.Show();
@@ -143,7 +143,7 @@ public class ChaperoneSettings : InteractableOverlay
     {
         if (args.Hand == Config.Instance.WatchHand)
             return InteractionResult.Unhandled;
-        
+
         if (args.Click)
         {
             _selection = new ChaperonePolygon
@@ -155,37 +155,37 @@ public class ChaperoneSettings : InteractableOverlay
             OverlayManager.Instance.PointerInteractions.Clear();
             OverlayManager.Instance.PointerInteractions.Add(BuildPolygonAction);
         }
-        return new InteractionResult{ Length = 0.002f, Color = Vector3.One, Handled = true };
+        return new InteractionResult { Length = 0.002f, Color = Vector3.One, Handled = true };
     }
 
     private InteractionResult BuildPolygonAction(InteractionArgs args)
     {
         if (_selection == null)
-        {   
+        {
             OverlayManager.Instance.PointerInteractions.Clear();
             return new InteractionResult { Handled = true };
         }
 
         if (args.Hand == Config.Instance.WatchHand)
             return InteractionResult.Unhandled;
-        
+
         var lastIdx = _selection!.Points.Count - 1;
 
         var origin = args.HandTransform.origin;
-        if (args.Mode != PointerMode.Right) 
+        if (args.Mode != PointerMode.Right)
             origin.y = _selection.Points[lastIdx - 1].y;
 
         _selection.Points[lastIdx] = origin;
         if (args.Click)
             _selection.Points.Add(args.HandTransform.origin);
         ChaperoneManager.Instance.PolygonsChanged();
-        return new InteractionResult{ Length = 0.002f, Color = Vector3.One, Handled = true };
+        return new InteractionResult { Length = 0.002f, Color = Vector3.One, Handled = true };
     }
 
     private bool FinalizePolygon()
     {
         if (_selection == null) return false;
-        
+
         OverlayManager.Instance.PointerInteractions.Clear();
         var lastIdx = _selection!.Points.Count - 1;
         _selection.Points[lastIdx] = _selection.Points[0];

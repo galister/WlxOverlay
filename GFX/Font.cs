@@ -6,7 +6,7 @@ namespace WlxOverlay.GFX;
 internal class Font : IDisposable
 {
     private static FT_Vector _nullVector;
-    
+
     private readonly Dictionary<int, uint> _glyphIndices = new();
     private readonly Dictionary<int, Glyph?> _glyphTextures = new();
 
@@ -21,7 +21,7 @@ internal class Font : IDisposable
         _path = path;
         _index = index;
         _size = size;
-        
+
         LoaderInit();
         LoadGlyphIndices();
         LoaderDone();
@@ -37,8 +37,8 @@ internal class Font : IDisposable
         var err = FT_Init_FreeType(out _ftLib);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not load FreeType library: {err}");
-        
-        
+
+
         err = FT_New_Face(_ftLib, _path, _index, out _ftFace);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not load font {_font}: {err}");
@@ -46,7 +46,7 @@ internal class Font : IDisposable
         err = FT_Select_Charmap(_ftFace, FT_Encoding.FT_ENCODING_UNICODE);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not use unicode char map on {_font}: {err}");
-        
+
         err = FT_Set_Char_Size(_ftFace, (IntPtr)(_size << 6), (IntPtr)(_size << 6), 96, 96);
         if (err != FT_Error.FT_Err_Ok)
             throw new ApplicationException($"Could not set size to {_size}px for {_font}: {err}");
@@ -68,15 +68,15 @@ internal class Font : IDisposable
     {
         if (_ftLib == IntPtr.Zero)
             return;
-         
+
         FT_Done_Face(_ftFace);
         FT_Done_FreeType(_ftLib);
-        
+
         _ftFace = IntPtr.Zero;
         _ftLib = IntPtr.Zero;
     }
-    
-    
+
+
 
     private unsafe void LoadGlyph(int ch)
     {

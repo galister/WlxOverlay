@@ -1,13 +1,9 @@
-﻿using System.Reflection;
-using System.Runtime.InteropServices;
-using WlxOverlay.Core;
+﻿using WlxOverlay.Core;
 using WlxOverlay.Desktop;
 using WlxOverlay.Desktop.Wayland;
-using WlxOverlay.Desktop.X11;
 using WlxOverlay.GFX.OpenGL;
 using WlxOverlay.Overlays;
 using WlxOverlay.Overlays.Simple;
-using WlxOverlay.Overlays.Wayland;
 using WlxOverlay.Types;
 
 var version = "unknown-version";
@@ -23,11 +19,11 @@ if (!Config.Load())
     return;
 
 var manager = OverlayManager.Initialize();
-try 
+try
 {
     KeyboardProvider.Instance = new UInput();
 }
-catch (ApplicationException) 
+catch (ApplicationException)
 {
     Console.WriteLine("FATAL Could not register uinput device.");
     Console.WriteLine("FATAL Check that you are in the `input` group or otherwise have access.");
@@ -75,8 +71,8 @@ if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
     Console.WriteLine("Wayland detected.");
     EGL.Initialize();
     WaylandInterface.Initialize();
-    
-    foreach (var screen in WaylandInterface.Instance!.CreateScreens())
+
+    await foreach (var screen in WaylandInterface.Instance!.CreateScreensAsync())
     {
         manager.RegisterChild(screen);
         screens.Add(screen);
@@ -86,7 +82,7 @@ if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
 else
 {
     Console.WriteLine("X11 desktop detected.");
-    var numScreens = XScreenCapture.NumScreens();
+    var numScreens = XorgScreen.NumScreens();
     for (var s = 0; s < numScreens; s++)
     {
         var screen = new XorgScreen(s);

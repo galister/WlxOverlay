@@ -5,6 +5,23 @@
 
 namespace WlxOverlay.Desktop.Pipewire;
 
+
+[StructLayout(LayoutKind.Sequential)]
+public struct spa_video_info
+{
+    public uint media_type;
+    public uint media_subtype;
+    public spa_video_info_raw raw;
+}
+
+[StructLayout(LayoutKind.Sequential)]
+public struct spa_video_info_raw
+{
+    public int format;
+    public uint flags;
+    public ulong modifier;
+}
+
 [StructLayout(LayoutKind.Sequential)]
 public struct spa_list
 {
@@ -44,7 +61,7 @@ public struct spa_meta
 }
 
 public enum spa_data_type : uint
-{	
+{
     SPA_DATA_Invalid,
     SPA_DATA_MemPtr,
     SPA_DATA_MemFd,

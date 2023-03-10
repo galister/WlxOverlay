@@ -7,7 +7,7 @@ public class ClientSetupResult
         ConnectionAddress = address ?? throw new ArgumentNullException(nameof(address));
     }
 
-    public string ConnectionAddress { get;  }
+    public string ConnectionAddress { get; }
 
     public object? TeardownToken { get; set; }
 

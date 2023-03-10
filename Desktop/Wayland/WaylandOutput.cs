@@ -1,14 +1,13 @@
 using WaylandSharp;
-using WlxOverlay.Desktop.Wayland.Base;
 using WlxOverlay.Numerics;
 
 namespace WlxOverlay.Desktop.Wayland;
 
 public class WaylandOutput : BaseOutput, IDisposable
 {
-    public readonly WlOutput Handle;
+    public WlOutput? Handle;
 
-    public readonly uint IdName;
+    public uint IdName;
 
     public WaylandOutput(uint idName, WlOutput handle)
     {
@@ -31,8 +30,8 @@ public class WaylandOutput : BaseOutput, IDisposable
         Name = e.Name;
     }
 
-    public void Dispose()
+    public virtual void Dispose()
     {
-        Handle.Dispose();
+        Handle?.Dispose();
     }
 }

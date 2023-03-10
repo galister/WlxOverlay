@@ -225,7 +225,7 @@ public partial class Connection : IDisposable
         }
         return await connection.CallMethodAsync(message, reader, readerState).ConfigureAwait(false);
     }
-    
+
     public async ValueTask<IDisposable> AddMatchAsync<T>(MatchRule rule, MessageValueReader<T> reader, Action<Exception?, T, object?, object?> handler, object? readerState = null, object? handlerState = null, bool emitOnCapturedContext = true, bool subscribe = true)
     {
         SynchronizationContext? synchronizationContext = emitOnCapturedContext ? SynchronizationContext.Current : null;

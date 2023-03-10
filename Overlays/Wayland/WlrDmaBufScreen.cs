@@ -1,7 +1,6 @@
 using WaylandSharp;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.Wayland.Frame;
-using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Overlays.Wayland.Abstract;
 
 namespace WlxOverlay.Overlays.Wayland;

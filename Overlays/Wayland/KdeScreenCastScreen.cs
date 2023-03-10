@@ -5,13 +5,13 @@ using WlxOverlay.Overlays.Wayland.Abstract;
 
 namespace WlxOverlay.Overlays.Wayland;
 
-public class KdeScreenCastScreen : BaseWlOutputScreen
+public class KdeScreenCastScreen : BaseWaylandScreen
 {
     private ZkdeScreencastUnstableV1? _screencastManager;
     private ZkdeScreencastStreamUnstableV1? _stream;
 
     private PipeWireCapture? _pipewire;
-    
+
     public KdeScreenCastScreen(WaylandOutput output) : base(output)
     {
     }
@@ -26,9 +26,9 @@ public class KdeScreenCastScreen : BaseWlOutputScreen
             throw new ApplicationException();
         }
 
-        _stream = _screencastManager.StreamOutput(Screen.Handle, 2); // 2: rendered
-        _stream.Created += (_, e) => 
-            _pipewire = new PipeWireCapture(e.Node, Screen.Name, (uint) Screen.Size.X, (uint) Screen.Size.Y);
+        _stream = _screencastManager.StreamOutput(Screen.Handle!, 2); // 2: rendered
+        _stream.Created += (_, e) =>
+            _pipewire = new PipeWireCapture(e.Node, Screen.Name, (uint)Screen.Size.X, (uint)Screen.Size.Y);
         _stream.Failed += (_, e) =>
         {
             Console.WriteLine($"Stream failure @ {Screen.Name}: {e.Error}");
@@ -50,7 +50,7 @@ public class KdeScreenCastScreen : BaseWlOutputScreen
     protected internal override void Render()
     {
         _pipewire?.ApplyToTexture(Texture!);
-        
+
         base.Render();
     }
 

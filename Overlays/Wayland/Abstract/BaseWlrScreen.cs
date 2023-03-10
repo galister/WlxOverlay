@@ -1,4 +1,3 @@
-using WlxOverlay.Desktop;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Desktop.Wayland.Frame;
 
@@ -7,16 +6,16 @@ namespace WlxOverlay.Overlays.Wayland.Abstract;
 /// <summary>
 /// Base of all Wayland screens that use the wlr frame-request workflow.
 /// </summary>
-public abstract class BaseWlrScreen : BaseWlOutputScreen
+public abstract class BaseWlrScreen : BaseWaylandScreen
 {
     protected IWaylandFrame? Frame;
     protected TimeSpan RoundTripSleepTime = TimeSpan.FromMilliseconds(1);
-    
+
     private readonly CancellationTokenSource _cancel = new();
     private Task? _worker;
 
-    protected BaseWlrScreen(WaylandOutput output) : base(output) {  }
-    
+    protected BaseWlrScreen(WaylandOutput output) : base(output) { }
+
     protected abstract void RequestNewFrame();
     protected abstract void Suspend();
 

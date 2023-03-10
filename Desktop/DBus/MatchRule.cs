@@ -21,7 +21,7 @@ struct MatchRuleData
     public string? Arg0Path { get; set; }
 
     public string? Arg0Namespace { get; set; }
-    
+
     public string? Eavesdrop { get; set; }
 
     public string GetRuleString()

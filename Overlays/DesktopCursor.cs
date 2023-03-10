@@ -29,7 +29,7 @@ public class DesktopCursor : BaseOverlay
     {
         if (!Config.TryGetFile("arrow.png", out var filePath, true))
             throw new ApplicationException($"Could not load resource.");
-        
+
         Texture = GraphicsEngine.Instance.TextureFromFile(filePath);
 
         var controllerTip = InputManager.HmdTransform;

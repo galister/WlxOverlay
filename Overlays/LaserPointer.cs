@@ -186,7 +186,7 @@ public class LaserPointer : BaseOverlay
 
     private readonly List<PointerHit> _pointerHits = new(OverlayManager.MaxInteractableOverlays);
     private PointerHit? _lastHit;
-    
+
     public void TestInteractions(IEnumerable<InteractableOverlay> targets)
     {
         if (_grabbedTarget != null)
@@ -236,7 +236,7 @@ public class LaserPointer : BaseOverlay
                 var result = func.Invoke(new InteractionArgs { Hand = Hand, Mode = Mode, HandTransform = HandTransform, Click = ClickNow && !ClickBefore });
                 if (!result.Handled)
                     continue;
-                
+
                 if (result.Length > float.Epsilon)
                 {
                     Color = result.Color;
@@ -247,7 +247,7 @@ public class LaserPointer : BaseOverlay
                 }
                 break;
             }
-            
+
             if (Visible)
                 Hide();
         }

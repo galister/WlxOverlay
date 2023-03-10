@@ -35,15 +35,15 @@ public abstract class BaseLine : BaseOverlay
     {
         Start = start;
         End = end;
-        
+
         var length = (End - Start).Length();
-        
+
         Transform = Transform3D.Identity.Translated(Start)
             .LookingAt(End, Vector3.Up)
             .TranslatedLocal(Vector3.Forward * length * 0.5f)
             .RotatedLocal(Vector3.Right, RotationOffset)
             .ScaledLocal(new Vector3(1, length / WidthInMeters, 1));
-            
+
         if (upload)
             UploadTransform();
     }

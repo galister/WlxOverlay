@@ -113,7 +113,7 @@ public class Watch : InteractableOverlay
         Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");
 
         int bottomRowStart = 0;
-        
+
         if (Config.Instance.ExperimentalFeatures)
         {
             _canvas.AddControl(new Button("C", 2, 2, 36, 36)
@@ -131,7 +131,7 @@ public class Watch : InteractableOverlay
         }
 
         var numButtons = screens.Count + 1;
-        var btnWidth = (400-bottomRowStart) / numButtons;
+        var btnWidth = (400 - bottomRowStart) / numButtons;
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#406050");
         Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");

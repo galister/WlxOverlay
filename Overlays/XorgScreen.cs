@@ -1,58 +1,79 @@
-using WlxOverlay.Desktop.X11;
+using WlxOverlay.Desktop;
+using WlxOverlay.GFX;
 using WlxOverlay.Numerics;
 using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Types;
 
 namespace WlxOverlay.Overlays;
 
-public class XorgScreen : BaseScreen<int>
+public class XorgScreen : BaseScreen<BaseOutput>
 {
-    private XScreenCapture? _capture;
-    private DateTime _freezeCursor = DateTime.MinValue;
+    private static Vector2Int _mousePos;
+    private static bool _mousePosSet;
 
-    private static bool _mouseMoved;
+    private static Rect2 _outputRect;
 
-    public XorgScreen(int screen) : base(screen)
+    protected override Rect2 OutputRect => _outputRect;
+
+    public static int NumScreens()
     {
+        return wlxshm_num_screens();
     }
 
-    protected override void Initialize()
+    private readonly IntPtr _handle;
+    private readonly uint _bufSize;
+
+    public XorgScreen(int screen) : base(new BaseOutput())
     {
-        base.Initialize();
+        Vector2Int size = new(), pos = new();
 
-        _capture = new XScreenCapture(Screen);
-        Texture = _capture.Texture;
+        _handle = wlxshm_create(screen, ref size, ref pos);
 
-        UpdateInteractionTransform();
-        UploadCurvature();
+        if (_handle == IntPtr.Zero)
+            throw new ApplicationException("Could not initialize Xorg screen capture!");
+
+        _bufSize = (uint)(size.X * size.Y * 4U);
+
+        Screen.Name = $"Scr {screen}";
+        Screen.Size = size;
+        Screen.Position = pos;
+
+        _outputRect = _outputRect.Merge(new Rect2((Vector2)pos, (Vector2)size));
     }
 
     public override void Show()
     {
         base.Show();
-        _capture?.Resume();
+        wlxshm_capture_start(_handle);
     }
 
     public override void Hide()
     {
         base.Hide();
-        _capture?.Suspend();
+        wlxshm_capture_end(_handle);
     }
 
-    protected internal override void Render()
+    protected internal override void AfterInput(bool batteryStateUpdated)
     {
-        if (_capture == null || !_capture.Running())
-            return;
+        _mousePosSet = false;
+        base.AfterInput(batteryStateUpdated);
+    }
 
-        _capture.Tick();
+    protected internal override unsafe void Render()
+    {
+        var buf = wlxshm_capture_frame(_handle);
+        if (buf->length == _bufSize)
+            Texture!.LoadRawImage(buf->buffer, GraphicsFormat.BGRA8);
 
-        var mouse = _capture.GetMousePosition();
+        if (!_mousePosSet)
+        {
+            wlxshm_mouse_pos_global(_handle, ref _mousePos);
+            _mousePosSet = true;
+        }
 
-        var w = Texture!.GetWidth();
-        var h = Texture!.GetHeight();
+        var mouse = new Vector2Int(_mousePos.X - Screen.Position.X, _mousePos.Y - Screen.Position.Y);
 
-        if (mouse.X >= 0 && mouse.X < w
-                         && mouse.Y >= 0 && mouse.Y < h)
+        if (mouse.X >= 0 && mouse.X < Screen.Size.X && mouse.Y >= 0 && mouse.Y < Screen.Size.Y)
         {
             if (Config.Instance.FallbackCursors)
             {
@@ -61,89 +82,13 @@ public class XorgScreen : BaseScreen<int>
             }
             else
             {
-                var uv = new Vector2(mouse.X / (float)w, mouse.Y / (float)h);
+                var uv = new Vector2(mouse.X / (float)Screen.Size.X, mouse.Y / (float)Screen.Size.Y);
                 var moveToTransform = CurvedSurfaceTransformFromUv(uv);
                 DesktopCursor.Instance.MoveTo(moveToTransform);
             }
         }
 
         base.Render();
-
-        _mouseMoved = false;
-    }
-
-    protected internal override void OnPointerHover(PointerHit hitData)
-    {
-        base.OnPointerHover(hitData);
-        if (PrimaryPointer == hitData.pointer && !_mouseMoved && _freezeCursor < DateTime.UtcNow)
-            MoveMouse(hitData);
-    }
-
-    protected internal override void OnPointerDown(PointerHit hitData)
-    {
-        if (PrimaryPointer != hitData.pointer)
-            MoveMouse(hitData);
-
-        base.OnPointerDown(hitData);
-        _freezeCursor = DateTime.UtcNow + TimeSpan.FromSeconds(Config.Instance.ClickFreezeTime);
-        SendMouse(hitData, true);
-    }
-
-    protected internal override void OnPointerUp(PointerHit hitData)
-    {
-        SendMouse(hitData, false);
-        base.OnPointerUp(hitData);
-    }
-
-    private void SendMouse(PointerHit hitData, bool pressed)
-    {
-        var click = hitData.modifier switch
-        {
-            PointerMode.Right => XcbMouseButton.Right,
-            PointerMode.Middle => XcbMouseButton.Middle,
-            _ => XcbMouseButton.Left
-        };
-
-        _capture?.SendMouse(hitData.uv, click, pressed);
-    }
-
-    protected override bool MoveMouse(PointerHit hitData)
-    {
-        var adjustedUv = hitData.uv;
-        adjustedUv.y = 1 - adjustedUv.y;
-        _capture?.MoveMouse(adjustedUv);
-        return true;
-    }
-
-    private DateTime _nextScroll = DateTime.MinValue;
-    protected internal override void OnScroll(PointerHit hitData, float value)
-    {
-        base.OnScroll(hitData, value);
-
-        if (_nextScroll > DateTime.UtcNow)
-            return;
-
-
-        if (hitData.modifier == PointerMode.Middle)
-        {
-            // super fast scroll, 1 click per frame
-        }
-        else
-        {
-            var millis = hitData.modifier == PointerMode.Right ? 50 : 100;
-            _nextScroll = DateTime.UtcNow.AddMilliseconds((1 - Mathf.Abs(value)) * millis);
-        }
-
-        if (value < 0)
-        {
-            _capture?.SendMouse(hitData.uv, XcbMouseButton.WheelDown, true);
-            _capture?.SendMouse(hitData.uv, XcbMouseButton.WheelDown, false);
-        }
-        else
-        {
-            _capture?.SendMouse(hitData.uv, XcbMouseButton.WheelUp, true);
-            _capture?.SendMouse(hitData.uv, XcbMouseButton.WheelUp, false);
-        }
     }
 
     public override string ToString()
@@ -153,7 +98,35 @@ public class XorgScreen : BaseScreen<int>
 
     public override void Dispose()
     {
-        _capture?.Dispose();
+        wlxshm_destroy(_handle);
         base.Dispose();
+    }
+
+    [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
+    private static extern IntPtr wlxshm_create(int screen, ref Vector2Int size, ref Vector2Int pos);
+
+    [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
+    private static extern void wlxshm_destroy(IntPtr handle);
+
+    [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
+    private static extern int wlxshm_capture_start(IntPtr handle);
+
+    [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
+    private static extern void wlxshm_capture_end(IntPtr handle);
+
+    [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
+    private static extern unsafe buf_t* wlxshm_capture_frame(IntPtr handle);
+
+    [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
+    private static extern void wlxshm_mouse_pos_global(IntPtr handle, ref Vector2Int pos);
+
+    [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
+    private static extern int wlxshm_num_screens();
+
+    [StructLayout(LayoutKind.Sequential)]
+    private struct buf_t
+    {
+        public int length;
+        public IntPtr buffer;
     }
 }

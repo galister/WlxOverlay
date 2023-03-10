@@ -8,7 +8,7 @@ namespace WlxOverlay.Core;
 public class ChaperoneManager
 {
     public static readonly ChaperoneManager Instance = new();
-    
+
     public bool WantVisible;
     public float MaxAlpha = 1f;
     public float FadeDistance = 5f;
@@ -61,8 +61,8 @@ public class ChaperoneManager
 
     public float HmdDistanceToChaperoneEdge()
     {
-        return _chaperoneLines.Count < 1 
-            ? float.MaxValue 
+        return _chaperoneLines.Count < 1
+            ? float.MaxValue
             : _chaperoneLines.Min(x => x.DistanceTo(InputManager.HmdTransform.origin));
     }
 
@@ -89,7 +89,7 @@ public class ChaperoneManager
             FadeDistance = conf!.FadeDistance;
             MaxAlpha = conf!.MaxAlpha;
             WantVisible = conf!.Visible;
-            
+
             Polygons.Clear();
             if (conf.Polygons != null)
             {
@@ -107,7 +107,7 @@ public class ChaperoneManager
     public void SaveToFile()
     {
         var path = Path.Combine(Config.ConfigFolders.First(), "chaperone.json");
-        
+
         var transform = ReferenceTransform().Inverse();
         var savedPolygons = new List<ChaperonePolygon>();
         foreach (var poly in Polygons)
@@ -144,7 +144,7 @@ public class ChaperonePolygon
 {
     public Vector3 Color;
     public List<Vector3> Points = new();
-    
+
     public void Apply(Transform3D transform)
     {
         Points = Points.Select(x => transform * x).ToList();

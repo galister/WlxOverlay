@@ -401,7 +401,8 @@ class DBusConnection : IDisposable
 
 #pragma warning disable VSTHRD001 // Await JoinableTaskFactory.SwitchToMainThreadAsync() to switch to the UI thread instead of APIs that can deadlock or require specifying a priority.
         // note: Send blocks the current thread until the SynchronizationContext ran the delegate.
-        synchronizationContext.Send(static o => {
+        synchronizationContext.Send(static o =>
+        {
             DBusConnection conn = (DBusConnection)o;
             conn._currentObserver!.Emit(conn._currentMessage!);
         }, this);
@@ -535,7 +536,7 @@ class DBusConnection : IDisposable
                 try
                 {
                     vtsState.SetResult(valueReaderState(message, state3));
-                    
+
                 }
                 catch (Exception ex)
                 {
@@ -603,7 +604,7 @@ class DBusConnection : IDisposable
         return new DBusException(errorName, errMessage);
     }
 
-    public ValueTask<IDisposable> AddMatchAsync<T>(SynchronizationContext? synchronizationContext, MatchRule rule, MessageValueReader<T> valueReader,Action<Exception?, T, object?, object?> valueHandler, object? readerState, object? handlerState, bool subscribe)
+    public ValueTask<IDisposable> AddMatchAsync<T>(SynchronizationContext? synchronizationContext, MatchRule rule, MessageValueReader<T> valueReader, Action<Exception?, T, object?, object?> valueHandler, object? readerState, object? handlerState, bool subscribe)
     {
         MessageHandlerDelegate4 fn = static (Exception? exception, Message message, object? reader, object? handler, object? rs, object? hs) =>
         {

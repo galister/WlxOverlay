@@ -1,6 +1,6 @@
 using WlxOverlay.Numerics;
 
-namespace WlxOverlay.Desktop.Wayland.Base;
+namespace WlxOverlay.Desktop;
 
 public class BaseOutput
 {

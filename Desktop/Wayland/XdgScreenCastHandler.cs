@@ -8,7 +8,7 @@ namespace WlxOverlay.Desktop.Wayland;
 internal static class XdgScreenCastHandler
 {
     private static int _counter;
-    
+
     public static async Task<XdgScreenData?> PromptUserAsync()
     {
         var data = new XdgScreenData(_counter++);
@@ -18,7 +18,7 @@ internal static class XdgScreenCastHandler
     }
 }
 
-internal class XdgScreenData : PipewireOutput, IDisposable
+internal class XdgScreenData : PipewireOutput
 {
     private Connection _dbus = null!;
     private DesktopService _service = null!;
@@ -61,7 +61,7 @@ internal class XdgScreenData : PipewireOutput, IDisposable
             ["handle_token"] = _token,
             ["session_handle_token"] = _token,
         };
-        
+
         bool? retVal = null;
 
         var watcher = await _screenCast.WatchSignalAsync("org.freedesktop.portal.Desktop",
@@ -79,14 +79,14 @@ internal class XdgScreenData : PipewireOutput, IDisposable
             {
                 if (retVal.HasValue)
                     return;
-                
+
                 if (e != null)
                 {
                     Console.WriteLine($"ERR Could not create ScreenCast session: {e.Message}");
                     retVal = false;
                     return;
                 }
-                
+
                 if (t.Response != 0)
                 {
                     Console.WriteLine($"ERR Could not create ScreenCast session: {t.Response}");
@@ -98,15 +98,15 @@ internal class XdgScreenData : PipewireOutput, IDisposable
                 retVal = true;
             },
             false);
-        
+
         await _screenCast.CreateSessionAsync(options);
 
-        while (!retVal.HasValue) 
+        while (!retVal.HasValue)
             await Task.Delay(100);
         watcher.Dispose();
         return retVal.Value;
     }
-    
+
     private async Task<bool> SelectSourcesAsync()
     {
         var options = new Dictionary<string, object>
@@ -116,7 +116,7 @@ internal class XdgScreenData : PipewireOutput, IDisposable
             ["cursor_mode"] = 2U, // embedded
             ["persist_mode"] = 2U, // persistent
         };
-        
+
         if (Config.TryGetFile($"screen-{Name}.token", out var file))
             options.Add("restore_token", (await File.ReadAllLinesAsync(file))[0]);
 
@@ -136,7 +136,7 @@ internal class XdgScreenData : PipewireOutput, IDisposable
             {
                 if (retVal.HasValue)
                     return;
-                
+
                 if (e != null)
                 {
                     Console.WriteLine($"ERR Could not create ScreenCast session: {e.Message}");
@@ -154,10 +154,10 @@ internal class XdgScreenData : PipewireOutput, IDisposable
                 retVal = true;
             },
             false);
-        
+
         await _screenCast.SelectSourcesAsync(_sessionPath!, options);
 
-        while (!retVal.HasValue) 
+        while (!retVal.HasValue)
             await Task.Delay(100);
         watcher.Dispose();
         return retVal.Value;
@@ -176,19 +176,19 @@ internal class XdgScreenData : PipewireOutput, IDisposable
             (m, _) =>
             {
                 var r = m.GetBodyReader();
-                    var response = new ScreenCastResponse
-                    {
-                        Response = r.ReadUInt32(),
-                        Results = r.ReadDictionary<string, object>()
-                    };
+                var response = new ScreenCastResponse
+                {
+                    Response = r.ReadUInt32(),
+                    Results = r.ReadDictionary<string, object>()
+                };
 
-                    return response;
+                return response;
             },
             (e, t) =>
             {
                 if (retVal.HasValue)
                     return;
-                
+
                 if (e != null)
                 {
                     Console.WriteLine($"ERR Could not Start ScreenCast session: {e.Message}");
@@ -202,15 +202,15 @@ internal class XdgScreenData : PipewireOutput, IDisposable
                     return;
                 }
 
-                if (!t.Results.TryGetValue("streams", out var maybeStreams) 
+                if (!t.Results.TryGetValue("streams", out var maybeStreams)
                     || !(maybeStreams is ValueTuple<uint, Dictionary<string, object>>[] streams))
                 {
                     Console.WriteLine($"ERR Could not Start ScreenCast source: Unexpected response");
                     retVal = false;
                     return;
                 }
-                
-                if (t.Results.TryGetValue("restore_token", out var maybeRestoreToken) 
+
+                if (t.Results.TryGetValue("restore_token", out var maybeRestoreToken)
                     && maybeRestoreToken is string restoreToken)
                 {
                     if (!Directory.Exists(Config.UserConfigFolder))
@@ -219,9 +219,9 @@ internal class XdgScreenData : PipewireOutput, IDisposable
                     var path = Path.Combine(Config.UserConfigFolder, $"screen-{Name}.token");
                     File.WriteAllText(path, restoreToken);
                 }
-                
+
                 NodeId = streams[0].Item1;
-                if (streams[0].Item2["position"] is ValueTuple<int,int> pos)
+                if (streams[0].Item2["position"] is ValueTuple<int, int> pos)
                     Position = new Vector2Int(pos.Item1, pos.Item2);
                 else
                 {
@@ -229,8 +229,8 @@ internal class XdgScreenData : PipewireOutput, IDisposable
                     retVal = false;
                     return;
                 }
-                
-                if (streams[0].Item2["size"] is ValueTuple<int,int> size)
+
+                if (streams[0].Item2["size"] is ValueTuple<int, int> size)
                     Size = new Vector2Int(size.Item1, size.Item2);
                 else
                 {
@@ -242,10 +242,10 @@ internal class XdgScreenData : PipewireOutput, IDisposable
                 retVal = true;
             },
             false);
-        
+
         await _screenCast.StartAsync(_sessionPath!, "", options);
 
-        while (!retVal.HasValue) 
+        while (!retVal.HasValue)
             await Task.Delay(100);
         watcher.Dispose();
         return retVal.Value;
@@ -257,8 +257,9 @@ internal class XdgScreenData : PipewireOutput, IDisposable
         public Dictionary<string, object> Results;
     }
 
-    public void Dispose()
+    public override void Dispose()
     {
         _dbus.Dispose();
+        base.Dispose();
     }
 }

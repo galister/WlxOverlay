@@ -1,4 +1,5 @@
 using WaylandSharp;
+using WlxOverlay.Core;
 using WlxOverlay.Numerics;
 using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Overlays.Wayland;
@@ -33,33 +34,33 @@ public class WaylandInterface : IDisposable
         _display.Roundtrip();
     }
 
-    public IEnumerable<BaseOverlay> CreateScreens()
+    public IAsyncEnumerable<BaseOverlay> CreateScreensAsync()
     {
-        IEnumerable<BaseOverlay> UseWlrDmaBuf()
-        {   
+        IAsyncEnumerable<BaseOverlay> UseWlrDmaBuf()
+        {
             Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZwlrExportDmabufManagerV1.Name}");
-            return Outputs.Values.Select(x => new WlrDmaBufScreen(x));
+            return Outputs.Values.Select(x => new WlrDmaBufScreen(x)).AsAsync();
         }
 
-        IEnumerable<BaseOverlay> UseWlrScreenCopy()
-        {   
+        IAsyncEnumerable<BaseOverlay> UseWlrScreenCopy()
+        {
             Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZwlrScreencopyManagerV1.Name}");
-            return Outputs.Values.Select(x => new WlrScreenCopyScreen(x));
+            return Outputs.Values.Select(x => new WlrScreenCopyScreen(x)).AsAsync();
         }
 
-        IEnumerable<BaseOverlay> UseKdeScreenCast()
-        {   
+        IAsyncEnumerable<BaseOverlay> UseKdeScreenCast()
+        {
             Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZkdeScreencastUnstableV1.Name}");
-            return Outputs.Values.Select(x => new WlrScreenCopyScreen(x));
+            return Outputs.Values.Select(x => new WlrScreenCopyScreen(x)).AsAsync();
         }
-        
-        IEnumerable<BaseOverlay> UsePipeWire()
+
+        async IAsyncEnumerable<BaseOverlay> UsePipeWire()
         {
             Console.WriteLine("Using Fallback PipeWire capture. ");
             Console.WriteLine("--- Select one screen at a time using the popup dialogs, then press Cancel. ---");
             while (true)
             {
-                var data = XdgScreenCastHandler.PromptUserAsync().GetAwaiter().GetResult();
+                var data = await XdgScreenCastHandler.PromptUserAsync();
                 if (data == null)
                     yield break;
                 yield return new PipeWireScreen(data);
@@ -122,7 +123,7 @@ public class WaylandInterface : IDisposable
     private async Task CreateOutputAsync(WlRegistry reg, WlRegistry.GlobalEventArgs e)
     {
         var wlOutput = reg.Bind<WlOutput>(e.Name, e.Interface, e.Version);
-
+        
         while (_outputManager == null)
             await Task.Delay(10);
 
