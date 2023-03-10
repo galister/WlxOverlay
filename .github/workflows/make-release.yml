@@ -21,7 +21,7 @@ jobs:
           sudo add-apt-repository universe
           sudo apt-get update
           sudo apt-get install fuse dotnet-sdk-6.0 liblttng-ust0
-          sudo apt-get install libx11-6 libxtst6 libxcb1 libxcb-randr0 libxcb-shm0 libxcb-xinerama0 libxcb-xfixes0
+          sudo apt-get install libx11-6 libxcb1 libxcb-randr0 libxcb-shm0 libxcb-xinerama0 libpipewire-0.3-dev
 
           test -f linuxdeploy-x86_64.AppImage || wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           chmod +x linuxdeploy-x86_64.AppImage
