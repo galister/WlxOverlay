@@ -18,14 +18,17 @@ jobs:
       
       - name: Prepare Environment
         run: |
-          sudo add-apt-repository universe
-          sudo add-apt-repository ppa:pipewire-debian/pipewire-upstream
+          sudo add-apt-repository -syn universe
+          sudo add-apt-repository -syn ppa:pipewire-debian/pipewire-upstream
           sudo apt-get update
-          sudo apt-get install fuse dotnet-sdk-6.0 liblttng-ust0
-          sudo apt-get install libx11-6 libxcb1 libxcb-randr0 libxcb-shm0 libxcb-xinerama0 libpipewire-0.3-dev libspa-0.2-dev
-
+          sudo apt-get install fuse dotnet-sdk-6.0 liblttng-ust0 cmake
+          sudo apt-get install libxcb1 libxcb1-dev libxcb-randr0 libxcb-randr0-dev libxcb-shm0 libxcb-shm0-dev libxcb-xinerama0 libxcb-xinerama0-dev libpipewire-0.3-0 libpipewire-0.3-dev libspa-0.2-dev
+          
           test -f linuxdeploy-x86_64.AppImage || wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
           chmod +x linuxdeploy-x86_64.AppImage
+          
+          sudo ln -s /usr/include/pipewire-0.3/pipewire /usr/include/pipewire
+          sudo ln -s /usr/include/spa-0.2/spa /usr/include/spa
           
           test -d ${APPDIR} && rm -rf ${APPDIR}
           mkdir -p ${APPDIR}/usr/bin 

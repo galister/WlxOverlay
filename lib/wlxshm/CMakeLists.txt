@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.16)
 project(wlxshm C)
 
 set(CMAKE_C_STANDARD 17)
@@ -11,7 +11,6 @@ set_target_properties(wlxshm
         )
 
 target_link_libraries(wlxshm
-        libX11.so
         libxcb.so
         libxcb-randr.so
         libxcb-shm.so

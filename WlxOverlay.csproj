@@ -28,6 +28,8 @@
     </ItemGroup>
 
     <ItemGroup>
+      <Content Include=".github\workflows\build-appimage.yml" />
+      <Content Include=".github\workflows\make-release.yml" />
       <Content Include="Resources\actions.json">
         <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
       </Content>

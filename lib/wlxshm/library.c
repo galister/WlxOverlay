@@ -7,7 +7,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <inttypes.h>
-#include "X11/Xlib.h"
 #include <xcb/randr.h>
 #include <xcb/shm.h>
 #include <xcb/xinerama.h>
