@@ -103,7 +103,7 @@ public abstract class BaseScreen<T> : GrabbableOverlay where T : BaseOutput
         }
     }
 
-    protected virtual bool MoveMouse(PointerHit hitData)
+    private bool MoveMouse(PointerHit hitData)
     {
         if (UInp == null)
             return false;

@@ -7,7 +7,7 @@ namespace WlxOverlay.Overlays.Wayland;
 
 public class PipeWireScreen : BaseScreen<PipewireOutput>
 {
-    private readonly PipeWireCapture? _pipewire;
+    private readonly PipeWireCapture _pipewire;
 
     protected override Rect2 OutputRect => WaylandInterface.Instance!.OutputRect;
 
@@ -26,15 +26,22 @@ public class PipeWireScreen : BaseScreen<PipewireOutput>
         }
     }
 
+    protected override void Initialize()
+    {
+        base.Initialize();
+        
+        _pipewire.InitializeAsync();
+    }
+
     protected internal override void Render()
     {
-        _pipewire?.ApplyToTexture(Texture!);
+        _pipewire.ApplyToTexture(Texture!);
         base.Render();
     }
 
     public override void Dispose()
     {
-        _pipewire?.Dispose();
+        _pipewire.Dispose();
         base.Dispose();
     }
 }

@@ -7,11 +7,9 @@ namespace WlxOverlay.Desktop.Wayland;
 
 internal static class XdgScreenCastHandler
 {
-    private static int _counter;
-
-    public static async Task<XdgScreenData?> PromptUserAsync()
+    public static async Task<XdgScreenData?> PromptUserAsync(WaylandOutput output)
     {
-        var data = new XdgScreenData(_counter++);
+        var data = new XdgScreenData(output);
         if (await data.InitDbusAsync())
             return data;
         return null;
@@ -28,10 +26,14 @@ internal class XdgScreenData : PipewireOutput
     private string? _requestPath;
     private string? _sessionPath;
 
-    public XdgScreenData(int number)
+    public XdgScreenData(WaylandOutput output)
     {
-        Name = "Scr " + number;
-        _token = $"xdg_screen_{number}";
+        Name = output.Name;
+        Handle = output.Handle;
+        IdName = output.IdName;
+        Position = output.Position;
+        Size = output.Size;
+        _token = $"xdg_screen_{output.IdName}";
     }
 
     public async Task<bool> InitDbusAsync()
@@ -39,7 +41,7 @@ internal class XdgScreenData : PipewireOutput
         _dbus = new Connection(Address.Session!);
         await _dbus.ConnectAsync();
 
-        var myName = _dbus.UniqueName!.Substring(1).Replace(".", "_");
+        var myName = _dbus.UniqueName![1..].Replace(".", "_");
         _requestPath = $"/org/freedesktop/portal/desktop/request/{myName}/{_token}";
 
         _service = new DesktopService(_dbus, "org.freedesktop.portal.Desktop");
@@ -62,8 +64,7 @@ internal class XdgScreenData : PipewireOutput
             ["session_handle_token"] = _token,
         };
 
-        bool? retVal = null;
-
+        var state = 0L;
         var watcher = await _screenCast.WatchSignalAsync("org.freedesktop.portal.Desktop",
             "org.freedesktop.portal.Request", _requestPath!, "Response",
             (m, _) =>
@@ -77,34 +78,37 @@ internal class XdgScreenData : PipewireOutput
             },
             (e, t) =>
             {
-                if (retVal.HasValue)
+                if (Interlocked.CompareExchange(ref state, -1, 0) != 0) 
                     return;
 
                 if (e != null)
                 {
                     Console.WriteLine($"ERR Could not create ScreenCast session: {e.Message}");
-                    retVal = false;
+                    Interlocked.Exchange(ref state, 2);
                     return;
                 }
 
                 if (t.Response != 0)
                 {
-                    Console.WriteLine($"ERR Could not create ScreenCast session: {t.Response}");
-                    retVal = false;
+                    if (t.Response != 1)
+                        Console.WriteLine($"ERR Could not create ScreenCast session: {t.Response}");
+                    Interlocked.Exchange(ref state, 2);
                     return;
                 }
 
-                _sessionPath = t.Results["session_handle"] as string ?? throw new Exception("Invalid session_handle");
-                retVal = true;
+                _sessionPath = t.Results["session_handle"] as string ??
+                               throw new Exception("Invalid session_handle");
+                Interlocked.Exchange(ref state, 1);
             },
             false);
 
         await _screenCast.CreateSessionAsync(options);
 
-        while (!retVal.HasValue)
+        long val;
+        while ((val = Interlocked.Read(ref state)) <= 0)
             await Task.Delay(100);
         watcher.Dispose();
-        return retVal.Value;
+        return val == 1;
     }
 
     private async Task<bool> SelectSourcesAsync()
@@ -120,7 +124,7 @@ internal class XdgScreenData : PipewireOutput
         if (Config.TryGetFile($"screen-{Name}.token", out var file))
             options.Add("restore_token", (await File.ReadAllLinesAsync(file))[0]);
 
-        bool? retVal = null;
+        var state = 0L;
         var watcher = await _screenCast.WatchSignalAsync("org.freedesktop.portal.Desktop",
             "org.freedesktop.portal.Request", _requestPath!, "Response",
             (m, _) =>
@@ -134,33 +138,34 @@ internal class XdgScreenData : PipewireOutput
             },
             (e, t) =>
             {
-                if (retVal.HasValue)
+                if (Interlocked.CompareExchange(ref state, -1, 0) != 0) 
                     return;
 
                 if (e != null)
                 {
                     Console.WriteLine($"ERR Could not create ScreenCast session: {e.Message}");
-                    retVal = false;
+                    Interlocked.Exchange(ref state, 2);
                     return;
                 }
                 if (t.Response != 0)
                 {
                     if (t.Response != 1)
                         Console.WriteLine($"ERR Could not select ScreenCast source: {t.Response}");
-                    retVal = false;
+                    Interlocked.Exchange(ref state, 2);
                     return;
                 }
 
-                retVal = true;
+                Interlocked.Exchange(ref state, 1);
             },
             false);
 
         await _screenCast.SelectSourcesAsync(_sessionPath!, options);
-
-        while (!retVal.HasValue)
+        
+        long val;
+        while ((val = Interlocked.Read(ref state)) <= 0)
             await Task.Delay(100);
         watcher.Dispose();
-        return retVal.Value;
+        return val == 1;
     }
 
     private async Task<bool> StartCaptureAsync()
@@ -170,7 +175,7 @@ internal class XdgScreenData : PipewireOutput
             ["handle_token"] = _token,
         };
 
-        bool? retVal = null;
+        var state = 0L;
         var watcher = await _screenCast.WatchSignalAsync("org.freedesktop.portal.Desktop",
             "org.freedesktop.portal.Request", _requestPath!, "Response",
             (m, _) =>
@@ -186,19 +191,20 @@ internal class XdgScreenData : PipewireOutput
             },
             (e, t) =>
             {
-                if (retVal.HasValue)
+                if (Interlocked.CompareExchange(ref state, -1, 0) != 0) 
                     return;
 
                 if (e != null)
                 {
                     Console.WriteLine($"ERR Could not Start ScreenCast session: {e.Message}");
-                    retVal = false;
+                    Interlocked.Exchange(ref state, 2);
                     return;
                 }
                 if (t.Response != 0)
                 {
-                    Console.WriteLine($"ERR Could not Start ScreenCast source: {t.Response}");
-                    retVal = false;
+                    if (t.Response != 1)
+                        Console.WriteLine($"ERR Could not Start ScreenCast source: {t.Response}");
+                    Interlocked.Exchange(ref state, 2);
                     return;
                 }
 
@@ -206,7 +212,7 @@ internal class XdgScreenData : PipewireOutput
                     || !(maybeStreams is ValueTuple<uint, Dictionary<string, object>>[] streams))
                 {
                     Console.WriteLine($"ERR Could not Start ScreenCast source: Unexpected response");
-                    retVal = false;
+                    Interlocked.Exchange(ref state, 2);
                     return;
                 }
 
@@ -220,35 +226,28 @@ internal class XdgScreenData : PipewireOutput
                     File.WriteAllText(path, restoreToken);
                 }
 
-                NodeId = streams[0].Item1;
-                if (streams[0].Item2["position"] is ValueTuple<int, int> pos)
-                    Position = new Vector2Int(pos.Item1, pos.Item2);
-                else
-                {
-                    Console.WriteLine($"ERR Could not Start ScreenCast source: Unexpected format: position");
-                    retVal = false;
-                    return;
-                }
-
-                if (streams[0].Item2["size"] is ValueTuple<int, int> size)
+                if (streams[0].Item2.TryGetValue("size", out var maybeSize) 
+                    && maybeSize is ValueTuple<int, int> size)
                     Size = new Vector2Int(size.Item1, size.Item2);
                 else
                 {
                     Console.WriteLine($"ERR Could not Start ScreenCast source: Unexpected format: size");
-                    retVal = false;
+                    Interlocked.Exchange(ref state, 2);
                     return;
                 }
-
-                retVal = true;
+                
+                NodeId = streams[0].Item1;
+                Interlocked.Exchange(ref state, 1);
             },
             false);
 
         await _screenCast.StartAsync(_sessionPath!, "", options);
-
-        while (!retVal.HasValue)
+        
+        long val;
+        while ((val = Interlocked.Read(ref state)) <= 0)
             await Task.Delay(100);
         watcher.Dispose();
-        return retVal.Value;
+        return val == 1;
     }
 
     private struct ScreenCastResponse

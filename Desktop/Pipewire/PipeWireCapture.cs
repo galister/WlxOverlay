@@ -30,8 +30,6 @@ public class PipeWireCapture : IDisposable
         _name = name;
         _width = width;
         _height = height;
-
-        var _ = InitializeAsync();
     }
 
 
@@ -84,7 +82,7 @@ public class PipeWireCapture : IDisposable
         }
     }
 
-    private unsafe async Task InitializeAsync()
+    public unsafe void InitializeAsync()
     {
         _onFrameDelegate = OnFrame;
         _onFrameHandle = Marshal.GetFunctionPointerForDelegate(_onFrameDelegate);

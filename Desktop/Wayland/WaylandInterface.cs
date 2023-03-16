@@ -51,19 +51,30 @@ public class WaylandInterface : IDisposable
         IAsyncEnumerable<BaseOverlay> UseKdeScreenCast()
         {
             Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZkdeScreencastUnstableV1.Name}");
-            return Outputs.Values.Select(x => new WlrScreenCopyScreen(x)).AsAsync();
+            return Outputs.Values.Select(x => new KdeScreenCastScreen(x)).AsAsync();
         }
 
         async IAsyncEnumerable<BaseOverlay> UsePipeWire()
         {
             Console.WriteLine("Using Fallback PipeWire capture. ");
-            Console.WriteLine("--- Select one screen at a time using the popup dialogs, then press Cancel. ---");
-            while (true)
+            
+            Console.WriteLine(" You will be prompted one screen at a time.\n" +
+                              " Please select the corresponding screen on the prompt.\n" +
+                              " Cancel the prompt if you do not wish to capture the given screen. \n"+
+                              " If your compositor supports org.freedesktop.portal.ScreenCast v4, you will only be prompted once.");
+            
+            foreach (var output in Outputs.Values)
             {
-                var data = await XdgScreenCastHandler.PromptUserAsync();
-                if (data == null)
-                    yield break;
-                yield return new PipeWireScreen(data);
+                Console.WriteLine(" --- Prompting for screen: " + output.Name + " ---");
+                var data = await XdgScreenCastHandler.PromptUserAsync(output);
+                if (data != null)
+                {
+                    var screen = new PipeWireScreen(data);
+                    Console.WriteLine($"{data.Name} -> {data.NodeId}");
+                    yield return screen;
+                }
+                else 
+                    Console.WriteLine($"{output.Name} will not be used.");
             }
         }
 
