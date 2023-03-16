@@ -23,6 +23,9 @@ public class PipeWireCapture : IDisposable
 
     private readonly object _attribsLock = new();
     private readonly nint[] _attribs = new nint[47];
+    
+    private static readonly ulong[] Modifiers = new ulong[64];
+    private static int _numModifiers = -1;
 
     public PipeWireCapture(uint nodeId, string name, uint width, uint height)
     {
@@ -30,8 +33,44 @@ public class PipeWireCapture : IDisposable
         _name = name;
         _width = width;
         _height = height;
+        if (_numModifiers == -1)
+            LoadDmaBufModifiers();
     }
 
+    private static unsafe void LoadDmaBufModifiers()
+    {
+        _numModifiers = 0;
+        
+        var numFormats = 0;
+        if (EGL.QueryDmaBufFormatsEXT(EGL.Display, 0, null, &numFormats) != EglEnum.True)
+            return;
+
+        var formats = stackalloc DrmFormat[numFormats];
+
+        if (EGL.QueryDmaBufFormatsEXT(EGL.Display, numFormats, formats, &numFormats) != EglEnum.True)
+            return;
+
+        var validFormats = Enum.GetValues<DrmFormat>();
+
+        for (var i = 0; i < numFormats; i++)
+        {
+            var format = formats[i];
+            if (!validFormats.Contains(format))
+                continue;
+            
+            var numModifiers = 0;
+            
+            if (EGL.QueryDmaBufModifiersEXT(EGL.Display, format, 0, null, IntPtr.Zero, &numModifiers) != EglEnum.True)
+                return;
+
+            var modifiers = stackalloc ulong[numModifiers];
+            if (EGL.QueryDmaBufModifiersEXT(EGL.Display, format, numModifiers, modifiers, IntPtr.Zero, &numModifiers) != EglEnum.True)
+                return;
+
+            for (var j = 0; j < numModifiers; j++)
+                Modifiers[_numModifiers++] = modifiers[j];
+        }
+    }
 
     /// <summary>
     /// Call this from BaseOverlay.Render()
@@ -86,7 +125,8 @@ public class PipeWireCapture : IDisposable
     {
         _onFrameDelegate = OnFrame;
         _onFrameHandle = Marshal.GetFunctionPointerForDelegate(_onFrameDelegate);
-        _handle = wlxpw_initialize(_name, _nodeId, (int)OverlayManager.Instance.DisplayFrequency, _onFrameHandle);
+
+        _handle = wlxpw_initialize(_name, _nodeId, (int)OverlayManager.Instance.DisplayFrequency, _numModifiers, Modifiers, _onFrameHandle);
     }
 
     private static DrmFormat SpaFormatToFourCc(int fmt)
@@ -156,7 +196,7 @@ public class PipeWireCapture : IDisposable
     }
 
     [DllImport("libwlxpw.so", CallingConvention = CallingConvention.Cdecl)]
-    private static extern nint wlxpw_initialize(string name, uint nodeId, int hz, IntPtr onFrame);
+    private static extern nint wlxpw_initialize(string name, uint nodeId, int hz, int numModifiers, [MarshalAs(UnmanagedType.LPArray)] ulong[] modifiers, IntPtr onFrame);
 
     [DllImport("libwlxpw.so", CallingConvention = CallingConvention.Cdecl)]
     private static extern void wlxpw_destroy(nint handle);

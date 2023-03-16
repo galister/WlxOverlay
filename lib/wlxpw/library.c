@@ -80,7 +80,7 @@ static const struct pw_stream_events stream_events = {
         .process = on_process,
 };
 
-struct wlxpw * wlxpw_initialize(const char * name, uint32_t node_id, int32_t hz, void * on_frame)
+struct wlxpw * wlxpw_initialize(const char * name, uint32_t node_id, int32_t hz, int32_t num_modifiers, uint64_t *modifiers, void * on_frame)
 {
     struct wlxpw* data = malloc(sizeof(struct wlxpw));
     data->on_frame = on_frame;
@@ -123,26 +123,40 @@ struct wlxpw * wlxpw_initialize(const char * name, uint32_t node_id, int32_t hz,
         return NULL;
     }
 
-    uint8_t buffer[1024];
+    uint8_t buffer[4096];
     struct spa_pod_builder b = SPA_POD_BUILDER_INIT(buffer, sizeof(buffer));
-    const struct spa_pod *params[1];
-    params[0] = spa_pod_builder_add_object(&b,
-       SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat,
-       SPA_FORMAT_mediaType,   SPA_POD_Id(SPA_MEDIA_TYPE_video),
-       SPA_FORMAT_mediaSubtype,SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw),
-       SPA_FORMAT_VIDEO_format,SPA_POD_CHOICE_ENUM_Id(4,
+    struct spa_pod_frame frame;
+    spa_pod_builder_push_object(&b, &frame, SPA_TYPE_OBJECT_Format, SPA_PARAM_EnumFormat);
+    spa_pod_builder_add(&b, SPA_FORMAT_mediaType, SPA_POD_Id(SPA_MEDIA_TYPE_video), 0);
+    spa_pod_builder_add(&b, SPA_FORMAT_mediaSubtype, SPA_POD_Id(SPA_MEDIA_SUBTYPE_raw), 0);
+    spa_pod_builder_add(&b, SPA_FORMAT_VIDEO_format, SPA_POD_CHOICE_ENUM_Id(4,
             SPA_VIDEO_FORMAT_RGBA,
             SPA_VIDEO_FORMAT_BGRA,
             SPA_VIDEO_FORMAT_RGBx,
-            SPA_VIDEO_FORMAT_BGRx),
-       SPA_FORMAT_VIDEO_size,      SPA_POD_CHOICE_RANGE_Rectangle(
+            SPA_VIDEO_FORMAT_BGRx), 0);
+
+    spa_pod_builder_add(&b, SPA_FORMAT_VIDEO_size, SPA_POD_CHOICE_RANGE_Rectangle(
             &SPA_RECTANGLE(320, 240),
             &SPA_RECTANGLE(1, 1),
-            &SPA_RECTANGLE(8192, 8192)),
-    SPA_FORMAT_VIDEO_framerate, SPA_POD_CHOICE_RANGE_Fraction(
+            &SPA_RECTANGLE(8192, 8192)), 0);
+
+    spa_pod_builder_add(&b, SPA_FORMAT_VIDEO_framerate, SPA_POD_CHOICE_RANGE_Fraction(
         &SPA_FRACTION(hz, 1),
         &SPA_FRACTION(0, 1),
-        &SPA_FRACTION(1000, 1)));
+        &SPA_FRACTION(1000, 1)), 0);
+
+    if (num_modifiers > 0) {
+        spa_pod_builder_prop(&b, SPA_FORMAT_VIDEO_modifier,
+                             SPA_POD_PROP_FLAG_MANDATORY | SPA_POD_PROP_FLAG_DONT_FIXATE);
+
+        struct spa_pod_frame subframe;
+        spa_pod_builder_push_choice(&b, &subframe, SPA_CHOICE_Enum, 0);
+        for (int i = 0; i < num_modifiers; i++)
+            spa_pod_builder_long(&b, modifiers[i]);
+
+        spa_pod_builder_pop(&b, &subframe);
+    }
+    void * params = spa_pod_builder_pop(&b, &frame);
 
     pw_stream_add_listener(data->stream, &data->listener, &stream_events, data);
     pw_stream_connect(data->stream, PW_DIRECTION_INPUT, node_id, PW_STREAM_FLAG_AUTOCONNECT | PW_STREAM_FLAG_MAP_BUFFERS, params, 1);
