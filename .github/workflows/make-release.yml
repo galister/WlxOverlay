@@ -41,7 +41,7 @@ jobs:
       - name: Package AppImage
         run: |
           export VERSION=$(cat Resources/version.txt)
-          ./linuxdeploy-x86_64.AppImage -dAppRun.desktop -iWlxOverlay.png --appdir=${APPDIR} --output appimage
+          ./linuxdeploy-x86_64.AppImage -dAppRun.desktop -iWlxOverlay.png --appdir=${APPDIR} --output appimage --exclude-library '*libpipewire*'
           mv WlxOverlay-$VERSION-x86_64.AppImage WlxOverlay-x86_64.AppImage
 
       - name: Create Release
