@@ -16,7 +16,7 @@ public class PipeWireCapture : IDisposable
     private nint _handle;
 
     private nint _onFrameHandle;
-    private OnFrameDelegate _onFrameDelegate;
+    private OnFrameDelegate? _onFrameDelegate;
 
     private nint _eglImage;
     private nint _lastEglImage;
@@ -82,14 +82,14 @@ public class PipeWireCapture : IDisposable
         }
     }
 
-    public unsafe void InitializeAsync()
+    public unsafe void Initialize()
     {
         _onFrameDelegate = OnFrame;
         _onFrameHandle = Marshal.GetFunctionPointerForDelegate(_onFrameDelegate);
         _handle = wlxpw_initialize(_name, _nodeId, (int)OverlayManager.Instance.DisplayFrequency, _onFrameHandle);
     }
 
-    private DrmFormat SpaFormatToFourCC(int fmt)
+    private static DrmFormat SpaFormatToFourCc(int fmt)
     {
         switch (fmt)
         {
@@ -115,7 +115,7 @@ public class PipeWireCapture : IDisposable
                     _attribs[i++] = (nint)EglEnum.Height;
                     _attribs[i++] = (nint)_height;
                     _attribs[i++] = (nint)EglEnum.LinuxDrmFourccExt;
-                    _attribs[i++] = (nint)SpaFormatToFourCC(info->raw.format);
+                    _attribs[i++] = (nint)SpaFormatToFourCc(info->raw.format);
 
                     for (var p = 0U; p < planes; p++)
                     {

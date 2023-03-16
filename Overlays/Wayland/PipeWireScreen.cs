@@ -30,7 +30,7 @@ public class PipeWireScreen : BaseScreen<PipewireOutput>
     {
         base.Initialize();
         
-        _pipewire.InitializeAsync();
+        _pipewire.Initialize();
     }
 
     protected internal override void Render()
