@@ -14,16 +14,6 @@ public class PipeWireScreen : BaseScreen<PipewireOutput>
     public PipeWireScreen(PipewireOutput screen) : base(screen)
     {
         _pipewire = new PipeWireCapture(Screen.NodeId, Screen.Name, (uint)Screen.Size.X, (uint)Screen.Size.Y);
-
-        foreach (var wlOutput in WaylandInterface.Instance!.Outputs.Values)
-        {
-            if (wlOutput.Position == Screen.Position && wlOutput.Size == Screen.Size)
-            {
-                screen.Name = wlOutput.Name;
-                screen.IdName = wlOutput.IdName;
-                screen.Handle = wlOutput.Handle;
-            }
-        }
     }
 
     protected override void Initialize()

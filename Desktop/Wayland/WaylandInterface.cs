@@ -57,15 +57,35 @@ public class WaylandInterface : IDisposable
         async IAsyncEnumerable<BaseOverlay> UsePipeWire()
         {
             Console.WriteLine("Using Fallback PipeWire capture. ");
-            
-            Console.WriteLine(" You will be prompted one screen at a time.\n" +
-                              " Please select the corresponding screen on the prompt.\n" +
-                              " Cancel the prompt if you do not wish to capture the given screen. \n"+
-                              " If your compositor supports org.freedesktop.portal.ScreenCast v4, you will only be prompted once.");
-            
-            foreach (var output in Outputs.Values)
+
+            if (Outputs.Values.Count > 0)
             {
-                Console.WriteLine(" --- Prompting for screen: " + output.Name + " ---");
+                Console.WriteLine(" You will be prompted one screen at a time.\n" +
+                                  " Please select the corresponding screen on the prompt.\n" +
+                                  " Cancel the prompt if you do not wish to capture the given screen. \n" +
+                                  " If your compositor supports org.freedesktop.portal.ScreenCast v4, you will only be prompted once.");
+
+                foreach (var output in Outputs.Values)
+                {
+                    Console.WriteLine(" --- Prompting for screen: " + output.Name + " ---");
+                    var data = await XdgScreenCastHandler.PromptUserAsync(output);
+                    if (data != null)
+                    {
+                        var screen = new PipeWireScreen(data);
+                        Console.WriteLine($"{data.Name} -> {data.NodeId}");
+                        yield return screen;
+                    }
+                    else
+                        Console.WriteLine($"{output.Name} will not be used.");
+                }
+            }
+            else
+            {
+                Console.WriteLine(" ERROR Could not poll Wayland outputs.\n" +
+                                  " You may still use WlxOverlay in single-screen mode.\n" +
+                                  " Select your screen which is positioned at 0,0.");
+                
+                var output = new WaylandOutput(0, null) { Name = "SCR-1"};
                 var data = await XdgScreenCastHandler.PromptUserAsync(output);
                 if (data != null)
                 {
@@ -73,7 +93,7 @@ public class WaylandInterface : IDisposable
                     Console.WriteLine($"{data.Name} -> {data.NodeId}");
                     yield return screen;
                 }
-                else 
+                else
                     Console.WriteLine($"{output.Name} will not be used.");
             }
         }
