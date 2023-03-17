@@ -44,15 +44,15 @@ static class SocketExtensions
         }
     }
 
-    public static ValueTask SendAsync(this Socket socket, ReadOnlyMemory<byte> buffer, IReadOnlyList<SafeHandle>? handles)
+    public static async ValueTask SendAsync(this Socket socket, ReadOnlyMemory<byte> buffer, IReadOnlyList<SafeHandle>? handles)
     {
         if (handles is null || handles.Count == 0)
         {
-            return socket.SendAsync(buffer);
+            await socket.SendAsync(buffer);
         }
         else
         {
-            return socket.SendAsyncWithHandlesAsync(buffer, handles);
+            await socket.SendAsyncWithHandlesAsync(buffer, handles);
         }
     }
 
@@ -65,7 +65,7 @@ static class SocketExtensions
         }
     }
 
-    private static ValueTask SendAsyncWithHandlesAsync(this Socket socket, ReadOnlyMemory<byte> buffer, IReadOnlyList<SafeHandle> handles)
+    private static async ValueTask SendAsyncWithHandlesAsync(this Socket socket, ReadOnlyMemory<byte> buffer, IReadOnlyList<SafeHandle> handles)
     {
         socket.Blocking = false;
         do
@@ -75,9 +75,10 @@ static class SocketExtensions
             {
                 if (buffer.Length == rv)
                 {
-                    return default;
+                    return;
                 }
-                return socket.SendAsync(buffer.Slice(rv));
+                await socket.SendAsync(buffer.Slice(rv));
+                return;
             }
             else
             {
@@ -87,7 +88,7 @@ static class SocketExtensions
                     continue;
                 }
                 // TODO (low prio): handle EAGAIN.
-                return new ValueTask(Task.FromException(new SocketException(errno)));
+                throw new SocketException(errno);
             }
         } while (true);
     }
