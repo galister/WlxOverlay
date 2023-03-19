@@ -212,8 +212,8 @@ struct xshm_data * wlxshm_create(int32_t screen,  struct vec2i_t *size,  struct 
     size->x = (int) data->adj_width;
     size->y = (int) data->adj_height;
 
-    size->x = (int) data->adj_x_org;
-    size->y = (int) data->adj_y_org;
+    pos->x = (int) data->adj_x_org;
+    pos->y = (int) data->adj_y_org;
 
     return data;
 

@@ -34,7 +34,7 @@ public class XorgScreen : BaseScreen<BaseOutput>
 
         _bufSize = (uint)(size.X * size.Y * 4U);
 
-        Screen.Name = $"Scr {screen}";
+        Screen.Name = screen.ToString();
         Screen.Size = size;
         Screen.Position = pos;
 
