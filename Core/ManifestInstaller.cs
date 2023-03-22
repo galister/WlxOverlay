@@ -30,6 +30,10 @@ public static class ManifestInstaller
                 Console.WriteLine("Could not validate manifest, reinstalling...");
             }
         }
+
+        if (!Directory.Exists(Config.UserConfigFolder))
+            Directory.CreateDirectory(Config.UserConfigFolder);
+        
         OpenVR.Applications.RemoveApplicationManifest(ManifestPath);
 
         CreateManifest(executablePath);
