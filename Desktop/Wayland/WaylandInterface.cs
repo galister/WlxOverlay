@@ -85,7 +85,7 @@ public class WaylandInterface : IDisposable
                                   " You may still use WlxOverlay in single-screen mode.\n" +
                                   " Select your screen which is positioned at 0,0.");
                 
-                var output = new WaylandOutput(0, null) { Name = "SCR-1"};
+                var output = new WaylandOutput(0, null) { Name = "Default"};
                 var data = await XdgScreenCastHandler.PromptUserAsync(output);
                 if (data != null)
                 {
