@@ -3,8 +3,9 @@
 # the main configuration file for WlxOverlay
 
 # which screen to show by default, along with the keyboard
-# x11: zero-based index
-# wayland: output name such as HDMI-1, DP-2
+# Valid options:
+# - Name of the screen as shown on watch (e.g. "DP-2", "HDMI-1", "Scr 1")
+# - Index of the screen, in order of occurrence ("0": first screen)
 default_screen: 0
 
 # enable if you cannot see lasers for some reason

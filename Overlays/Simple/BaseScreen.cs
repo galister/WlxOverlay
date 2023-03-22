@@ -11,7 +11,8 @@ namespace WlxOverlay.Overlays.Simple;
 /// </summary>
 public abstract class BaseScreen<T> : GrabbableOverlay where T : BaseOutput
 {
-    // ReSharper disable once StaticMemberInGenericType
+    // ReSharper disable StaticMemberInGenericType
+    private static int _numScreens;
     private static bool _mouseMoved;
 
     public readonly T Screen;
@@ -25,10 +26,16 @@ public abstract class BaseScreen<T> : GrabbableOverlay where T : BaseOutput
     {
         WidthInMeters = 1;
         Screen = screen;
-        WantVisible = Screen!.ToString() == Config.Instance.DefaultScreen;
+
+        if (int.TryParse(Config.Instance.DefaultScreen, out var defaultIdx))
+            WantVisible = _numScreens == defaultIdx;
+        else
+            WantVisible = Screen.ToString() == Config.Instance.DefaultScreen;
 
         if (KeyboardProvider.Instance is UInput uInput)
             UInp = uInput;
+
+        _numScreens++;
     }
 
     protected override void Initialize()
