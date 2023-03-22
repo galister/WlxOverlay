@@ -6,8 +6,8 @@
         <Nullable>enable</Nullable>
         <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
         <RootNamespace>WlxOverlay</RootNamespace>
-        <TargetFrameworks>net6.0</TargetFrameworks>
         <LangVersion>10</LangVersion>
+        <TargetFramework>net6.0</TargetFramework>
     </PropertyGroup>
 
     <ItemGroup>
@@ -120,9 +120,5 @@
   <ItemGroup>
     <Folder Include="lib" />
   </ItemGroup>
-
-  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
-    <Exec Command="./prebuild.sh" />
-  </Target>
 
 </Project>
