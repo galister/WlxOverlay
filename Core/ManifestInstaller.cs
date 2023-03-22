@@ -32,6 +32,8 @@ public static class ManifestInstaller
         }
         OpenVR.Applications.RemoveApplicationManifest(ManifestPath);
 
+        if (!Directory.Exists(Config.UserConfigFolder))
+            Directory.CreateDirectory(Config.UserConfigFolder);
         CreateManifest(executablePath);
         
         var err = OpenVR.Applications.AddApplicationManifest(ManifestPath, false);
