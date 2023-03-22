@@ -22,12 +22,13 @@ public class OverlayManager : Application
     private bool _running = true;
     private readonly float _frameTime;
 
+    private readonly object _overlayLock = new();
     private readonly List<BaseOverlay> _overlays = new();
     private readonly List<InteractableOverlay> _interactables = new();
     private readonly List<LaserPointer> _pointers = new();
 
     private readonly object _lockObject = new();
-    private readonly Queue<(DateTime notBefore, Action action)> ScheduledTasks = new();
+    private readonly Queue<(DateTime notBefore, Action action)> _scheduledTasks = new();
 
     private bool _showHideState = false;
 
@@ -75,38 +76,47 @@ public class OverlayManager : Application
     {
         lock (_lockObject)
         {
-            ScheduledTasks.Enqueue((notBefore, action));
+            _scheduledTasks.Enqueue((notBefore, action));
         }
     }
 
     public void RegisterChild(BaseOverlay o)
     {
-        _overlays.Add(o);
-        if (o is InteractableOverlay io)
-            _interactables.Add(io);
-        else if (o is LaserPointer lp)
-            _pointers.Add(lp);
+        lock (_overlayLock)
+        {
+            _overlays.Add(o);
+            if (o is InteractableOverlay io)
+                _interactables.Add(io);
+            else if (o is LaserPointer lp)
+                _pointers.Add(lp);
+        }
     }
 
     public void UnregisterChild(BaseOverlay o)
     {
-        _overlays.Remove(o);
-        if (o is InteractableOverlay io)
-            _interactables.Remove(io);
-        else if (o is LaserPointer lp)
-            _pointers.Remove(lp);
+        lock (_overlayLock)
+        {
+            _overlays.Remove(o);
+            if (o is InteractableOverlay io)
+                _interactables.Remove(io);
+            else if (o is LaserPointer lp)
+                _pointers.Remove(lp);
+        }
     }
 
     public void ShowHide()
     {
         _showHideState = !_showHideState;
-        foreach (var overlay in _overlays.Where(x => x.ShowHideBinding))
+        lock (_overlayLock)
         {
-            if (!_showHideState && overlay.Visible)
-                overlay.Hide();
-            else if (_showHideState && !overlay.Visible && overlay.WantVisible)
-                overlay.Show();
+            foreach (var overlay in _overlays.Where(x => x.ShowHideBinding))
+            {
+                if (!_showHideState && overlay.Visible)
+                    overlay.Hide();
+                else if (_showHideState && !overlay.Visible && overlay.WantVisible)
+                    overlay.Show();
 
+            }
         }
     }
 
@@ -142,31 +152,39 @@ public class OverlayManager : Application
         }
 
         lock (_lockObject)
-            while (ScheduledTasks.TryPeek(out var task) && task.notBefore < DateTime.UtcNow)
+            while (_scheduledTasks.TryPeek(out var task) && task.notBefore < DateTime.UtcNow)
             {
-                ScheduledTasks.Dequeue();
+                _scheduledTasks.Dequeue();
                 task.action();
             }
 
         _workOverlays.Clear();
-        _workOverlays.AddRange(_overlays);
+        lock (_overlayLock)
+            _workOverlays.AddRange(_overlays);
+        
         foreach (var o in _workOverlays)
             o.AfterInput(deviceStateUpdated);
 
         _workOverlays.Clear();
-        _workOverlays.AddRange(_interactables.Where(x => x.Visible).Reverse());
+        lock (_overlayLock)
+            _workOverlays.AddRange(_interactables.Where(x => x.Visible).Reverse());
+        
         foreach (var pointer in _pointers)
             pointer.TestInteractions(_workOverlays.Cast<InteractableOverlay>());
 
         _workOverlays.Clear();
-        _workOverlays.AddRange(_overlays.Where(o => o is { Visible: false, WantVisible: true, ShowHideBinding: false }));
+        lock (_overlayLock)
+            _workOverlays.AddRange(_overlays.Where(o => o is { Visible: false, WantVisible: true, ShowHideBinding: false }));
+        
         foreach (var o in _workOverlays)
             o.Show();
 
         ChaperoneManager.Instance.Render();
 
         _workOverlays.Clear();
-        _workOverlays.AddRange(_overlays.Where(o => o.Visible));
+        lock (_overlayLock)
+                _workOverlays.AddRange(_overlays.Where(o => o.Visible));
+        
         foreach (var o in _workOverlays)
             o.Render();
 
@@ -208,7 +226,9 @@ public class OverlayManager : Application
         Console.WriteLine("Shutting down.");
 
         _workOverlays.Clear();
-        _workOverlays.AddRange(_overlays);
+        lock (_overlayLock)
+            _workOverlays.AddRange(_overlays);
+        
         foreach (var baseOverlay in _workOverlays)
             baseOverlay.Dispose();
 
