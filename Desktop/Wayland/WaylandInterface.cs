@@ -26,7 +26,7 @@ public class WaylandInterface : IDisposable
             throw new ApplicationException($"Can't have more than one {nameof(WaylandInterface)}!");
 
         Instance = new WaylandInterface();
-        Instance._display.Roundtrip();
+        Instance.RoundTrip();
     }
 
     public void RoundTrip()
@@ -109,11 +109,11 @@ public class WaylandInterface : IDisposable
             case "pipewire":
                 return UsePipeWire();
             default:
-                if (_supportedScreenTypes.Contains(typeof(ZwlrExportDmabufManagerV1)))
+                if (_supportedScreenTypes.Contains(typeof(WlrDmaBufScreen)))
                     return UseWlrDmaBuf();
-                if (_supportedScreenTypes.Contains(typeof(ZwlrScreencopyManagerV1)))
+                if (_supportedScreenTypes.Contains(typeof(WlrScreenCopyScreen)))
                     return UseWlrScreenCopy();
-                if (_supportedScreenTypes.Contains(typeof(ZkdeScreencastUnstableV1Pointer)))
+                if (_supportedScreenTypes.Contains(typeof(KdeScreenCastScreen)))
                     return UseKdeScreenCast();
                 return UsePipeWire();
         }
@@ -139,6 +139,8 @@ public class WaylandInterface : IDisposable
                 _supportedScreenTypes.Add(typeof(WlrDmaBufScreen));
             else if (e.Interface == WlInterface.ZwlrScreencopyManagerV1.Name)
                 _supportedScreenTypes.Add(typeof(WlrScreenCopyScreen));
+            else if (e.Interface == WlInterface.ZkdeScreencastUnstableV1.Name)
+                _supportedScreenTypes.Add(typeof(KdeScreenCastScreen));
         };
 
         reg.GlobalRemove += (_, e) =>
