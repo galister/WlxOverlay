@@ -1,18 +1,94 @@
+using System.Dynamic;
+using System.Reflection;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Valve.VR;
 using WlxOverlay.Types;
 
 namespace WlxOverlay.Core;
 
-public class ManifestInstaller
+public static class ManifestInstaller
 {
-    public static void EnsureInstalled(string appKey)
+    private const string AppKey = "galister.wlxoverlay";
+    private static  readonly string ManifestPath = Path.Combine(Config.UserConfigFolder, "manifest.vrmanifest");
+
+    public static void EnsureInstalled()
     {
-        if (!OpenVR.Applications.IsApplicationInstalled(appKey)
-            && Config.TryGetFile("manifest.vrmanifest", out var manifestPath))
+        var executablePath = GetExecutablePath();
+        
+        if (OpenVR.Applications.IsApplicationInstalled(AppKey))
         {
-            var err = OpenVR.Applications.AddApplicationManifest(manifestPath, false);
-            if (err == EVRApplicationError.None)
-                OpenVR.Applications.SetApplicationAutoLaunch(appKey, true);
+            try
+            {
+                dynamic manifest = JsonConvert.DeserializeObject<ExpandoObject>(File.ReadAllText(ManifestPath))!;
+                if (manifest.applications[0].binary_path_linux == executablePath)
+                    return;
+                Console.WriteLine("Executable path changed, reinstalling manifest...");
+            }
+            catch
+            {
+                Console.WriteLine("Could not validate manifest, reinstalling...");
+            }
         }
+        OpenVR.Applications.RemoveApplicationManifest(ManifestPath);
+
+        CreateManifest(executablePath);
+        
+        var err = OpenVR.Applications.AddApplicationManifest(ManifestPath, false);
+        if (err != EVRApplicationError.None)
+        {
+            Console.WriteLine($"ERR: Could not install manifest: {err}");
+            return;
+        }
+
+        err = OpenVR.Applications.SetApplicationAutoLaunch(AppKey, true);
+        if (err != EVRApplicationError.None)
+        {
+            Console.WriteLine($"ERR: Could not install manifest: {err}");
+            return;
+        }
+
+        if (OpenVR.Applications.IsApplicationInstalled(AppKey))
+            Console.WriteLine($"Manifest installed to {ManifestPath}");
+
+    }
+
+    private static string GetExecutablePath()
+    {
+        var appImage = Environment.GetEnvironmentVariable("APPIMAGE");
+        if (appImage != null)
+            return appImage;
+
+        var folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
+        
+        return Path.Combine(folder, "WlxOverlay");
+    }
+    
+    private static void CreateManifest(string executablePath)
+    {
+        var manifest = new JObject
+        {
+            ["source"] = "builtin",
+            ["applications"] = new JArray
+            {
+                new JObject
+                {
+                    ["app_key"] = AppKey,
+                    ["launch_type"] = "binary",
+                    ["binary_path_linux"] = executablePath,
+                    ["is_dashboard_overlay"] = true,
+                    ["strings"] = new JObject
+                    {
+                        ["en_us"] = new JObject
+                        {
+                            ["name"] = "WlxOverlay",
+                            ["description"] = "A lightweight Wayland/X11 desktop overlay for OpenVR."
+                        }
+                    }
+                }
+            }
+        };
+        
+        File.WriteAllText(ManifestPath, manifest.ToString());
     }
 }

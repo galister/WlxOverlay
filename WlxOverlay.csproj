@@ -73,9 +73,6 @@
       </Content>
       <None Remove="libEGL.so.1" />
       <None Remove="Resources\keymap.xkb" />
-      <None Update="Resources\manifest.vrmanifest">
-        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-      </None>
       <None Update="Resources\actions_binding_vive.json">
         <CopyToOutputDirectory>Always</CopyToOutputDirectory>
       </None>

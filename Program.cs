@@ -41,7 +41,7 @@ PosixSignalRegistration.Create(PosixSignal.SIGINT, SignalHandler);
 PosixSignalRegistration.Create(PosixSignal.SIGHUP, SignalHandler);
 PosixSignalRegistration.Create(PosixSignal.SIGTERM, SignalHandler);
 
-ManifestInstaller.EnsureInstalled("galister.wlxoverlay");
+ManifestInstaller.EnsureInstalled();
 
 if (!Config.Instance.FallbackCursors)
     manager.RegisterChild(new DesktopCursor());
@@ -77,7 +77,6 @@ if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
         manager.RegisterChild(screen);
         screens.Add(screen);
     }
-
 }
 else
 {
