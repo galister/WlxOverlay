@@ -66,7 +66,7 @@ else
 }
 
 var screens = new List<BaseOverlay>();
-if (Environment.GetEnvironmentVariable("XDG_SESSION_TYPE") == "wayland")
+if (Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") != null)
 {
     Console.WriteLine("Wayland detected.");
     EGL.Initialize();
