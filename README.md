@@ -15,9 +15,7 @@ Features:
   - Battery states of SteamVR controllers + all connected trackers 
   - Volume rocker (customizable)
   - Toggles for screens / keyboard
-  
-Planned:
-- Notifications system
+- Notifications system with support for VRCX and Dbus (Desktop) notifications
 
 ![Image](https://github.com/galister/X11Overlay/blob/github/screenshot2.jpeg?raw=true)
 
