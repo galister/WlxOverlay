@@ -23,7 +23,7 @@ public class XorgScreen : BaseScreen<BaseOutput>
     private readonly IntPtr _handle;
     private readonly uint _bufSize;
 
-    public XorgScreen(int screen) : base(new BaseOutput())
+    public XorgScreen(int screen) : base(new BaseOutput(screen.ToString()))
     {
         Vector2Int size = new(), pos = new();
 
