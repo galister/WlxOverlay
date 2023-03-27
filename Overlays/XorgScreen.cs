@@ -58,12 +58,20 @@ public class XorgScreen : BaseScreen<BaseOutput>
         _mousePosSet = false;
         base.AfterInput(batteryStateUpdated);
     }
-
+    
+    private Task<IntPtr> _captureTask = Task.Run(() => IntPtr.Zero);
+    
     protected internal override unsafe void Render()
     {
-        var buf = wlxshm_capture_frame(_handle);
-        if (buf->length == _bufSize)
-            Texture!.LoadRawImage(buf->buffer, GraphicsFormat.BGRA8);
+        if (_captureTask.IsCompleted)
+        {
+            var buf = (buf_t*) _captureTask.Result.ToPointer();
+            if (buf != null && buf->length == _bufSize)
+                Texture!.LoadRawImage(buf->buffer, GraphicsFormat.BGRA8);
+
+            _captureTask.Dispose();
+            _captureTask = Task.Run(() => wlxshm_capture_frame(_handle));
+        }
 
         if (!_mousePosSet)
         {
@@ -115,7 +123,7 @@ public class XorgScreen : BaseScreen<BaseOutput>
     private static extern void wlxshm_capture_end(IntPtr handle);
 
     [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe buf_t* wlxshm_capture_frame(IntPtr handle);
+    private static extern IntPtr wlxshm_capture_frame(IntPtr handle);
 
     [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
     private static extern void wlxshm_mouse_pos_global(IntPtr handle, ref Vector2Int pos);
