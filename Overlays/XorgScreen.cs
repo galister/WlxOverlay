@@ -49,9 +49,9 @@ public class XorgScreen : BaseScreen<BaseOutput>
 
     public override void Hide()
     {
-        base.Hide();
         if (!_captureTask.IsCompleted)
             _captureTask.Wait();
+        base.Hide();
         wlxshm_capture_end(_handle);
     }
 

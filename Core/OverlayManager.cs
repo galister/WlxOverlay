@@ -122,8 +122,9 @@ public class OverlayManager : Application
 
     public void SetBrightness(float f)
     {
-        foreach (var o in _overlays)
-            o.SetBrightness(f);
+        lock (_overlayLock)
+            foreach (var o in _overlays)
+                o.SetBrightness(f);
     }
 
     private DateTime _nextRoundTrip = DateTime.MinValue;
