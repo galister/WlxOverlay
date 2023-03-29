@@ -108,6 +108,8 @@ public class XorgScreen : BaseScreen<BaseOutput>
 
     public override void Dispose()
     {
+        if (!_captureTask.IsCompleted)
+            _captureTask.Wait();
         wlxshm_destroy(_handle);
         base.Dispose();
     }
