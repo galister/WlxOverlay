@@ -127,7 +127,7 @@ public class KeyButton : ButtonBase
     {
         if (_pressActions[Mode] != null)
         {
-            var haptics = Config.Instance.KeyboardHaptics ?? 0.5f;
+            var haptics = Config.Instance.KeyboardHaptics ?? 0.2f;
             if (haptics > float.Epsilon)
                 InputManager.Instance.HapticVibration(hand, 0.05f, haptics);
         }
