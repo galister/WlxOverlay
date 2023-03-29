@@ -25,17 +25,18 @@ public class AudioManager
         {
             if (!Directory.Exists(path))
                 continue;
-            
-            foreach (var fPath in Directory.EnumerateFiles(path))
-            {
-                var fName = Path.GetFileName(fPath);
-                var idx = Array.IndexOf(_playerNames, fName);
-                if (idx == -1) continue;
-                
-                _player = (AudioPlayer)Activator.CreateInstance(_playerTypes[idx])!;
-                Console.WriteLine($"Using {_playerNames[idx]} for audio output.");
-                return;
-            }
+
+            for (var p = 0; 0 < _playerNames.Length; p++)
+                foreach (var fPath in Directory.EnumerateFiles(path))
+                {
+                    var fName = Path.GetFileName(fPath);
+                    if (fName != _playerNames[p])
+                        continue;
+
+                    _player = (AudioPlayer)Activator.CreateInstance(_playerTypes[p])!;
+                    Console.WriteLine($"Using {_playerNames[p]} for audio output.");
+                    return;
+                }
         }
         Console.WriteLine("WARN: No audio player found! Install either of the following if you need audio output: \n");
         Console.WriteLine("WARN: " + string.Join(", ", _playerNames));
