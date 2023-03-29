@@ -165,6 +165,8 @@ public class NotificationsManager : IDisposable
         while (!cancellationToken.IsCancellationRequested)
         {
             await Task.Delay(100, cancellationToken);
+            if (_nextToast > DateTime.UtcNow)
+                continue;
 
             XSOMessage message;
             lock (_lockObject)
