@@ -128,7 +128,8 @@ internal class Font : IDisposable
                 Texture = GraphicsEngine.Instance.TextureFromRaw(bitmap.width, bitmap.rows, inputFormat, bitmap.buffer, GraphicsFormat.R8),
                 Left = (int)gSlot->metrics.horiBearingX >> 6,
                 Top = (int)bitmap.rows - ((int)gSlot->metrics.horiBearingY >> 6),
-                AdvX = (int)gSlot->metrics.horiAdvance >> 6
+                AdvX = (int)gSlot->metrics.horiAdvance >> 6,
+                Ch = ch,
             };
 
             _glyphTextures[ch] = g;
@@ -166,4 +167,5 @@ public class Glyph
     public int BearX;
     public int BearY;
     public int AdvX;
+    public int Ch;
 }

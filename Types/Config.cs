@@ -1,4 +1,5 @@
 using System.Reflection;
+using WlxOverlay.Numerics;
 using WlxOverlay.Overlays;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;
@@ -106,6 +107,8 @@ public class Config
     public string DefaultScreen;
 
     public bool FallbackCursors;
+    public bool RememberScreenTransform;
+    public Transform3D ScreenPos;
 
     public Dictionary<string, string> ExportInputs;
 }

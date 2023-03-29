@@ -127,3 +127,5 @@ click_freeze_time: 0.3
 ## Types of Single, Vector1, Vector2 and Vector3 are all exported as Vector3, with the missing values set to 0.
 # export_inputs:
 #  Right.Scroll: /dev/shm/wlxoverlay_scroll_r
+
+# remember_screen_transforms: true

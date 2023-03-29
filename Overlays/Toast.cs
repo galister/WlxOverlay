@@ -37,7 +37,15 @@ public class Toast : BaseOverlay
 
     protected override void Initialize()
     {
-        var width = (uint)Font.GetTextWidth(_content ?? _title) + Padding;
+        var contentWidth = 0;
+        if (_content != null) {
+            string[] lines = _content.Split(new[] { "\r\n", "\r", "\n" }, StringSplitOptions.None);
+            string longestLine = lines.OrderByDescending(line => line.Length).First();
+            contentWidth = Font.GetTextWidth(longestLine);
+        }
+        var summaryWidth = Font.GetTextWidth(_title);
+        var width = (uint)Math.Max(contentWidth, summaryWidth) + Padding;
+
         WidthInMeters = width / 2000f;
 
         _canvas = new Canvas(width, _height);

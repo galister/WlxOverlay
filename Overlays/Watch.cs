@@ -22,6 +22,8 @@ public class Watch : InteractableOverlay
     private readonly Vector3 _vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
     private readonly Vector3 _vec3InsideUnit = Vector3.Right;
 
+    private bool started = false;
+
     public Watch(BaseOverlay keyboard, IList<BaseOverlay> screens) : base("Watch")
     {
         if (_instance != null)
