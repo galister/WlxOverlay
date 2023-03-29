@@ -125,18 +125,21 @@ public class KeyButton : ButtonBase
 
     public override void OnPointerEnter(LeftRight hand)
     {
-        var haptics = Config.Instance.KeyboardHaptics ?? 0.5f;
-        if (haptics > float.Epsilon)
-            InputManager.Instance.HapticVibration(hand, 0.05f, haptics);
-        
+        if (_pressActions[Mode] != null)
+        {
+            var haptics = Config.Instance.KeyboardHaptics ?? 0.5f;
+            if (haptics > float.Epsilon)
+                InputManager.Instance.HapticVibration(hand, 0.05f, haptics);
+        }
+
         base.OnPointerEnter(hand);
     }
 
     public override void OnPointerDown()
     {
-        if (KeyPressSound != null)
+        if (_pressActions[Mode] != null && KeyPressSound != null)
             _ = AudioManager.Instance.PlayAsync(KeyPressSound, Config.Instance.KeyboardVolume ?? 1);
-        
+
         base.OnPointerDown();
         _pressActions[Mode]?.Invoke();
     }
