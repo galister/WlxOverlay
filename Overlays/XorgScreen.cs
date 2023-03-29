@@ -22,6 +22,7 @@ public class XorgScreen : BaseScreen<BaseOutput>
 
     private readonly IntPtr _handle;
     private readonly uint _bufSize;
+    private readonly SemaphoreSlim _semaphore = new(1, 1);
 
     public XorgScreen(int screen) : base(new BaseOutput(screen.ToString()))
     {
@@ -44,13 +45,17 @@ public class XorgScreen : BaseScreen<BaseOutput>
     public override void Show()
     {
         base.Show();
+        _semaphore.Wait();
         wlxshm_capture_start(_handle);
+        _semaphore.Release();
     }
 
     public override void Hide()
     {
         base.Hide();
+        _semaphore.Wait();
         wlxshm_capture_end(_handle);
+        _semaphore.Release();
     }
 
     protected internal override void AfterInput(bool batteryStateUpdated)
@@ -58,17 +63,34 @@ public class XorgScreen : BaseScreen<BaseOutput>
         _mousePosSet = false;
         base.AfterInput(batteryStateUpdated);
     }
+    
+    private Task<IntPtr> _captureTask = Task.Run(() => IntPtr.Zero);
+    private async Task<IntPtr> CaptureNextFrame()
+    {
+        await _semaphore.WaitAsync();
+        var ptr = wlxshm_capture_frame(_handle);
+        _semaphore.Release();
+        return ptr;
+    }
 
     protected internal override unsafe void Render()
     {
-        var buf = wlxshm_capture_frame(_handle);
-        if (buf->length == _bufSize)
-            Texture!.LoadRawImage(buf->buffer, GraphicsFormat.BGRA8);
-
         if (!_mousePosSet)
         {
+            _semaphore.Wait();
             wlxshm_mouse_pos_global(_handle, ref _mousePos);
+            _semaphore.Release();
             _mousePosSet = true;
+        }
+        
+        if (_captureTask.IsCompleted)
+        {
+            var buf = (buf_t*) _captureTask.Result.ToPointer();
+            if (buf != null && buf->length == _bufSize)
+                Texture!.LoadRawImage(buf->buffer, GraphicsFormat.BGRA8);
+
+            _captureTask.Dispose();
+            _captureTask = Task.Run(CaptureNextFrame);
         }
 
         var mouse = new Vector2Int(_mousePos.X - Screen.Position.X, _mousePos.Y - Screen.Position.Y);
@@ -98,7 +120,10 @@ public class XorgScreen : BaseScreen<BaseOutput>
 
     public override void Dispose()
     {
+        _semaphore.Wait();
         wlxshm_destroy(_handle);
+        _semaphore.Release();
+        _semaphore.Dispose();
         base.Dispose();
     }
 
@@ -115,7 +140,7 @@ public class XorgScreen : BaseScreen<BaseOutput>
     private static extern void wlxshm_capture_end(IntPtr handle);
 
     [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
-    private static extern unsafe buf_t* wlxshm_capture_frame(IntPtr handle);
+    private static extern IntPtr wlxshm_capture_frame(IntPtr handle);
 
     [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
     private static extern void wlxshm_mouse_pos_global(IntPtr handle, ref Vector2Int pos);
