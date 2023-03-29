@@ -116,7 +116,7 @@ public class Canvas : IDisposable
             otherBtn.OnPointerExit();
 
         _litButtons[hint] = idx;
-        button.OnPointerEnter();
+        button.OnPointerEnter(hand);
     }
 
     public Action? OnPointerDown(Vector2 uv, LeftRight hand)

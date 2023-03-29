@@ -23,6 +23,7 @@ public class NotificationsManager : IDisposable
     private readonly Queue<XSOMessage> _messages = new(10);
 
     private DateTime _nextToast = DateTime.MinValue;
+    private string? _notificationSound;
 
     public static void Initialize()
     {
@@ -56,6 +57,13 @@ public class NotificationsManager : IDisposable
             throw;
         }
         _listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
+        
+        if ((Config.Instance.NotificationsVolume ?? 1) > float.Epsilon)
+        {
+            _notificationSound  = Config.Instance.NotificationsSound == null
+                ? Path.Combine(Config.ResourcesFolder, "660533.wav")
+                : Path.Combine(Config.UserConfigFolder, Config.Instance.NotificationsSound);
+        }
     }
 
     private void Start()
@@ -152,11 +160,11 @@ public class NotificationsManager : IDisposable
                 _messages.Enqueue(message);
     }
 
-    private async Task NotifierAsync(CancellationToken _cancellationToken)
+    private async Task NotifierAsync(CancellationToken cancellationToken)
     {
-        while (!_cancellationToken.IsCancellationRequested)
+        while (!cancellationToken.IsCancellationRequested)
         {
-            await Task.Delay(100, _cancellationToken);
+            await Task.Delay(100, cancellationToken);
 
             XSOMessage message;
             lock (_lockObject)
@@ -165,6 +173,10 @@ public class NotificationsManager : IDisposable
 
             var toast = new Toast(message.title, message.content, message.opacity, (uint)message.height, message.timeout);
             OverlayManager.Instance.RegisterChild(toast);
+
+            if (_notificationSound != null && message.volume > float.Epsilon)
+                _ = AudioManager.Instance.PlayAsync(_notificationSound, Config.Instance.NotificationsVolume ?? 1);
+            
             _nextToast = DateTime.UtcNow.AddSeconds(2);
         }
     }

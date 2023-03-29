@@ -1,6 +1,8 @@
+using WlxOverlay.Core;
 using WlxOverlay.Desktop;
 using WlxOverlay.GFX;
 using WlxOverlay.Numerics;
+using WlxOverlay.Overlays;
 using WlxOverlay.Types;
 using Action = System.Action;
 
@@ -33,6 +35,8 @@ public class KeyButton : ButtonBase
     private readonly KeyModifier[] _myModifiers = new KeyModifier[3];
 
     private static KeyModifier _modifiers;
+    
+    internal static string? KeyPressSound;
 
     public KeyButton(uint row, uint col, int x, int y, uint w, uint h) : base(x, y, w, h)
     {
@@ -119,8 +123,20 @@ public class KeyButton : ButtonBase
         }
     }
 
+    public override void OnPointerEnter(LeftRight hand)
+    {
+        var haptics = Config.Instance.KeyboardHaptics ?? 0.5f;
+        if (haptics > float.Epsilon)
+            InputManager.Instance.HapticVibration(hand, 0.05f, haptics);
+        
+        base.OnPointerEnter(hand);
+    }
+
     public override void OnPointerDown()
     {
+        if (KeyPressSound != null)
+            _ = AudioManager.Instance.PlayAsync(KeyPressSound, Config.Instance.KeyboardVolume ?? 1);
+        
         base.OnPointerDown();
         _pressActions[Mode]?.Invoke();
     }
@@ -187,18 +203,18 @@ public class KeyButton : ButtonBase
         KeyboardProvider.Instance.SetModifiers(_modifiers);
     }
 
-    private bool stickyOnRelease = false;
+    private bool _stickyOnRelease = false;
     private void OnModifierPressed(VirtualKey key)
     {
         var myMod = KeyboardLayout.KeysToModifiers[key];
-        stickyOnRelease = (_modifiers & myMod) == 0;
+        _stickyOnRelease = (_modifiers & myMod) == 0;
         _modifiers |= myMod;
         KeyboardProvider.Instance.SetModifiers(_modifiers);
     }
 
     private void OnModifierReleased(VirtualKey key)
     {
-        if (stickyOnRelease)
+        if (_stickyOnRelease)
             return;
         _modifiers &= ~KeyboardLayout.KeysToModifiers[key];
         KeyboardProvider.Instance.SetModifiers(_modifiers);

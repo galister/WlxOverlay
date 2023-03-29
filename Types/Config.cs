@@ -20,11 +20,13 @@ public class Config
     public static readonly string UserConfigFolder =
         Path.Combine(Environment.GetEnvironmentVariable("HOME")!, ".config", "wlxoverlay");
 
+    public static readonly string ResourcesFolder = Path.Combine(AppDir, "Resources");
+
     public static readonly string[] ConfigFolders =
     {
         UserConfigFolder,
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "x11overlay"), // old branding
-        Path.Combine(AppDir, "Resources")
+        ResourcesFolder
     };
 
     public static Config Instance;
@@ -90,6 +92,14 @@ public class Config
     public string NotificationsEndpoint;
     public float NotificationsFadeTime;
     public bool DbusNotifications;
+
+    public string? NotificationsSound;
+    public float? NotificationsVolume;
+    
+    public string? KeyboardSound;
+    public float? KeyboardVolume;
+    
+    public float? KeyboardHaptics;
 
     public float ClickFreezeTime;
 

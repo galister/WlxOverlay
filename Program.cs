@@ -90,6 +90,8 @@ else
     }
 }
 
+AudioManager.Initialize();
+
 if (!string.IsNullOrWhiteSpace(Config.Instance.NotificationsEndpoint))
     NotificationsManager.Initialize();
 

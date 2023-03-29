@@ -43,3 +43,4 @@ Join the discussion here: https://discord.gg/gHwJ2vwSWV
 - [bendahl/uinput](https://github.com/bendahl/uinput), MIT License
 - [WaylandSharp](https://github.com/X9VoiD/WaylandSharp), MIT License
 - [YamlDotNet](SixLabors/ImageSharp), MIT License
+- [freesound](https://freesound.org/), CC0 sound effects (find the sounds by searching for their number)

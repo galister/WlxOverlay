@@ -20,35 +20,54 @@ fallback_cursors: false
 #           select one screen upon each popup, when all screens are selected, press cancel
 wayland_capture: auto
 
-# enable to swap red and blue channels
+## enable to swap red and blue channels
 wayland_color_swap: false
 
-# enable features that are not completely polished
+## enable features that are not completely polished
 experimental_features: false
 
-# listen to XSO-style notifications if not empty
+## listen to XSO-style notifications if not empty
 notifications_endpoint: 127.0.0.1:42069
 notifications_fade_time: 2.5
-# show desktop notifications on overlay
+
+## show desktop notifications on overlay
 dbus_notifications: true
 
-# additional timezones to display, other than your local time. optional.
+## override sound for notifications
+## path relative to ~/.config/wlxoverlay/ or comment out for default
+# notifications_sound: notify.wav
+
+## 0 to disable. 1.0 is 100%
+notifications_volume: 1.0
+
+## override sound for keyboard
+## path relative to ~/.config/wlxoverlay/ or comment out for default
+# keyboard_sound: keyboard.wav
+
+## 0 to disable. 1.0 is 100%
+keyboard_volume: 1.0
+
+## keyboard haptics strength
+## 0 to disable. default: 0.5
+keyboard_haptics: 0.5
+
+## additional timezones to display, other than your local time. optional.
 alt_timezone1: Asia/Tokyo
 alt_timezone2: America/Chicago
 
-# shell commands to execute by the volume rocker. array of args.
+## shell commands to execute by the volume rocker. array of args.
 volume_up_cmd: [ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "+5%" ]
 volume_dn_cmd: [ "pactl", "set-sink-volume", "@DEFAULT_SINK@", "-5%" ]
 
-# enable push-to-talk (or other arbitrary command) on the left hand 
-# activates on left hand AltClick. use ~ (null) for no action
-# this should work if you're using a simple PulseAudio / PipeWire setup
+## enable push-to-talk (or other arbitrary command) on the left hand 
+## activates on left hand AltClick. use ~ (null) for no action
+## this should work if you're using a simple PulseAudio / PipeWire setup
 left_use_ptt: true
 left_ptt_dn_cmd: [ "pactl", "set-source-mute", "@DEFAULT_SOURCE@", "0" ]
 left_ptt_up_cmd: [ "pactl", "set-source-mute", "@DEFAULT_SOURCE@", "1" ]
 
-# enable push-to-talk (or other arbitrary command) on the right hand 
-# activates on right hand AltClick. use ~ (null) for no action
+## enable push-to-talk (or other arbitrary command) on the right hand 
+## activates on right hand AltClick. use ~ (null) for no action
 right_use_ptt: false
 right_ptt_dn_cmd: [ "ptt", "B2_source", "off" ]
 right_ptt_up_cmd: [ "ptt", "B2_source", "on" ]
@@ -74,10 +93,10 @@ right_ptt_up_cmd: [ "ptt", "B2_source", "on" ]
 # when deciding the mode of the keyboard. You may 
 # change this here:
 
-# "Left" or "Right"
+## "Left" or "Right"
 primary_hand: Right
 
-# "Left" or "Right"
+## "Left" or "Right"
 watch_hand: Left
 
 # The color of the pointer can be set 2 ways:
@@ -92,19 +111,19 @@ watch_hand: Left
 # you can also use the hand orientation to set mode.
 # Bindings always take precedence over orientation.
 
-# Use backhand-upward orientation for right click mode 
+## Use backhand-upward orientation for right click mode 
 right_click_orientation: false
 
-# Use palm-upwards orientation for middle click mode
+## Use palm-upwards orientation for middle click mode
 middle_click_orientation: false
 
-# Seconds to freeze the cursor for after clicking.
-# Aims to help with double clicking.
+## Seconds to freeze the cursor for after clicking.
+## Aims to help with double clicking.
 click_freeze_time: 0.3
 
-# Expose OpenVR input data to external applications
-# Key is: "{Left|Right}.{ActionName}", action name is case sensitive input name defined in actions.json
-# Value is a file that will be written with the value on every frame (recommend tmpfs)
-# Types of Single, Vector1, Vector2 and Vector3 are all exported as Vector3, with the missing values set to 0.
+## Expose OpenVR input data to external applications
+## Key is: "{Left|Right}.{ActionName}", action name is case sensitive input name defined in actions.json
+## Value is a file that will be written with the value on every frame (recommend tmpfs)
+## Types of Single, Vector1, Vector2 and Vector3 are all exported as Vector3, with the missing values set to 0.
 # export_inputs:
 #  Right.Scroll: /dev/shm/wlxoverlay_scroll_r

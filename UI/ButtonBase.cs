@@ -1,4 +1,5 @@
 using WlxOverlay.Numerics;
+using WlxOverlay.Overlays;
 
 namespace WlxOverlay.UI;
 
@@ -22,7 +23,7 @@ public class ButtonBase : Panel
         _label.SetCanvas(canvas);
     }
 
-    public virtual void OnPointerEnter()
+    public virtual void OnPointerEnter(LeftRight hand)
     {
         IsHovered = true;
         Canvas?.MarkDirty();

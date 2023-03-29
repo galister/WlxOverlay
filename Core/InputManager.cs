@@ -37,6 +37,8 @@ public class InputManager : IDisposable
     private readonly TrackedDevicePose_t[] _poses = new TrackedDevicePose_t[OpenVR.k_unMaxTrackedDeviceCount];
     private readonly TrackedDevicePose_t[] _gamePoses = new TrackedDevicePose_t[0];
 
+    private readonly ulong[] _hapticsHandles = new ulong[2];
+
     private VRActiveActionSet_t[]? _activeActionSets;
     private readonly uint _activeActionSetsSize;
 
@@ -86,17 +88,15 @@ public class InputManager : IDisposable
         }
 
         var actionsJson = JsonConvert.DeserializeObject<Actions>(File.ReadAllText(actionsPath));
-        _actionSet = actionsJson?.action_sets?.FirstOrDefault()?.name;
-        if (_actionSet == null)
-        {
-            Console.WriteLine("Could not load action.json");
-            Environment.Exit(1);
-        }
+        _actionSet = "/actions/default";
 
         var stringToActionType = Enum.GetValues<OpenVrInputActionType>()
             .ToDictionary(x => x.ToString().ToLowerInvariant());
         foreach (var action in actionsJson!.actions!)
         {
+            if (action.type == "vibration")
+                continue;
+
             var inputAction = new OpenVrInputAction(action.name!, stringToActionType[action.type!]);
             inputAction.Initialize();
 
@@ -136,10 +136,10 @@ public class InputManager : IDisposable
             }
         };
 
-        GetInputSourceHandles();
+        GetHandles();
     }
 
-    private void GetInputSourceHandles()
+    private void GetHandles()
     {
         for (var i = 0; i < _inputSources.Length; i++)
         {
@@ -150,6 +150,18 @@ public class InputManager : IDisposable
                 Console.WriteLine($"GetInputSources {path}: {err}");
 
             _inputSourceHandles[i] = handle;
+        }
+
+        for (var hand = LeftRight.Left; hand <= LeftRight.Right; hand++)
+        {
+            var handle = 0UL;
+            var path = $"/actions/default/out/Haptics{hand}";
+            
+            var err = OpenVR.Input.GetActionHandle(path, ref handle);
+            if (err != EVRInputError.None)
+                Console.WriteLine($"GetActionHandle {path}: {err}");
+
+            _hapticsHandles[(int)hand] = handle;
         }
     }
 
@@ -333,6 +345,13 @@ public class InputManager : IDisposable
 
         DeviceStates.Sort((a, b) => a.Role.CompareTo(b.Role) * 2 + a.Index.CompareTo(b.Index));
         GC.Collect();
+    }
+
+    public void HapticVibration(LeftRight hand, float durationSec, float amplitude, float frequency = 5f)
+    {
+        var controller = _controllers[(int)hand];
+        if (controller.Valid)
+            OpenVR.Input.TriggerHapticVibrationAction(_hapticsHandles[(int)hand], 0f, durationSec, frequency, amplitude, controller.Index);
     }
 
     public void Dispose()

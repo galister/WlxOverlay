@@ -3,6 +3,16 @@
    "app_key" : "galister.wlxoverlay",
    "bindings" : {
       "/actions/default": {
+         "haptics" : [
+            {
+               "output" : "/actions/default/out/hapticsleft",
+               "path" : "/user/hand/left/output/haptic"
+            },
+            {
+               "output" : "/actions/default/out/hapticsright",
+               "path" : "/user/hand/right/output/haptic"
+            }
+         ],
          "sources": [
             {
                "path": "/user/hand/left/input/grip",

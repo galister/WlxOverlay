@@ -22,6 +22,13 @@ public class KeyboardOverlay : GrabbableOverlay
             throw new InvalidOperationException("Can't have more than one KeyboardOverlay!");
         _instance = this;
 
+        if ((Config.Instance.KeyboardVolume ?? 1) > float.Epsilon)
+        {
+            KeyButton.KeyPressSound = Config.Instance.KeyboardSound == null 
+                ? Path.Combine(Config.ResourcesFolder, "421581.wav") 
+                : Path.Combine(Config.UserConfigFolder, Config.Instance.KeyboardSound);
+        }
+
         SpawnPosition = Vector3.Forward + Vector3.Down * 0.5f;
         ShowHideBinding = true;
         WantVisible = true;

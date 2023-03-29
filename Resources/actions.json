@@ -44,6 +44,14 @@
       "name": "/actions/default/in/RightHand",
       "type": "pose",
       "requirement": "optional"
+    },
+    {
+      "name": "/actions/default/out/HapticsLeft",
+      "type": "vibration"
+    },
+    {
+      "name": "/actions/default/out/HapticsRight",
+      "type": "vibration"
     }
   ],
   "action_sets": [
