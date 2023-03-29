@@ -26,7 +26,7 @@ public class AudioManager
             if (!Directory.Exists(path))
                 continue;
 
-            for (var p = 0; 0 < _playerNames.Length; p++)
+            for (var p = 0; p < _playerNames.Length; p++)
                 foreach (var fPath in Directory.EnumerateFiles(path))
                 {
                     var fName = Path.GetFileName(fPath);
