@@ -5,6 +5,7 @@ namespace WlxOverlay.GFX;
 public class FontCollection
 {
     private const string PrimaryFont = "LiberationSans";
+    private static readonly object Lock = new();
     private static readonly Dictionary<(int, FontStyle), FontCollection> _collections = new();
 
     public static FontCollection Get(int size, FontStyle style)
@@ -12,7 +13,8 @@ public class FontCollection
         if (!_collections.TryGetValue((size, style), out var collection))
         {
             collection = new FontCollection(size, style);
-            _collections[(size, style)] = collection;
+            lock (Lock)
+                _collections[(size, style)] = collection;
         }
         return collection;
     }
@@ -56,9 +58,10 @@ public class FontCollection
 
     public static void CloseHandles()
     {
-        foreach (var fontCollection in _collections.Values)
-            foreach (var font in fontCollection._loadedFonts)
-                font.CloseHandles();
+        lock (Lock)
+            foreach (var fontCollection in _collections.Values)
+                foreach (var font in fontCollection._loadedFonts)
+                    font.CloseHandles();
     }
 
     private void LoadFontForCodePoint(int codepoint, int size, FontStyle style)
@@ -81,7 +84,8 @@ public class FontCollection
         }
 
         var font = new Font(parts[0], int.Parse(parts[1]), size);
-        _loadedFonts.Add(font);
+        lock (Lock)
+            _loadedFonts.Add(font);
         foreach (var cp in font.GetSupportedCodePoints())
             _codePointToFont.TryAdd(cp, font);
 
