@@ -48,8 +48,8 @@ notifications_volume: 1.0
 keyboard_volume: 1.0
 
 ## keyboard haptics strength
-## 0 to disable. default: 0.2
-keyboard_haptics: 0.2
+## 0 to disable. default: 0.1
+keyboard_haptics: 0.1
 
 ## additional timezones to display, other than your local time. optional.
 alt_timezone1: Asia/Tokyo
