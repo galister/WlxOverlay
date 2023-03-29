@@ -50,7 +50,12 @@ public class XorgScreen : BaseScreen<BaseOutput>
     public override void Hide()
     {
         if (!_captureTask.IsCompleted)
+        {
             _captureTask.Wait();
+            _captureTask.Dispose();
+            _captureTask = DefaultTask;
+        }
+
         base.Hide();
         wlxshm_capture_end(_handle);
     }
@@ -61,7 +66,8 @@ public class XorgScreen : BaseScreen<BaseOutput>
         base.AfterInput(batteryStateUpdated);
     }
 
-    private Task<IntPtr> _captureTask = Task.Run(() => IntPtr.Zero);
+    private static readonly Task<IntPtr> DefaultTask = Task.Run(() => IntPtr.Zero);
+    private Task<IntPtr> _captureTask = DefaultTask;
     
     protected internal override unsafe void Render()
     {
@@ -109,7 +115,15 @@ public class XorgScreen : BaseScreen<BaseOutput>
     public override void Dispose()
     {
         if (!_captureTask.IsCompleted)
+        {
             _captureTask.Wait();
+            _captureTask.Dispose();
+            _captureTask = DefaultTask;
+        }
+        
+        if(Visible)
+            wlxshm_capture_end(_handle);
+        
         wlxshm_destroy(_handle);
         base.Dispose();
     }
