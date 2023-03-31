@@ -30,9 +30,9 @@ class DBusConnection : IDisposable
 
         public ValueTaskSourceStatus GetStatus(short token) => _core.GetStatus(token);
 
-        public void OnCompleted(Action<object> continuation, object state, short token, ValueTaskSourceOnCompletedFlags flags)
+        public void OnCompleted(Action<object> continuation, object? state, short token, ValueTaskSourceOnCompletedFlags flags)
         {
-            _core.OnCompleted(continuation, state, token, flags);
+            _core.OnCompleted(continuation!, state, token, flags);
             _continuationSet = true;
         }
 
@@ -403,7 +403,7 @@ class DBusConnection : IDisposable
         // note: Send blocks the current thread until the SynchronizationContext ran the delegate.
         synchronizationContext.Send(static o =>
         {
-            DBusConnection conn = (DBusConnection)o;
+            DBusConnection conn = (DBusConnection)o!;
             conn._currentObserver!.Emit(conn._currentMessage!);
         }, this);
 

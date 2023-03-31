@@ -4528,7 +4528,7 @@ namespace Desktop.DBus
         protected static SafeHandle ReadMessage_h(Message message, DesktopObject _)
         {
             var reader = message.GetBodyReader();
-            return reader.ReadHandle<SafeHandle>();
+            return reader.ReadHandle<SafeHandle>()!;
         }
         protected static bool ReadMessage_v_b(Message message, DesktopObject _)
         {

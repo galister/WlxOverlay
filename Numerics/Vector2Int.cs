@@ -39,8 +39,13 @@ public struct Vector2Int
 
     public override string ToString() => $"{X}x{Y}";
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         throw new NotImplementedException();
+    }
+
+    public override int GetHashCode()
+    {
+        return HashCode.Combine(X, Y);
     }
 }

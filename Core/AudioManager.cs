@@ -21,7 +21,7 @@ public class AudioManager
     private AudioManager()
     {
         var values = Environment.GetEnvironmentVariable("PATH");
-        foreach (var path in values.Split(Path.PathSeparator))
+        foreach (var path in values!.Split(Path.PathSeparator))
         {
             if (!Directory.Exists(path))
                 continue;

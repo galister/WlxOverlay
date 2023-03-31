@@ -9,7 +9,7 @@ public class WaylandOutput : BaseOutput, IDisposable
 
     public uint IdName;
 
-    public WaylandOutput(uint idName, WlOutput handle)
+    public WaylandOutput(uint idName, WlOutput? handle)
     {
         IdName = idName;
         Handle = handle;
