@@ -49,15 +49,8 @@ public class XorgScreen : BaseScreen<BaseOutput>
 
     public override void Hide()
     {
-        if (!_captureTask.IsCompleted)
-        {
-            _captureTask.Wait();
-            _captureTask.Dispose();
-            _captureTask = DefaultTask;
-        }
-
-        base.Hide();
         wlxshm_capture_end(_handle);
+        base.Hide();
     }
 
     protected internal override void AfterInput(bool batteryStateUpdated)
@@ -65,21 +58,12 @@ public class XorgScreen : BaseScreen<BaseOutput>
         _mousePosSet = false;
         base.AfterInput(batteryStateUpdated);
     }
-
-    private static readonly Task<IntPtr> DefaultTask = Task.Run(() => IntPtr.Zero);
-    private Task<IntPtr> _captureTask = DefaultTask;
     
     protected internal override unsafe void Render()
     {
-        if (_captureTask.IsCompleted)
-        {
-            var buf = (buf_t*) _captureTask.Result.ToPointer();
-            if (buf != null && buf->length == _bufSize)
-                Texture!.LoadRawImage(buf->buffer, GraphicsFormat.BGRA8);
-
-            _captureTask.Dispose();
-            _captureTask = Task.Run(() => wlxshm_capture_frame(_handle));
-        }
+        var buf = wlxshm_capture_frame(_handle);
+        if (buf != null && buf->length == _bufSize)
+            Texture!.LoadRawImage(buf->buffer, GraphicsFormat.BGRA8);
 
         if (!_mousePosSet)
         {
@@ -114,13 +98,6 @@ public class XorgScreen : BaseScreen<BaseOutput>
 
     public override void Dispose()
     {
-        if (!_captureTask.IsCompleted)
-        {
-            _captureTask.Wait();
-            _captureTask.Dispose();
-            _captureTask = DefaultTask;
-        }
-        
         if(Visible)
             wlxshm_capture_end(_handle);
         
@@ -141,7 +118,7 @@ public class XorgScreen : BaseScreen<BaseOutput>
     private static extern void wlxshm_capture_end(IntPtr handle);
 
     [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
-    private static extern IntPtr wlxshm_capture_frame(IntPtr handle);
+    private static extern unsafe buf_t* wlxshm_capture_frame(IntPtr handle);
 
     [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
     private static extern void wlxshm_mouse_pos_global(IntPtr handle, ref Vector2Int pos);
