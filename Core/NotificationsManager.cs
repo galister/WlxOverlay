@@ -176,7 +176,7 @@ public class NotificationsManager : IDisposable
             var toast = new Toast(message.title, message.content, message.opacity, (uint)message.height, message.timeout);
             OverlayManager.Instance.RegisterChild(toast);
 
-            if (_notificationSound != null && message.volume > float.Epsilon)
+            if (_notificationSound != null)
                 _ = AudioManager.Instance.PlayAsync(_notificationSound, Config.Instance.NotificationsVolume ?? 1);
             
             _nextToast = DateTime.UtcNow.AddSeconds(2);
