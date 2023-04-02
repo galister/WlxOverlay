@@ -23,6 +23,18 @@ public class PipeWireScreen : BaseScreen<PipewireOutput>
         _pipewire.Initialize();
     }
 
+    public override void Hide()
+    {
+        _pipewire.SetActive(false);
+        base.Hide();
+    }
+
+    public override void Show()
+    {
+        _pipewire.SetActive(true);
+        base.Show();
+    }
+
     protected internal override void Render()
     {
         _pipewire.ApplyToTexture(Texture!);

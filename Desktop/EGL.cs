@@ -6,7 +6,6 @@ namespace WlxOverlay.Desktop;
 
 public static class EGL
 {
-
     public static readonly EglEnum[,] DmaBufAttribs = {
         { EglEnum.DmaBufPlane0FdExt, EglEnum.DmaBufPlane0OffsetExt, EglEnum.DmaBufPlane0PitchExt, EglEnum.DmaBufPlane0ModifierLoExt, EglEnum.DmaBufPlane0ModifierHiExt },
         { EglEnum.DmaBufPlane1FdExt, EglEnum.DmaBufPlane1OffsetExt, EglEnum.DmaBufPlane1PitchExt, EglEnum.DmaBufPlane1ModifierLoExt, EglEnum.DmaBufPlane1ModifierHiExt },
@@ -18,16 +17,12 @@ public static class EGL
 
     public static void Initialize()
     {
-        var pfn = GetProcAddress("eglGetPlatformDisplayEXT");
-        if (pfn == IntPtr.Zero)
-            throw new ApplicationException("Could not get pointer to eglGetPlatformDisplayEXT");
-        var eglGetPlatformDisplayEXT = Marshal.GetDelegateForFunctionPointer<eglGetPlatformDisplayEXTDelegate>(pfn);
+        LoadPfn("eglGetPlatformDisplayEXT", ref eglGetPlatformDisplayEXT);
+        LoadPfn("eglQueryDmaBufFormatsEXT", ref QueryDmaBufFormatsEXT);
+        LoadPfn("eglQueryDmaBufModifiersEXT", ref QueryDmaBufModifiersEXT);
 
-        pfn = GetProcAddress("glEGLImageTargetTexture2DOES");
-        if (pfn != IntPtr.Zero)
+        if (LoadPfn("glEGLImageTargetTexture2DOES", ref ImageTargetTexture2DOES, false))
         {
-            ImageTargetTexture2DOES = Marshal.GetDelegateForFunctionPointer<glEGLImageTargetTexture2DOES>(pfn);
-
             Display = eglGetPlatformDisplayEXT(EglEnum.PlatformWaylandExt, IntPtr.Zero, IntPtr.Zero);
 
             if (Display == IntPtr.Zero)
@@ -38,7 +33,7 @@ public static class EGL
         }
         else
         {
-            Console.WriteLine("Could not get pointer to glEGLImageTargetTexture2DOES");
+            Console.WriteLine("Could not get function pointer to glEGLImageTargetTexture2DOES");
             Display = GetDisplay(IntPtr.Zero);
         }
 
@@ -52,6 +47,19 @@ public static class EGL
             throw new ApplicationException("eglInitialize returned EGL_FALSE!");
 
         Console.WriteLine($"EGL {major}.{minor} initialized.");
+    }
+    
+    private static bool LoadPfn<T>(string name, ref T target, bool throwIfMissing = true) where T: Delegate
+    {
+        var pfn = GetProcAddress(name);
+        if (pfn == IntPtr.Zero)
+        {
+            if (throwIfMissing)
+                throw new ApplicationException($"Could not get function pointer to {name}");
+            return false;
+        }
+        target = Marshal.GetDelegateForFunctionPointer<T>(pfn);
+        return true;
     }
 
     [DllImport("libEGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "eglCreateImage")]
@@ -73,6 +81,12 @@ public static class EGL
     public static extern IntPtr GetProcAddress([MarshalAs(UnmanagedType.LPStr)] string procName);
 
     public static glEGLImageTargetTexture2DOES ImageTargetTexture2DOES = null!;
+    
+    public static eglQueryDmaBufModifiersEXT QueryDmaBufModifiersEXT = null!;
+    public static eglQueryDmaBufFormatsEXT QueryDmaBufFormatsEXT = null!;
+    private static eglGetPlatformDisplayEXTDelegate eglGetPlatformDisplayEXT = null!;
+    public unsafe delegate EglEnum eglQueryDmaBufFormatsEXT(IntPtr dpy, int maxFormats, DrmFormat *formats, int *numFormats);
+    public unsafe delegate EglEnum eglQueryDmaBufModifiersEXT(IntPtr dpy, DrmFormat format, int maxModifiers, ulong *modifiers, IntPtr externalOnly, int *numModifiers);
 
     private delegate IntPtr eglGetPlatformDisplayEXTDelegate(EglEnum platform, IntPtr nativeDevice, IntPtr attribs);
 
@@ -298,10 +312,11 @@ public enum EglEnum
     PlatformX11ScreenKhr = 0x31D6,
 }
 
-public enum DrmFormat : uint
+public enum DrmFormat
 {
     DRM_FORMAT_ARGB8888 = 0x34325241,
     DRM_FORMAT_ABGR8888 = 0x34324241,
     DRM_FORMAT_XRGB8888 = 0x34325258,
     DRM_FORMAT_XBGR8888 = 0x34324258
 }
+

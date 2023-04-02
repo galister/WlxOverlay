@@ -12,12 +12,12 @@ default_screen: 0
 fallback_cursors: false
 
 # wayland screen capture method
-# one of: dmabuf, screencopy, kde, pipewire, auto
+# one of: dmabuf, screencopy, kde, pipewire, pw-fallback, auto
 # dmabuf: low overhead gpu capture, supported on wlroots, KWinFT
 # screencopy: higher overhead cpu capture, supported on wlroots, KWinFT, Mir
-# kde: kde-specific protocol for gpu capture, supported on vanilla KWin
-# pipewire: fallback option with annoying screen share popup
-#           select one screen upon each popup, when all screens are selected, press cancel
+# kde: kde-specific protocol for gpu capture, but not implemented on current KDE versions
+# pipewire: standard pipewire capture, uses gpu capture when available
+# pw-fallback: cpu capture through pipewire. try this if you have issues with the other methods.
 wayland_capture: auto
 
 ## enable to swap red and blue channels

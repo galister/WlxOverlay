@@ -1,5 +1,6 @@
 using WaylandSharp;
 using WlxOverlay.Core;
+using WlxOverlay.Desktop.Pipewire;
 using WlxOverlay.Numerics;
 using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Overlays.Wayland;
@@ -54,9 +55,10 @@ public class WaylandInterface : IDisposable
             return Outputs.Values.Select(x => new KdeScreenCastScreen(x)).AsAsync();
         }
 
-        async IAsyncEnumerable<BaseOverlay> UsePipeWire()
+        async IAsyncEnumerable<BaseOverlay> UsePipeWire(bool dmaBuf)
         {
-            Console.WriteLine("Using Fallback PipeWire capture. ");
+            Console.WriteLine("Using PipeWire capture.");
+            PipeWireCapture.Load(dmaBuf);
 
             if (Outputs.Values.Count > 0)
             {
@@ -107,7 +109,9 @@ public class WaylandInterface : IDisposable
             case "kde":
                 return UseKdeScreenCast();
             case "pipewire":
-                return UsePipeWire();
+                return UsePipeWire(dmaBuf: true);
+            case "pw-fallback":
+                return UsePipeWire(dmaBuf: false);
             default:
                 if (_supportedScreenTypes.Contains(typeof(WlrDmaBufScreen)))
                     return UseWlrDmaBuf();
@@ -115,7 +119,8 @@ public class WaylandInterface : IDisposable
                     return UseWlrScreenCopy();
                 if (_supportedScreenTypes.Contains(typeof(KdeScreenCastScreen)))
                     return UseKdeScreenCast();
-                return UsePipeWire();
+
+                return UsePipeWire(dmaBuf: true);
         }
     }
 
