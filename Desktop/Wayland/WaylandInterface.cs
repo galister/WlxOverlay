@@ -91,6 +91,7 @@ public class WaylandInterface : IDisposable
                 var data = await XdgScreenCastHandler.PromptUserAsync(output);
                 if (data != null)
                 {
+                    OutputRect = new Rect2(0, 0, data.Size.X, data.Size.Y);
                     var screen = new PipeWireScreen(data);
                     Console.WriteLine($"{data.Name} -> {data.NodeId}");
                     yield return screen;
