@@ -1,3 +1,4 @@
+using Silk.NET.GLFW;
 using System.Runtime.InteropServices;
 
 // ReSharper disable InconsistentNaming
@@ -45,6 +46,8 @@ public static class EGL
 
         if (Initialize(Display, out var major, out var minor) == EglEnum.False)
             throw new ApplicationException("eglInitialize returned EGL_FALSE!");
+
+        GlfwProvider.GLFW.Value.WindowHint(WindowHintContextApi.ContextCreationApi, ContextApi.EglContextApi);
 
         Console.WriteLine($"EGL {major}.{minor} initialized.");
     }
