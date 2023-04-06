@@ -150,7 +150,8 @@ public class PipeWireCapture : IDisposable
                     : GraphicsFormat.BGRA8;
 
                 var len = (int)_attribs[2];
-                var map = LibC.mmap(null, len, LibC.PROT_READ, LibC.MAP_SHARED, (int)_attribs[1], 0);
+                var off = (uint)_attribs[3];
+                var map = LibC.mmap(null, len, LibC.PROT_READ, LibC.MAP_SHARED, (int)_attribs[1], off);
 
                 texture.LoadRawImage(new IntPtr(map), fmt, _width, _height);
 
@@ -177,9 +178,11 @@ public class PipeWireCapture : IDisposable
     
     private unsafe void OnFrame(spa_buffer* pb, spa_video_info* info)
     {
-        switch (pb->datas[0].type)
+        lock (_attribsLock)
         {
-            case spa_data_type.SPA_DATA_DmaBuf:
+            switch (pb->datas[0].type)
+            {
+                case spa_data_type.SPA_DATA_DmaBuf:
                 {
                     var planes = pb->n_datas;
 
@@ -191,7 +194,7 @@ public class PipeWireCapture : IDisposable
                     _attribs[i++] = (nint)EglEnum.Height;
                     _attribs[i++] = (nint)_height;
                     _attribs[i++] = (nint)EglEnum.LinuxDrmFourccExt;
-                    _attribs[i++] = (int) format;
+                    _attribs[i++] = (int)format;
 
                     for (var p = 0U; p < planes; p++)
                     {
@@ -210,19 +213,21 @@ public class PipeWireCapture : IDisposable
                     _attribs[i] = (nint)EglEnum.None;
                     break;
                 }
-            case spa_data_type.SPA_DATA_MemFd:
+                case spa_data_type.SPA_DATA_MemFd:
                 {
                     _attribs[0] = (nint)spa_data_type.SPA_DATA_MemFd;
                     _attribs[1] = (nint)pb->datas[0].fd;
                     _attribs[2] = (nint)pb->datas[0].chunk->size;
+                    _attribs[3] = (nint)pb->datas[0].chunk->offset;
                     break;
                 }
-            case spa_data_type.SPA_DATA_MemPtr:
+                case spa_data_type.SPA_DATA_MemPtr:
                 {
                     _attribs[0] = (nint)spa_data_type.SPA_DATA_MemPtr;
                     _attribs[1] = pb->datas[0].data;
                     break;
                 }
+            }
         }
     }
 
