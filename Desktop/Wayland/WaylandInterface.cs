@@ -1,3 +1,4 @@
+using MutterDisplayConfig.DBus;
 using WaylandSharp;
 using WlxOverlay.Core;
 using WlxOverlay.Desktop.Pipewire;
@@ -59,6 +60,22 @@ public class WaylandInterface : IDisposable
         {
             Console.WriteLine("Using PipeWire capture.");
             PipeWireCapture.Load(dmaBuf);
+
+            var outputs = Outputs.Values.ToList();
+            if (outputs.Count == 0)
+            {
+                Console.WriteLine("Could not poll WlOutputs. Trying Mutter method...");
+                try
+                {
+                    await foreach (var output in GnomeDisplayHandler.GetOutputsAsync())
+                        outputs.Add(output);
+                }
+                catch (Exception x)
+                {
+                    Console.WriteLine(x);
+                    Console.WriteLine("Failed to get Mutter outputs. Falling back to single-output mode.");
+                }
+            }
 
             if (Outputs.Values.Count > 0)
             {
