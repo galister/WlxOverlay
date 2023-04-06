@@ -20,6 +20,10 @@ fallback_cursors: false
 # pw-fallback: cpu capture through pipewire. try this if you have issues with the other methods.
 wayland_capture: auto
 
+# do not install the manifest into steamvr for auto-start
+# this will also uninstall any previously installed manifest
+no_auto_start: false
+
 ## enable to swap red and blue channels
 wayland_color_swap: false
 

@@ -64,6 +64,8 @@ public class Config
         }
     }
 
+    public bool NoAutoStart;
+
     public string WaylandCapture;
     public bool WaylandColorSwap;
 

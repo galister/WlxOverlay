@@ -41,7 +41,10 @@ PosixSignalRegistration.Create(PosixSignal.SIGINT, SignalHandler);
 PosixSignalRegistration.Create(PosixSignal.SIGHUP, SignalHandler);
 PosixSignalRegistration.Create(PosixSignal.SIGTERM, SignalHandler);
 
-ManifestInstaller.EnsureInstalled();
+if (Config.Instance.NoAutoStart)
+    ManifestInstaller.EnsureUninstalled();
+else
+    ManifestInstaller.EnsureInstalled();
 
 if (!Config.Instance.FallbackCursors)
     manager.RegisterChild(new DesktopCursor());

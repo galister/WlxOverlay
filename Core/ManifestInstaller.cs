@@ -56,6 +56,15 @@ public static class ManifestInstaller
             Console.WriteLine($"Manifest installed to {ManifestPath}");
 
     }
+    
+    public static void EnsureUninstalled()
+    {
+        if (OpenVR.Applications.IsApplicationInstalled(AppKey))
+        {
+            Console.WriteLine("Removing SteamVR manifest...");
+            OpenVR.Applications.RemoveApplicationManifest(ManifestPath);
+        }
+    }
 
     private static string GetExecutablePath()
     {
