@@ -24,8 +24,8 @@ public class KeyboardOverlay : GrabbableOverlay
 
         if ((Config.Instance.KeyboardVolume ?? 1) > float.Epsilon)
         {
-            KeyButton.KeyPressSound = Config.Instance.KeyboardSound == null 
-                ? Path.Combine(Config.ResourcesFolder, "421581.wav") 
+            KeyButton.KeyPressSound = Config.Instance.KeyboardSound == null
+                ? Path.Combine(Config.ResourcesFolder, "421581.wav")
                 : Path.Combine(Config.UserConfigFolder, Config.Instance.KeyboardSound);
         }
 

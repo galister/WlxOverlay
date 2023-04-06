@@ -51,8 +51,8 @@ public static class EGL
 
         Console.WriteLine($"EGL {major}.{minor} initialized.");
     }
-    
-    private static bool LoadPfn<T>(string name, ref T target, bool throwIfMissing = true) where T: Delegate
+
+    private static bool LoadPfn<T>(string name, ref T target, bool throwIfMissing = true) where T : Delegate
     {
         var pfn = GetProcAddress(name);
         if (pfn == IntPtr.Zero)
@@ -84,12 +84,12 @@ public static class EGL
     public static extern IntPtr GetProcAddress([MarshalAs(UnmanagedType.LPStr)] string procName);
 
     public static glEGLImageTargetTexture2DOES ImageTargetTexture2DOES = null!;
-    
+
     public static eglQueryDmaBufModifiersEXT QueryDmaBufModifiersEXT = null!;
     public static eglQueryDmaBufFormatsEXT QueryDmaBufFormatsEXT = null!;
     private static eglGetPlatformDisplayEXTDelegate eglGetPlatformDisplayEXT = null!;
-    public unsafe delegate EglEnum eglQueryDmaBufFormatsEXT(IntPtr dpy, int maxFormats, DrmFormat *formats, int *numFormats);
-    public unsafe delegate EglEnum eglQueryDmaBufModifiersEXT(IntPtr dpy, DrmFormat format, int maxModifiers, ulong *modifiers, IntPtr externalOnly, int *numModifiers);
+    public unsafe delegate EglEnum eglQueryDmaBufFormatsEXT(IntPtr dpy, int maxFormats, DrmFormat* formats, int* numFormats);
+    public unsafe delegate EglEnum eglQueryDmaBufModifiersEXT(IntPtr dpy, DrmFormat format, int maxModifiers, ulong* modifiers, IntPtr externalOnly, int* numModifiers);
 
     private delegate IntPtr eglGetPlatformDisplayEXTDelegate(EglEnum platform, IntPtr nativeDevice, IntPtr attribs);
 

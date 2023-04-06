@@ -58,7 +58,7 @@ public class XorgScreen : BaseScreen<BaseOutput>
         _mousePosSet = false;
         base.AfterInput(batteryStateUpdated);
     }
-    
+
     protected internal override unsafe void Render()
     {
         var buf = wlxshm_capture_frame(_handle);
@@ -98,9 +98,9 @@ public class XorgScreen : BaseScreen<BaseOutput>
 
     public override void Dispose()
     {
-        if(Visible)
+        if (Visible)
             wlxshm_capture_end(_handle);
-        
+
         wlxshm_destroy(_handle);
         base.Dispose();
     }

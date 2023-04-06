@@ -156,7 +156,7 @@ public class InputManager : IDisposable
         {
             var handle = 0UL;
             var path = $"/actions/default/out/Haptics{hand}";
-            
+
             var err = OpenVR.Input.GetActionHandle(path, ref handle);
             if (err != EVRInputError.None)
                 Console.WriteLine($"GetActionHandle {path}: {err}");

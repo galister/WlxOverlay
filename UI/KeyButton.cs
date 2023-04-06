@@ -35,7 +35,7 @@ public class KeyButton : ButtonBase
     private readonly KeyModifier[] _myModifiers = new KeyModifier[3];
 
     private static KeyModifier _modifiers;
-    
+
     internal static string? KeyPressSound;
 
     public KeyButton(uint row, uint col, int x, int y, uint w, uint h) : base(x, y, w, h)

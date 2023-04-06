@@ -95,10 +95,10 @@ public class Config
 
     public string? NotificationsSound;
     public float? NotificationsVolume;
-    
+
     public string? KeyboardSound;
     public float? KeyboardVolume;
-    
+
     public float? KeyboardHaptics;
 
     public float ClickFreezeTime;

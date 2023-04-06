@@ -78,7 +78,7 @@ internal class XdgScreenData : PipewireOutput
             },
             (e, t) =>
             {
-                if (Interlocked.CompareExchange(ref state, -1, 0) != 0) 
+                if (Interlocked.CompareExchange(ref state, -1, 0) != 0)
                     return;
 
                 if (e != null)
@@ -138,7 +138,7 @@ internal class XdgScreenData : PipewireOutput
             },
             (e, t) =>
             {
-                if (Interlocked.CompareExchange(ref state, -1, 0) != 0) 
+                if (Interlocked.CompareExchange(ref state, -1, 0) != 0)
                     return;
 
                 if (e != null)
@@ -160,7 +160,7 @@ internal class XdgScreenData : PipewireOutput
             false);
 
         await _screenCast.SelectSourcesAsync(_sessionPath!, options);
-        
+
         long val;
         while ((val = Interlocked.Read(ref state)) <= 0)
             await Task.Delay(100);
@@ -191,7 +191,7 @@ internal class XdgScreenData : PipewireOutput
             },
             (e, t) =>
             {
-                if (Interlocked.CompareExchange(ref state, -1, 0) != 0) 
+                if (Interlocked.CompareExchange(ref state, -1, 0) != 0)
                     return;
 
                 if (e != null)
@@ -226,7 +226,7 @@ internal class XdgScreenData : PipewireOutput
                     File.WriteAllText(path, restoreToken);
                 }
 
-                if (streams[0].Item2.TryGetValue("size", out var maybeSize) 
+                if (streams[0].Item2.TryGetValue("size", out var maybeSize)
                     && maybeSize is ValueTuple<int, int> size)
                     Size = new Vector2Int(size.Item1, size.Item2);
                 else
@@ -235,14 +235,14 @@ internal class XdgScreenData : PipewireOutput
                     Interlocked.Exchange(ref state, 2);
                     return;
                 }
-                
+
                 NodeId = streams[0].Item1;
                 Interlocked.Exchange(ref state, 1);
             },
             false);
 
         await _screenCast.StartAsync(_sessionPath!, "", options);
-        
+
         long val;
         while ((val = Interlocked.Read(ref state)) <= 0)
             await Task.Delay(100);

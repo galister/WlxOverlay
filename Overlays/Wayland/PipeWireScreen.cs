@@ -19,7 +19,7 @@ public class PipeWireScreen : BaseScreen<PipewireOutput>
     protected override void Initialize()
     {
         base.Initialize();
-        
+
         _pipewire.Initialize();
     }
 

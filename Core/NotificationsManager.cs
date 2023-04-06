@@ -57,10 +57,10 @@ public class NotificationsManager : IDisposable
             throw;
         }
         _listenSocket = new Socket(AddressFamily.InterNetwork, SocketType.Dgram, ProtocolType.Udp);
-        
+
         if ((Config.Instance.NotificationsVolume ?? 1) > float.Epsilon)
         {
-            _notificationSound  = Config.Instance.NotificationsSound == null
+            _notificationSound = Config.Instance.NotificationsSound == null
                 ? Path.Combine(Config.ResourcesFolder, "660533.wav")
                 : Path.Combine(Config.UserConfigFolder, Config.Instance.NotificationsSound);
         }
@@ -178,7 +178,7 @@ public class NotificationsManager : IDisposable
 
             if (_notificationSound != null)
                 _ = AudioManager.Instance.PlayAsync(_notificationSound, Config.Instance.NotificationsVolume ?? 1);
-            
+
             _nextToast = DateTime.UtcNow.AddSeconds(2);
         }
     }

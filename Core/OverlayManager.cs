@@ -162,21 +162,21 @@ public class OverlayManager : Application
         _workOverlays.Clear();
         lock (_overlayLock)
             _workOverlays.AddRange(_overlays);
-        
+
         foreach (var o in _workOverlays)
             o.AfterInput(deviceStateUpdated);
 
         _workOverlays.Clear();
         lock (_overlayLock)
             _workOverlays.AddRange(_interactables.Where(x => x.Visible).Reverse());
-        
+
         foreach (var pointer in _pointers)
             pointer.TestInteractions(_workOverlays.Cast<InteractableOverlay>());
 
         _workOverlays.Clear();
         lock (_overlayLock)
             _workOverlays.AddRange(_overlays.Where(o => o is { Visible: false, WantVisible: true, ShowHideBinding: false }));
-        
+
         foreach (var o in _workOverlays)
             o.Show();
 
@@ -184,8 +184,8 @@ public class OverlayManager : Application
 
         _workOverlays.Clear();
         lock (_overlayLock)
-                _workOverlays.AddRange(_overlays.Where(o => o.Visible));
-        
+            _workOverlays.AddRange(_overlays.Where(o => o.Visible));
+
         foreach (var o in _workOverlays)
             o.Render();
 
@@ -229,7 +229,7 @@ public class OverlayManager : Application
         _workOverlays.Clear();
         lock (_overlayLock)
             _workOverlays.AddRange(_overlays);
-        
+
         foreach (var baseOverlay in _workOverlays)
             baseOverlay.Dispose();
 

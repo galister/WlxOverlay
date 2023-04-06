@@ -6,7 +6,7 @@ public class AudioManager
     public static AudioManager Instance { get; private set; } = null!;
     public static void Initialize() => Instance = new AudioManager();
 
-    private readonly string[] _playerNames = 
+    private readonly string[] _playerNames =
     {
         "pw-play", "ffplay", "mpv", "aplay"
     };
@@ -41,7 +41,7 @@ public class AudioManager
         Console.WriteLine("WARN: No audio player found! Install either of the following if you need audio output: \n");
         Console.WriteLine("WARN: " + string.Join(", ", _playerNames));
     }
-    
+
     public async Task PlayAsync(string file, float volume)
     {
         if (_player != null)
@@ -70,7 +70,7 @@ public abstract class AudioPlayer
             p.Dispose();
         }
     }
-    
+
 }
 
 public class PwPlayPlayer : AudioPlayer

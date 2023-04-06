@@ -12,10 +12,10 @@ public class WaylandInterface : IDisposable
 {
     public static WaylandInterface? Instance;
 
-    public readonly Dictionary<uint, WaylandOutput> Outputs = new();
+    private readonly Dictionary<uint, WaylandOutput> _outputs = new();
     public Rect2 OutputRect;
 
-    private List<Type> _supportedScreenTypes = new();
+    private readonly List<Type> _supportedScreenTypes = new();
 
     private readonly WlDisplay _display;
     private ZxdgOutputManagerV1? _outputManager;
@@ -40,19 +40,19 @@ public class WaylandInterface : IDisposable
         IAsyncEnumerable<BaseOverlay> UseWlrDmaBuf()
         {
             Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZwlrExportDmabufManagerV1.Name}");
-            return Outputs.Values.Select(x => new WlrDmaBufScreen(x)).AsAsync();
+            return _outputs.Values.Select(x => new WlrDmaBufScreen(x)).AsAsync();
         }
 
         IAsyncEnumerable<BaseOverlay> UseWlrScreenCopy()
         {
             Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZwlrScreencopyManagerV1.Name}");
-            return Outputs.Values.Select(x => new WlrScreenCopyScreen(x)).AsAsync();
+            return _outputs.Values.Select(x => new WlrScreenCopyScreen(x)).AsAsync();
         }
 
         IAsyncEnumerable<BaseOverlay> UseKdeScreenCast()
         {
             Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZkdeScreencastUnstableV1.Name}");
-            return Outputs.Values.Select(x => new KdeScreenCastScreen(x)).AsAsync();
+            return _outputs.Values.Select(x => new KdeScreenCastScreen(x)).AsAsync();
         }
 
         async IAsyncEnumerable<BaseOverlay> UsePipeWire(bool dmaBuf)
@@ -60,14 +60,14 @@ public class WaylandInterface : IDisposable
             Console.WriteLine("Using PipeWire capture.");
             PipeWireCapture.Load(dmaBuf);
 
-            if (Outputs.Values.Count > 0)
+            if (_outputs.Values.Count > 0)
             {
                 Console.WriteLine(" You will be prompted one screen at a time.\n" +
                                   " Please select the corresponding screen on the prompt.\n" +
                                   " Cancel the prompt if you do not wish to capture the given screen. \n" +
                                   " If your compositor supports org.freedesktop.portal.ScreenCast v4, you will only be prompted once.");
 
-                foreach (var output in Outputs.Values)
+                foreach (var output in _outputs.Values)
                 {
                     Console.WriteLine(" --- Prompting for screen: " + output.Name + " ---");
                     var data = await XdgScreenCastHandler.PromptUserAsync(output);
@@ -86,8 +86,8 @@ public class WaylandInterface : IDisposable
                 Console.WriteLine(" ERROR Could not poll Wayland outputs.\n" +
                                   " You may still use WlxOverlay in single-screen mode.\n" +
                                   " Select your screen which is positioned at 0,0.");
-                
-                var output = new WaylandOutput(0, null) { Name = "Default"};
+
+                var output = new WaylandOutput(0, null) { Name = "Default" };
                 var data = await XdgScreenCastHandler.PromptUserAsync(output);
                 if (data != null)
                 {
@@ -150,18 +150,18 @@ public class WaylandInterface : IDisposable
 
         reg.GlobalRemove += (_, e) =>
         {
-            if (!Outputs.TryGetValue(e.Name, out var output))
+            if (!_outputs.TryGetValue(e.Name, out var output))
                 return;
 
             output.Dispose();
-            Outputs.Remove(e.Name);
+            _outputs.Remove(e.Name);
         };
     }
 
     private async Task CreateOutputAsync(WlRegistry reg, WlRegistry.GlobalEventArgs e)
     {
         var wlOutput = reg.Bind<WlOutput>(e.Name, e.Interface, e.Version);
-        
+
         while (_outputManager == null)
             await Task.Delay(10);
 
@@ -173,14 +173,14 @@ public class WaylandInterface : IDisposable
         xdgOutput.LogicalPosition += obj.SetPosition;
         _display.Roundtrip();
 
-        Outputs.Add(e.Name, obj);
+        _outputs.Add(e.Name, obj);
         RecalculateOutputRect();
     }
 
     private void RecalculateOutputRect()
     {
         OutputRect = new Rect2();
-        foreach (var output in Outputs.Values)
+        foreach (var output in _outputs.Values)
             OutputRect = OutputRect.Merge(new Rect2(output.Position.X, output.Position.Y, output.Size.X, output.Size.Y));
     }
 
@@ -188,7 +188,7 @@ public class WaylandInterface : IDisposable
     {
         Thread.Sleep(5);
 
-        foreach (var output in Outputs.Values)
+        foreach (var output in _outputs.Values)
             output.Dispose();
 
         _seat?.Dispose();

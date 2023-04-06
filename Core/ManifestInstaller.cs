@@ -10,12 +10,12 @@ namespace WlxOverlay.Core;
 public static class ManifestInstaller
 {
     private const string AppKey = "galister.wlxoverlay";
-    private static  readonly string ManifestPath = Path.Combine(Config.UserConfigFolder, "manifest.vrmanifest");
+    private static readonly string ManifestPath = Path.Combine(Config.UserConfigFolder, "manifest.vrmanifest");
 
     public static void EnsureInstalled()
     {
         var executablePath = GetExecutablePath();
-        
+
         if (OpenVR.Applications.IsApplicationInstalled(AppKey))
         {
             try
@@ -33,11 +33,11 @@ public static class ManifestInstaller
 
         if (!Directory.Exists(Config.UserConfigFolder))
             Directory.CreateDirectory(Config.UserConfigFolder);
-        
+
         OpenVR.Applications.RemoveApplicationManifest(ManifestPath);
 
         CreateManifest(executablePath);
-        
+
         var err = OpenVR.Applications.AddApplicationManifest(ManifestPath, false);
         if (err != EVRApplicationError.None)
         {
@@ -64,10 +64,10 @@ public static class ManifestInstaller
             return appImage;
 
         var folder = Path.GetDirectoryName(Assembly.GetEntryAssembly()!.Location)!;
-        
+
         return Path.Combine(folder, "WlxOverlay");
     }
-    
+
     private static void CreateManifest(string executablePath)
     {
         var manifest = new JObject
@@ -92,7 +92,7 @@ public static class ManifestInstaller
                 }
             }
         };
-        
+
         File.WriteAllText(ManifestPath, manifest.ToString());
     }
 }
