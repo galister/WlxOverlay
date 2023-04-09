@@ -5,6 +5,12 @@
 
 namespace WlxOverlay.Desktop.Pipewire;
 
+[StructLayout(LayoutKind.Sequential)]
+public struct spa_rectangle
+{
+    public uint width;
+    public uint height;
+}
 
 [StructLayout(LayoutKind.Sequential)]
 public struct spa_video_info
@@ -20,6 +26,7 @@ public struct spa_video_info_raw
     public int format;
     public uint flags;
     public ulong modifier;
+    public spa_rectangle size;
 }
 
 [StructLayout(LayoutKind.Sequential)]

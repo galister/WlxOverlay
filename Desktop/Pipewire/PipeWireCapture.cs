@@ -25,8 +25,8 @@ public class PipeWireCapture : IDisposable
 
     private readonly uint _nodeId;
     private readonly string _name;
-    private readonly uint _width;
-    private readonly uint _height;
+    private uint _width;
+    private uint _height;
 
     private nint _handle;
 
@@ -133,6 +133,7 @@ public class PipeWireCapture : IDisposable
                 if (error != EglEnum.Success)
                     throw new ApplicationException($"{error} on eglCreateImage!");
 
+                glTexture.Resize(_width, _height);
                 glTexture.LoadEglImage(_eglImage, _width, _height);
             }
             else if (_attribs[0] == (nint)spa_data_type.SPA_DATA_MemPtr)
@@ -141,6 +142,7 @@ public class PipeWireCapture : IDisposable
                     ? GraphicsFormat.RGBA8
                     : GraphicsFormat.BGRA8;
 
+                glTexture.Resize(_width, _height);
                 texture.LoadRawImage(_attribs[1], fmt, _width, _height);
             }
             else if (_attribs[0] == (nint)spa_data_type.SPA_DATA_MemFd)
@@ -153,6 +155,7 @@ public class PipeWireCapture : IDisposable
                 var off = (uint)_attribs[3];
                 var map = LibC.mmap(null, len, LibC.PROT_READ, LibC.MAP_SHARED, (int)_attribs[1], off);
 
+                glTexture.Resize(_width, _height);
                 texture.LoadRawImage(new IntPtr(map), fmt, _width, _height);
 
                 LibC.munmap(map, len);
@@ -181,6 +184,9 @@ public class PipeWireCapture : IDisposable
     {
         lock (_attribsLock)
         {
+            _width = info->raw.size.width;
+            _height = info->raw.size.height;
+            
             switch (pb->datas[0].type)
             {
                 case spa_data_type.SPA_DATA_DmaBuf:

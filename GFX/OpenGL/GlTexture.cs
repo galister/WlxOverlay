@@ -16,12 +16,15 @@ public class GlTexture : ITexture
 
     public uint Width { get; private set; }
     public uint Height { get; private set; }
+    
+    private InternalFormat _internalFormat;
 
     private readonly bool _dynamic;
 
     public unsafe GlTexture(GL gl, string path, InternalFormat internalFormat = InternalFormat.Rgba8)
     {
         _gl = gl;
+        _internalFormat = internalFormat;
         Handle = _gl.GenTexture();
         _gl.GetError().AssertNone();
 
@@ -101,6 +104,7 @@ public class GlTexture : ITexture
         Width = width;
         Height = height;
 
+        _internalFormat = internalFormat;
         _gl.TexImage2D(TextureTarget.Texture2D, 0, (int)internalFormat, width, height, 0, pixelFormat, pixelType, data);
         _gl.GetError().AssertNone();
     }
@@ -161,6 +165,20 @@ public class GlTexture : ITexture
             width, height, 1);
     }
 
+    public unsafe void Resize(uint width, uint height)
+    {
+        if (Width == width && Height == height)
+            return;
+        
+        Width = width;
+        Height = height;
+        
+        Bind();
+        _gl.GetError().AssertNone();
+        _gl.TexImage2D(TextureTarget.Texture2D, 0, _internalFormat, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
+        _gl.GetError().AssertNone();
+    }
+    
     public void LoadEglImage(IntPtr eglImage, uint width, uint height)
     {
         Bind();
