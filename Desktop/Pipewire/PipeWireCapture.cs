@@ -171,9 +171,10 @@ public class PipeWireCapture : IDisposable
         _handle = wlxpw_initialize(_name, _nodeId, fps, _dmaBufFormats, _onFrameHandle);
     }
 
-    public void SetActive(bool active)
+    public void SetActive(bool active) 
     {
-        wlxpw_set_active(_handle, active ? 1U : 0U);
+        if (_dmaBufFormats == IntPtr.Zero)
+            wlxpw_set_active(_handle, active ? 1U : 0U);
     }
 
     private unsafe void OnFrame(spa_buffer* pb, spa_video_info* info)
