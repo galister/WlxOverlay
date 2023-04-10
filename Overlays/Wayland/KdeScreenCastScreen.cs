@@ -18,6 +18,7 @@ public class KdeScreenCastScreen : BaseWaylandScreen
 
     protected override void Initialize()
     {
+        Screen.RecalculateTransform();
         base.Initialize();
         if (_screencastManager == null)
         {

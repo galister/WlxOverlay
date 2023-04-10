@@ -32,6 +32,7 @@ internal class XdgScreenData : PipewireOutput
         Handle = output.Handle;
         IdName = output.IdName;
         Position = output.Position;
+        Transform = output.Transform;
         Size = output.Size;
         _token = $"xdg_screen_{output.IdName}";
     }
@@ -49,6 +50,7 @@ internal class XdgScreenData : PipewireOutput
 
         if (await CreateSessionAsync() && await SelectSourcesAsync() && await StartCaptureAsync())
         {
+            RecalculateTransform();
             return true;
         }
 

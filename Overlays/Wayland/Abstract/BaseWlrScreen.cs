@@ -18,7 +18,7 @@ public abstract class BaseWlrScreen : BaseWaylandScreen
 
     protected abstract void RequestNewFrame();
     protected abstract void Suspend();
-
+    
     protected internal override void AfterInput(bool batteryStateUpdated)
     {
         base.AfterInput(batteryStateUpdated);

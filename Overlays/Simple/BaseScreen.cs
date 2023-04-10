@@ -115,15 +115,13 @@ public abstract class BaseScreen<T> : GrabbableOverlay where T : BaseOutput
         if (UInp == null)
             return false;
 
-        var uv = hitData.uv;
-        var posX = uv.x * Screen.Size.X + Screen.Position.X;
-        var posY = uv.y * Screen.Size.Y + Screen.Position.Y;
+        var pos = Screen.Transform * hitData.uv;
+        
         var rectSize = OutputRect.Size;
-
         var mulX = UInput.Extent / rectSize.x;
         var mulY = UInput.Extent / rectSize.y;
 
-        UInp.MouseMove((int)(posX * mulX), (int)(posY * mulY));
+        UInp.MouseMove((int)(pos.x * mulX), (int)(pos.y * mulY));
         return true;
     }
 

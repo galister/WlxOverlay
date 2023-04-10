@@ -13,7 +13,7 @@ public class WaylandInterface : IDisposable
     public static WaylandInterface? Instance;
 
     private readonly Dictionary<uint, WaylandOutput> _outputs = new();
-    public Rect2 OutputRect;
+    public Rect2 OutputRect { get; private set; }
 
     private readonly List<Type> _supportedScreenTypes = new();
 
@@ -166,6 +166,9 @@ public class WaylandInterface : IDisposable
             await Task.Delay(10);
 
         var obj = new WaylandOutput(e.Name, wlOutput);
+        
+        wlOutput.Geometry += obj.SetGeometry;
+        wlOutput.Mode += obj.SetMode;
 
         using var xdgOutput = _outputManager.GetXdgOutput(wlOutput);
         xdgOutput.Name += obj.SetName;
@@ -174,6 +177,7 @@ public class WaylandInterface : IDisposable
         _display.Roundtrip();
 
         _outputs.Add(e.Name, obj);
+        obj.RecalculateTransform();
         RecalculateOutputRect();
     }
 
@@ -181,7 +185,23 @@ public class WaylandInterface : IDisposable
     {
         OutputRect = new Rect2();
         foreach (var output in _outputs.Values)
-            OutputRect = OutputRect.Merge(new Rect2(output.Position.X, output.Position.Y, output.Size.X, output.Size.Y));
+        {
+            var origin = output.Transform * Vector2.Zero;
+            var size = output.Transform * Vector2.One - origin;
+            if (size.x < 0)
+            {
+                origin.x += size.x;
+                size.x = -size.x;
+            }
+            if (size.y < 0)
+            {
+                origin.y += size.y;
+                size.y = -size.y;
+            }
+            
+            var rect = new Rect2(origin, size);
+            OutputRect = OutputRect.Merge(rect);
+        }
     }
 
     public void Dispose()

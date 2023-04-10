@@ -37,6 +37,7 @@ public class XorgScreen : BaseScreen<BaseOutput>
         Screen.Name = screen.ToString();
         Screen.Size = size;
         Screen.Position = pos;
+        Screen.RecalculateTransform();
 
         _outputRect = _outputRect.Merge(new Rect2((Vector2)pos, (Vector2)size));
     }
