@@ -7,11 +7,11 @@ public class WaylandOutput : BaseOutput, IDisposable
 {
     public string Model { get; private set; } = null!;
     public WlOutput? Handle;
-    private WlOutputTransform? _wlTransform;
+    protected WlOutputTransform? WlTransform;
     
     public uint IdName;
     
-    public Vector2Int LogicalSize { get; private set; }
+    public Vector2Int LogicalSize { get; protected set; }
 
     public WaylandOutput(uint idName, WlOutput? handle)
     {
@@ -37,7 +37,7 @@ public class WaylandOutput : BaseOutput, IDisposable
     internal void SetGeometry(object? _, WlOutput.GeometryEventArgs e)
     {
         Model = e.Model;
-        _wlTransform = e.Transform;
+        WlTransform = e.Transform;
     }
     
     internal void SetMode(object? _, WlOutput.ModeEventArgs e)
@@ -48,7 +48,7 @@ public class WaylandOutput : BaseOutput, IDisposable
     public override void RecalculateTransform()
     {
         var size = LogicalSize;
-        switch (_wlTransform)
+        switch (WlTransform)
         {
             case WlOutputTransform._90:
             case WlOutputTransform.Flipped90:
@@ -66,6 +66,19 @@ public class WaylandOutput : BaseOutput, IDisposable
                 Transform = new Transform2D(size.X, 0, 0, size.Y, Position.X, Position.Y);
                 break;
         }
+        MergeOutputRect();
+    }
+
+    internal void CopyTo(WaylandOutput other)
+    {
+        other.Handle = Handle;
+        other.IdName = IdName;
+        other.LogicalSize = LogicalSize;
+        other.Model = Model;
+        other.Name = Name;
+        other.Position = Position;
+        other.Size = Size;
+        other.Transform = Transform;
     }
 
     public virtual void Dispose()

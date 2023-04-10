@@ -1,4 +1,5 @@
 using WaylandSharp;
+using WlxOverlay.Desktop;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Numerics;
 using WlxOverlay.Overlays.Simple;
@@ -13,7 +14,7 @@ public abstract class BaseWaylandScreen : BaseScreen<WaylandOutput>
     protected readonly WlDisplay Display;
     protected WlOutput? Output;
 
-    protected override Rect2 OutputRect => WaylandInterface.Instance!.OutputRect;
+    protected override Rect2 OutputRect => BaseOutput.OutputRect;
 
     protected BaseWaylandScreen(WaylandOutput output) : base(output)
     {

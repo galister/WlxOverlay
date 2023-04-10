@@ -1,3 +1,4 @@
+using WlxOverlay.Desktop;
 using WlxOverlay.Desktop.Pipewire;
 using WlxOverlay.Desktop.Wayland;
 using WlxOverlay.Numerics;
@@ -9,10 +10,13 @@ public class PipeWireScreen : BaseScreen<PipewireOutput>
 {
     private readonly PipeWireCapture _pipewire;
 
-    protected override Rect2 OutputRect => WaylandInterface.Instance!.OutputRect;
+    protected override Rect2 OutputRect => BaseOutput.OutputRect;
 
     public PipeWireScreen(PipewireOutput screen) : base(screen)
     {
+        if (screen.LogicalSize.Y > screen.LogicalSize.X)
+            WidthInMeters *= screen.LogicalSize.X / (float)screen.LogicalSize.Y;
+        
         _pipewire = new PipeWireCapture(Screen.NodeId, Screen.Name, (uint)Screen.Size.X, (uint)Screen.Size.Y);
     }
 

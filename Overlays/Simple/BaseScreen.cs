@@ -34,7 +34,7 @@ public abstract class BaseScreen<T> : GrabbableOverlay where T : BaseOutput
 
         if (KeyboardProvider.Instance is UInput uInput)
             UInp = uInput;
-
+        
         _numScreens++;
     }
 

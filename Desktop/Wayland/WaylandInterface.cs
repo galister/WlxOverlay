@@ -1,7 +1,6 @@
 using WaylandSharp;
 using WlxOverlay.Core;
 using WlxOverlay.Desktop.Pipewire;
-using WlxOverlay.Numerics;
 using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Overlays.Wayland;
 using WlxOverlay.Types;
@@ -13,7 +12,6 @@ public class WaylandInterface : IDisposable
     public static WaylandInterface? Instance;
 
     private readonly Dictionary<uint, WaylandOutput> _outputs = new();
-    public Rect2 OutputRect { get; private set; }
 
     private readonly List<Type> _supportedScreenTypes = new();
 
@@ -178,30 +176,6 @@ public class WaylandInterface : IDisposable
 
         _outputs.Add(e.Name, obj);
         obj.RecalculateTransform();
-        RecalculateOutputRect();
-    }
-
-    private void RecalculateOutputRect()
-    {
-        OutputRect = new Rect2();
-        foreach (var output in _outputs.Values)
-        {
-            var origin = output.Transform * Vector2.Zero;
-            var size = output.Transform * Vector2.One - origin;
-            if (size.x < 0)
-            {
-                origin.x += size.x;
-                size.x = -size.x;
-            }
-            if (size.y < 0)
-            {
-                origin.y += size.y;
-                size.y = -size.y;
-            }
-            
-            var rect = new Rect2(origin, size);
-            OutputRect = OutputRect.Merge(rect);
-        }
     }
 
     public void Dispose()

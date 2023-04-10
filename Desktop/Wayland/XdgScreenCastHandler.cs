@@ -28,12 +28,7 @@ internal class XdgScreenData : PipewireOutput
 
     public XdgScreenData(WaylandOutput output)
     {
-        Name = output.Name;
-        Handle = output.Handle;
-        IdName = output.IdName;
-        Position = output.Position;
-        Transform = output.Transform;
-        Size = output.Size;
+        output.CopyTo(this);
         _token = $"xdg_screen_{output.IdName}";
     }
 
@@ -50,7 +45,6 @@ internal class XdgScreenData : PipewireOutput
 
         if (await CreateSessionAsync() && await SelectSourcesAsync() && await StartCaptureAsync())
         {
-            RecalculateTransform();
             return true;
         }
 

@@ -49,7 +49,6 @@ public class PipeWireCapture : IDisposable
         _name = name;
         _width = width;
         _height = height;
-
     }
 
     public static void Load(bool dmaBuf)
