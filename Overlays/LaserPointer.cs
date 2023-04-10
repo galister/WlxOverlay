@@ -255,7 +255,7 @@ public class LaserPointer : BaseOverlay
 
     private bool ComputeIntersection(InteractableOverlay target, out PointerHit hitData)
     {
-        var wasHit = OpenVR.Overlay.ComputeOverlayIntersection(target.Handle, ref IntersectionParams, ref IntersectionResults);
+        var wasHit = OpenVR.Overlay.ComputeOverlayIntersection(target.ChildOverlay?.Handle ?? target.Handle, ref IntersectionParams, ref IntersectionResults);
         if (!wasHit || !target.TryTransformToLocal((Vector2)IntersectionResults.vUVs, out var localUv))
         {
             hitData = null!;

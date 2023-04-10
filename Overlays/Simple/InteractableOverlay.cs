@@ -22,6 +22,11 @@ public abstract class InteractableOverlay : BaseOverlay
     /// </summary>
     protected Transform2D InvInteractionTransform;
 
+    /// <summary>
+    /// Alternative overlay to test against. Used when texture H > W.
+    /// </summary>
+    public BaseOverlay? ChildOverlay;
+
     protected InteractableOverlay(string key) : base(key) { }
 
     protected void UpdateInteractionTransform()
@@ -35,11 +40,23 @@ public abstract class InteractableOverlay : BaseOverlay
         InteractionTransform = Transform2D.Identity;
         if (w > h)
         {
+            ChildOverlay?.Dispose();
+            ChildOverlay = null;
             InteractionTransform.y *= h / (float)w;
             InteractionTransform.origin = Vector2.Down * ((w - h) * 0.5f / w);
         }
         else if (h > w)
         {
+            if (ChildOverlay == null)
+            {
+                ChildOverlay = new BaseOverlay(Key + "-Interact");
+                ChildOverlay.Texture = GraphicsEngine.Instance.EmptyTexture(1, 1);
+                ChildOverlay.Alpha = 0;
+                ChildOverlay.WidthInMeters = WidthInMeters * (h / (float)w);
+                ChildOverlay.Transform = Transform;
+                ChildOverlay.Show();
+            }
+            
             InteractionTransform.x *= w / (float)h;
             InteractionTransform.origin = Vector2.Right * ((h - w) * 0.5f / h);
         }
@@ -66,6 +83,29 @@ public abstract class InteractableOverlay : BaseOverlay
         HitsThisFrame.Clear();
 
         base.Render();
+    }
+
+    public override void Show()
+    {
+        ChildOverlay?.Show();
+        base.Show();
+    }
+    
+    public override void Hide()
+    {
+        ChildOverlay?.Hide();
+        base.Hide();
+    }
+
+    protected internal override void UploadTransform()
+    {
+        if (ChildOverlay != null)
+        {
+            ChildOverlay.Transform = Transform;
+            ChildOverlay.UploadTransform();
+        }
+
+        base.UploadTransform();
     }
 
     protected void EnsurePrimary(LaserPointer pointer)

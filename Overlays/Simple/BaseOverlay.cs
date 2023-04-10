@@ -154,7 +154,7 @@ public class BaseOverlay : IDisposable
         _overlay.Curvature = Curvature;
     }
 
-    protected virtual void UploadTransform()
+    protected internal virtual void UploadTransform()
     {
         if (_overlay == null)
             return;

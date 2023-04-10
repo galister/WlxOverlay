@@ -1,4 +1,3 @@
-using WaylandSharp;
 using WlxOverlay.Numerics;
 
 namespace WlxOverlay.Desktop.Wayland;

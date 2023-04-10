@@ -41,7 +41,7 @@ public abstract class BaseWaylandScreen : BaseScreen<WaylandOutput>
         Display.Roundtrip();
     }
 
-    protected override void UploadTransform()
+    protected internal override void UploadTransform()
     {
         var oldTransform = Transform;
         Transform = Transform.RotatedLocal(Vector3.Back, Screen.Transform.Rotation);
