@@ -45,6 +45,7 @@ internal class XdgScreenData : PipewireOutput
 
         if (await CreateSessionAsync() && await SelectSourcesAsync() && await StartCaptureAsync())
         {
+            RecalculateTransform();
             return true;
         }
 
