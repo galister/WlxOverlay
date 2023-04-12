@@ -1,5 +1,6 @@
 using Desktop.DBus;
 using Tmds.DBus.Protocol;
+using Tmds.Linux;
 using WlxOverlay.Numerics;
 using WlxOverlay.Types;
 
@@ -30,6 +31,33 @@ internal class XdgScreenData : PipewireOutput
     {
         output.CopyTo(this);
         _token = $"xdg_screen_{output.IdName}";
+    }
+
+    private Process? ShowNotification()
+    {
+        Console.WriteLine($"Select the following screen: {Model} @ {Name}");
+        try
+        {
+            var psi = new ProcessStartInfo("notify-send")
+            {
+                ArgumentList = { "-u", "critical", "-t", "120000", "-w", "WlxOverlay", $"Now select: {Model} @ {Name}" }
+            }; 
+            return Process.Start(psi);
+
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine($"ERR Could not notify user: {e.Message}");
+            return null;
+        }
+    }
+
+    private void HideNotification(Process? p)
+    {
+        if (p == null) return;
+        LibC.kill(p.Id, 2);
+        p.Close();
+        p.Dispose();
     }
 
     public async Task<bool> InitDbusAsync()
@@ -157,10 +185,17 @@ internal class XdgScreenData : PipewireOutput
             false);
 
         await _screenCast.SelectSourcesAsync(_sessionPath!, options);
-
+        
         long val;
+        var waited = 0;
+        Process? p = null;
         while ((val = Interlocked.Read(ref state)) <= 0)
+        {
             await Task.Delay(100);
+            if (waited++ == 2)
+                p = ShowNotification();
+        }
+        HideNotification(p);
         watcher.Dispose();
         return val == 1;
     }

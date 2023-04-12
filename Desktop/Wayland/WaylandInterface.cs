@@ -67,7 +67,6 @@ public class WaylandInterface : IDisposable
 
                 foreach (var output in _outputs.Values)
                 {
-                    Console.WriteLine(" --- Prompting for screen: " + output.Name + " ---");
                     var data = await XdgScreenCastHandler.PromptUserAsync(output);
                     if (data != null)
                     {
