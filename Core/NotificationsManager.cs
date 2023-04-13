@@ -102,7 +102,9 @@ public class NotificationsManager : IDisposable
                 messageType = 1,
                 content = body,
                 title = summary,
-                opacity = 1
+                opacity = 1,
+                audioPath = "default",
+                volume = Config.Instance.NotificationsVolume ?? 1,
             };
 
         }, (e, t, _, _) =>
@@ -176,8 +178,15 @@ public class NotificationsManager : IDisposable
             var toast = new Toast(message.title, message.content, message.opacity, (uint)message.height, message.timeout);
             OverlayManager.Instance.RegisterChild(toast);
 
-            if (_notificationSound != null)
-                _ = AudioManager.Instance.PlayAsync(_notificationSound, Config.Instance.NotificationsVolume ?? 1);
+            string? audioPath = null;
+            if (message.audioPath == "default" || message.audioPath == "error" || message.audioPath == "warning") {
+                audioPath = _notificationSound;
+            } else if (File.Exists(message.audioPath)) {
+                audioPath = message.audioPath;
+            }
+
+            if (audioPath != null && message.volume > 0.0f)
+                _ = AudioManager.Instance.PlayAsync(audioPath, message.volume);
 
             _nextToast = DateTime.UtcNow.AddSeconds(2);
         }
