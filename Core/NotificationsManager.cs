@@ -18,6 +18,7 @@ public class NotificationsManager : IDisposable
     private readonly CancellationTokenSource _cancel = new();
     private Task? _udpListener;
     private Task? _notifier;
+    private Connection? _dbus;
 
     private readonly object _lockObject = new();
     private readonly Queue<XSOMessage> _messages = new(10);
@@ -75,7 +76,9 @@ public class NotificationsManager : IDisposable
 
     private async Task RegisterDbusAsync()
     {
-        var dbus = Connection.Session;
+        var opt = new ClientConnectionOptions(Address.Session!);
+        _dbus = new Connection(opt);
+        await _dbus.ConnectAsync();
 
         var rule = new MatchRule
         {
@@ -86,7 +89,7 @@ public class NotificationsManager : IDisposable
             Eavesdrop = true
         };
 
-        await dbus.AddMatchAsync(rule, (m, _) =>
+        await _dbus.AddMatchAsync(rule, (m, _) =>
         {
             var reader = m.GetBodyReader();
             var unused = reader.ReadString();
@@ -198,6 +201,7 @@ public class NotificationsManager : IDisposable
 
         _udpListener?.Dispose();
         _notifier?.Dispose();
+        _dbus?.Dispose();
         _cancel.Dispose();
         _listenSocket.Dispose();
     }
