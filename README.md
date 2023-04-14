@@ -31,6 +31,7 @@ Join the discussion here: https://discord.gg/gHwJ2vwSWV
 - Wayland: screencopy can crash, especially with multiple screens up. this is being investigated, recommend wrapping in a restart loop for practical use in the meantime.
 
 # Works Used
+- [freesound](https://freesound.org/), CC0 sound effects (find the sounds by searching for their number)
 - [FreeTypeSharp](https://github.com/ryancheung/FreeTypeSharp), MIT License
 - [Godot Engine](https://github.com/godotengine/godot), MIT License
 - [Liberation Fonts](https://github.com/liberationfonts/liberation-fonts), SIL Open Font License v1.1
@@ -40,7 +41,8 @@ Join the discussion here: https://discord.gg/gHwJ2vwSWV
 - [OVRSharp](https://github.com/OVRTools/OVRSharp), MIT License
 - [Silk.NET](https://github.com/dotnet/Silk.NET), MIT License
 - [SixLabors.ImageSharp](https://github.com/SixLabors/ImageSharp), Apache v2 License
+- [Tmds.DBus](https://github.com/tmds/Tmds.DBus), MIT License
+- [Tdms.LibC](https://github.com/tmds/Tmds.LibC), MIT License
 - [bendahl/uinput](https://github.com/bendahl/uinput), MIT License
 - [WaylandSharp](https://github.com/X9VoiD/WaylandSharp), MIT License
 - [YamlDotNet](SixLabors/ImageSharp), MIT License
-- [freesound](https://freesound.org/), CC0 sound effects (find the sounds by searching for their number)
