@@ -18,7 +18,7 @@ public abstract class BaseWaylandScreen : BaseScreen<WaylandOutput>
 
     protected BaseWaylandScreen(WaylandOutput output) : base(output)
     {
-        Display = WlDisplay.Connect();
+        Display = WlDisplay.Connect(WaylandInterface.DisplayName!);
 
         var reg = Display.GetRegistry();
 

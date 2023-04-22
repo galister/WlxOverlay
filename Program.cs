@@ -69,12 +69,10 @@ else
 }
 
 var screens = new List<BaseOverlay>();
-if (Environment.GetEnvironmentVariable("WAYLAND_DISPLAY") != null)
-{
-    Console.WriteLine("Wayland detected.");
-    EGL.Initialize();
-    WaylandInterface.Initialize();
 
+
+if (WaylandInterface.TryInitialize())
+{
     await foreach (var screen in WaylandInterface.Instance!.CreateScreensAsync())
     {
         manager.RegisterChild(screen);

@@ -10,6 +10,7 @@ namespace WlxOverlay.Desktop.Wayland;
 public class WaylandInterface : IDisposable
 {
     public static WaylandInterface? Instance;
+    public static string? DisplayName;
 
     private readonly Dictionary<uint, WaylandOutput> _outputs = new();
 
@@ -19,13 +20,40 @@ public class WaylandInterface : IDisposable
     private ZxdgOutputManagerV1? _outputManager;
     private WlSeat? _seat;
 
-    public static void Initialize()
+    public static bool TryInitialize()
     {
         if (Instance != null)
             throw new ApplicationException($"Can't have more than one {nameof(WaylandInterface)}!");
 
+        var env = Environment.GetEnvironmentVariable("WAYLAND_DISPLAY");
+        if (env != null)
+            DisplayName = env;
+        else
+        {
+            env = Environment.GetEnvironmentVariable("XDG_RUNTIME_DIR");
+            if (env != null)
+                foreach (var fPath in Directory.GetFiles(env))
+                {
+                    var fName = Path.GetFileName(fPath);
+                    if (fName.StartsWith("wayland-"))
+                    {
+                        DisplayName = fName;
+                        break;
+                    }
+                }
+        }
+
+        if (DisplayName == null)
+            return false;
+
+        Console.WriteLine("Wayland detected.");
+
+        EGL.Initialize();
+
         Instance = new WaylandInterface();
         Instance.RoundTrip();
+
+        return true;
     }
 
     public void RoundTrip()
@@ -123,7 +151,7 @@ public class WaylandInterface : IDisposable
 
     private WaylandInterface()
     {
-        _display = WlDisplay.Connect();
+        _display = WlDisplay.Connect(DisplayName!);
 
         var reg = _display.GetRegistry();
 
@@ -163,7 +191,7 @@ public class WaylandInterface : IDisposable
             await Task.Delay(10);
 
         var obj = new WaylandOutput(e.Name, wlOutput);
-        
+
         wlOutput.Geometry += obj.SetGeometry;
         wlOutput.Mode += obj.SetMode;
 
