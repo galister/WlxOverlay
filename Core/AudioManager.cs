@@ -8,12 +8,12 @@ public class AudioManager
 
     private readonly string[] _playerNames =
     {
-        "pw-play", "ffplay", "mpv", "aplay"
+        "paplay", "pw-play", "ffplay", "mpv", "aplay"
     };
 
     private readonly Type[] _playerTypes =
     {
-        typeof(PwPlayPlayer), typeof(FfPlayPlayer), typeof(MpvPlayer), typeof(APlayPlayer)
+        typeof(PaPlayPlayer), typeof(PwPlayPlayer), typeof(FfPlayPlayer), typeof(MpvPlayer), typeof(APlayPlayer)
     };
 
     private readonly AudioPlayer? _player;
@@ -21,23 +21,24 @@ public class AudioManager
     private AudioManager()
     {
         var values = Environment.GetEnvironmentVariable("PATH");
-        foreach (var path in values!.Split(Path.PathSeparator))
-        {
-            if (!Directory.Exists(path))
-                continue;
+        if (values != null)
+          foreach (var path in values!.Split(Path.PathSeparator))
+          {
+              if (!Directory.Exists(path))
+                  continue;
 
-            for (var p = 0; p < _playerNames.Length; p++)
-                foreach (var fPath in Directory.EnumerateFiles(path))
-                {
-                    var fName = Path.GetFileName(fPath);
-                    if (fName != _playerNames[p])
-                        continue;
+              for (var p = 0; p < _playerNames.Length; p++)
+                  foreach (var fPath in Directory.EnumerateFiles(path))
+                  {
+                      var fName = Path.GetFileName(fPath);
+                      if (fName != _playerNames[p])
+                          continue;
 
-                    _player = (AudioPlayer)Activator.CreateInstance(_playerTypes[p])!;
-                    Console.WriteLine($"Using {_playerNames[p]} for audio output.");
-                    return;
-                }
-        }
+                      _player = (AudioPlayer)Activator.CreateInstance(_playerTypes[p])!;
+                      Console.WriteLine($"Using {_playerNames[p]} for audio output.");
+                      return;
+                  }
+          }
         Console.WriteLine("WARN: No audio player found! Install either of the following if you need audio output: \n");
         Console.WriteLine("WARN: " + string.Join(", ", _playerNames));
     }
@@ -71,6 +72,17 @@ public abstract class AudioPlayer
         }
     }
 
+}
+
+public class PaPlayPlayer : AudioPlayer
+{
+    protected override string Name => "paplay";
+    protected override IEnumerable<string> GetArgs(string path, float volume)
+    {
+        yield return "--volume";
+        yield return ((int)(volume * 65536)).ToString();
+        yield return path;
+    }
 }
 
 public class PwPlayPlayer : AudioPlayer
