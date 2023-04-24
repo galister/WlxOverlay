@@ -51,7 +51,13 @@ public class WaylandInterface : IDisposable
         EGL.Initialize();
 
         Instance = new WaylandInterface();
-        Instance.RoundTrip();
+
+        var maxTries = 100;
+        while (Instance._outputs.Count == 0 && maxTries-- > 0)
+        {
+            Instance.RoundTrip();
+            Thread.Sleep(50);
+        }
 
         return true;
     }
@@ -158,9 +164,7 @@ public class WaylandInterface : IDisposable
         reg.Global += (_, e) =>
         {
             if (e.Interface == WlInterface.WlOutput.Name)
-#pragma warning disable CS4014
-#pragma warning disable VSTHRD110
-                CreateOutputAsync(reg, e);
+                _ = CreateOutputAsync(reg, e);
             else if (e.Interface == WlInterface.WlSeat.Name)
                 _seat = reg.Bind<WlSeat>(e.Name, e.Interface, e.Version);
             else if (e.Interface == WlInterface.ZxdgOutputManagerV1.Name)
