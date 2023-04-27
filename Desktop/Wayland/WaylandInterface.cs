@@ -38,6 +38,7 @@ public class WaylandInterface : IDisposable
                     if (fName.StartsWith("wayland-"))
                     {
                         DisplayName = fName;
+                        Environment.SetEnvironmentVariable("WAYLAND_DISPLAY", DisplayName);
                         break;
                     }
                 }
