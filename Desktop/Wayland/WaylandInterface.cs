@@ -49,7 +49,8 @@ public class WaylandInterface : IDisposable
 
         Console.WriteLine("Wayland detected.");
 
-        EGL.Initialize();
+        if (Config.Instance.WaylandCapture != "pw-fallback")
+            EGL.Initialize();
 
         Instance = new WaylandInterface();
 
