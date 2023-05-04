@@ -36,20 +36,20 @@ internal class Font : IDisposable
 
         var err = FT_Init_FreeType(out _ftLib);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not load FreeType library: {err}");
+            throw new FontLoaderException($"Could not load FreeType library: {err}");
 
 
         err = FT_New_Face(_ftLib, _path, _index, out _ftFace);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not load font {_font}: {err}");
+            throw new FontLoaderException($"Could not load font {_font}: {err}");
 
         err = FT_Select_Charmap(_ftFace, FT_Encoding.FT_ENCODING_UNICODE);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not use unicode char map on {_font}: {err}");
+            throw new FontLoaderException($"Could not use unicode char map on {_font}: {err}");
 
         err = FT_Set_Char_Size(_ftFace, (IntPtr)(_size << 6), (IntPtr)(_size << 6), 96, 96);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not set size to {_size}px for {_font}: {err}");
+            throw new FontLoaderException($"Could not set size to {_size}px for {_font}: {err}");
     }
 
     private void LoadGlyphIndices()
@@ -84,13 +84,13 @@ internal class Font : IDisposable
 
         var err = FT_Load_Glyph(_ftFace, chIdx, FT_LOAD_DEFAULT);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not Load_Glyph for U+{ch:X4} - {err}");
+            throw new FontLoaderException($"Could not Load_Glyph for U+{ch:X4} - {err}");
 
         var ftFaceRec = (FT_FaceRec*)_ftFace;
 
         err = FT_Get_Glyph((IntPtr)ftFaceRec->glyph, out var glyph);
         if (err != FT_Error.FT_Err_Ok)
-            throw new ApplicationException($"Could not Get_Glyph for U+{ch:X4} - {err}");
+            throw new FontLoaderException($"Could not Get_Glyph for U+{ch:X4} - {err}");
 
         FT_Glyph_To_Bitmap(ref glyph, FT_Render_Mode.FT_RENDER_MODE_NORMAL, ref _nullVector, true);
 
@@ -118,7 +118,7 @@ internal class Font : IDisposable
                     inputFormat = GraphicsFormat.BGRA8;
                     break;
                 default:
-                    throw new ApplicationException($"Unsupported FT_Pixel_Mode: {bitmap.pixel_mode}");
+                    throw new FontLoaderException($"Unsupported FT_Pixel_Mode: {bitmap.pixel_mode}");
             }
 
             var gSlot = ((FT_FaceRec*)_ftFace)->glyph;
@@ -166,4 +166,12 @@ public class Glyph
     public int BearX;
     public int BearY;
     public int AdvX;
+}
+
+public class FontLoaderException : Exception
+{
+    public FontLoaderException(string str) : base(str)
+    {
+        
+    }
 }

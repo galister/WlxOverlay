@@ -82,12 +82,19 @@ public class FontCollection
             _codePointToFont[codepoint] = _codePointToFont[0];
             return;
         }
-
-        var font = new Font(parts[0], int.Parse(parts[1]), size);
-        lock (Lock)
-            _loadedFonts.Add(font);
-        foreach (var cp in font.GetSupportedCodePoints())
-            _codePointToFont.TryAdd(cp, font);
+        
+        try 
+        {
+            var font = new Font(parts[0], int.Parse(parts[1]), size);
+            lock (Lock)
+                _loadedFonts.Add(font);
+            foreach (var cp in font.GetSupportedCodePoints())
+                _codePointToFont.TryAdd(cp, font);
+        }
+        catch (FontLoaderException x)
+        {
+            Console.WriteLine("WARN: " + x.Message);
+        }
 
         if (!_codePointToFont.ContainsKey(codepoint))
             _codePointToFont[codepoint] = _codePointToFont[0];
