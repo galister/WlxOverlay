@@ -61,8 +61,7 @@ public class OverlayManager : Application
         Console.WriteLine($"{OpenVR.IVRCompositor_Version}: pass");
 
         var err = new ETrackedPropertyError();
-        DisplayFrequency = OpenVR.System.GetFloatTrackedDeviceProperty(OpenVR.k_unTrackedDeviceIndex_Hmd,
-            ETrackedDeviceProperty.Prop_DisplayFrequency_Float, ref err);
+        DisplayFrequency = 72f;
         _frameTime = Mathf.Floor(1000f / DisplayFrequency) * 0.001f;
 
         InputManager.Initialize();
