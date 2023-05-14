@@ -101,11 +101,12 @@ public class GrabbableOverlay : InteractableOverlay
 
     protected internal void OnScrollSize(float value)
     {
-        if (LocalScale.Length() < NearDistance && value > 0
-            || LocalScale.Length() > FarDistance && value < 0)
-            return;
-
+        var oldScale = LocalScale;
         LocalScale *= Vector3.One - Vector3.One * Mathf.Pow(value, 3) * 2;
+        if (LocalScale.x < 0.35f)
+            LocalScale = oldScale;
+        if (LocalScale.x > 10f)
+            LocalScale = oldScale;
     }
 
     protected internal void OnScrollDistance(float value)
