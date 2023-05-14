@@ -51,12 +51,17 @@ public class ChaperoneSettings : InteractableOverlay
 
         var label = new LabelCentered("", 0, 180, 400, 40);
 
-        _canvas.AddControl(new Button("Toast", 20, 100, 50, 36)
+        _canvas.AddControl(new Button("Toast", 10, 52, 46, 36)
         {
             PointerDown = () =>
             {
                 NotificationsManager.Toast("Hello world!", "This is a test toast. あいうえお");
             }
+        });
+
+        _canvas.AddControl(new Button("Reset Space", 10, 116, 100, 36)
+        {
+            PointerDown = () => PlaySpaceManager.Instance.ResetOffset()
         });
 
         // Top row

@@ -128,32 +128,14 @@ public class LaserPointer : BaseOverlay
         RecalculateModifier();
     }
 
-    private static bool _dragging;
     private Vector3 _lastPosition;
-    private Vector3 _offset;
-    private HmdMatrix34_t matrix34_T;
-
     private void SpaceDrag()
     {
-        if (_dragging) return;
+        if (!PlaySpaceManager.Instance.CanDrag)
+          return;
         
         if (_spaceDragBefore)
-        {
-            _offset += HandTransform.origin - _lastPosition;
-
-            if (!OpenVR.ChaperoneSetup.GetWorkingStandingZeroPoseToRawTrackingPose(ref matrix34_T))
-            {
-                Console.WriteLine("ERR: Failed to get Zero-Pose");
-                return;
-            }
-            
-            var universe = matrix34_T.ToTransform3D();
-            universe.origin = _offset;
-
-            universe.CopyTo(ref matrix34_T);
-            OpenVR.ChaperoneSetup.SetWorkingStandingZeroPoseToRawTrackingPose(ref matrix34_T);
-            OpenVR.ChaperoneSetup.CommitWorkingCopy(EChaperoneConfigFile.Live);
-        }
+            PlaySpaceManager.Instance.ApplyOffsetRelative(HandTransform.origin - _lastPosition);
         _lastPosition = HandTransform.origin;
     }
 
@@ -369,7 +351,6 @@ public class LaserPointer : BaseOverlay
     {
         RecalculateTransform();
         UploadColor();
-        _dragging = false;
     }
 
     public override void SetBrightness(float brightness)

@@ -212,6 +212,7 @@ public class OverlayManager : Application
         }
 
         FontCollection.CloseHandles();
+        PlaySpaceManager.Instance.EndFrame();
 
         // Use this instead of vsync to prevent glfw from using up the entire CPU core
         WaitForEndOfFrame();
