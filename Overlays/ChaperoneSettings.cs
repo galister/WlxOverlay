@@ -4,6 +4,7 @@ using WlxOverlay.Numerics;
 using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Types;
 using WlxOverlay.UI;
+using Valve.VR;
 
 namespace WlxOverlay.Overlays;
 
@@ -136,7 +137,67 @@ public class ChaperoneSettings : InteractableOverlay
             }
         });
 
+        _canvas.AddControl(new Button("R", 147, 84, 46, 32)
+        {
+            PointerDown = () => 
+            {
+                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainR_Float, 1f);
+                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, 1f);
+                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, 1f);
+            }
+        });
+
+        _canvas.AddControl(new Button("+", 207, 116, 46, 32)
+        {
+            PointerDown = () => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainR_Float, 0.1f)
+        });
+
+        _canvas.AddControl(new Button("-", 207, 52, 46, 32)
+        {
+            PointerDown = () => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainR_Float, -0.1f)
+        });
+
+        _canvas.AddControl(new Button("+", 267, 116, 46, 32)
+        {
+            PointerDown = () => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, 0.1f)
+        });
+
+        _canvas.AddControl(new Button("-", 267, 52, 46, 32)
+        {
+            PointerDown = () => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, -0.1f)
+        });
+
+        _canvas.AddControl(new Button("+", 327, 116, 46, 32)
+        {
+            PointerDown = () => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, 0.1f)
+        });
+
+        _canvas.AddControl(new Button("-", 327, 52, 46, 32)
+        {
+            PointerDown = () => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, -0.1f)
+        });
+
         _canvas.BuildInteractiveLayer();
+    }
+
+    private void AdjustSetting(string key, float amount)
+    {
+        EVRSettingsError err = new (); 
+        var cur = OpenVR.Settings.GetFloat(OpenVR.k_pch_SteamVR_Section, key, ref err);
+
+        if (err != EVRSettingsError.None)
+        {
+            var msg = OpenVR.Settings.GetSettingsErrorNameFromEnum(err);
+            Console.WriteLine($"Err: Could not get {key}: {msg}");
+            return;
+        }
+        var val = Mathf.Clamp(cur + amount, 0f, 1f);
+        OpenVR.Settings.SetFloat(OpenVR.k_pch_SteamVR_Section, key, val, ref err);
+        if (err != EVRSettingsError.None)
+        {
+            var msg = OpenVR.Settings.GetSettingsErrorNameFromEnum(err);
+            Console.WriteLine($"Err: Could not set {key}: {msg}");
+        }
     }
 
     private InteractionResult NewPolygonAction(InteractionArgs args)
