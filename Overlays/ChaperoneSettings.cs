@@ -51,7 +51,7 @@ public class ChaperoneSettings : InteractableOverlay
 
         var label = new LabelCentered("", 0, 180, 400, 40);
 
-        _canvas.AddControl(new Button("Toast", 200, 100, 50, 36)
+        _canvas.AddControl(new Button("Toast", 20, 100, 50, 36)
         {
             PointerDown = () =>
             {
