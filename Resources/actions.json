@@ -36,6 +36,11 @@
       "requirement": "optional"
     },
     {
+      "name": "/actions/default/in/SpaceDrag",
+      "type": "boolean",
+      "requirement": "optional"
+    },
+    {
       "name": "/actions/default/in/LeftHand",
       "type": "pose",
       "requirement": "optional"

@@ -75,6 +75,9 @@ public class LaserPointer : BaseOverlay
             ReleaseAction = null;
         }
 
+        if (_spaceDragNow)
+            SpaceDrag();
+
         if (_showHideNow && !_showHideBefore)
             OverlayManager.Instance.ShowHide();
     }
@@ -94,6 +97,9 @@ public class LaserPointer : BaseOverlay
     private bool _showHideNow;
     private bool _showHideBefore;
 
+    private bool _spaceDragNow;
+    private bool _spaceDragBefore;
+
     protected float Scroll;
 
     private void EvaluateInput()
@@ -110,6 +116,9 @@ public class LaserPointer : BaseOverlay
         _showHideBefore = _showHideNow;
         _showHideNow = InputManager.BooleanState["ShowHide"][(int)Hand];
 
+        _spaceDragBefore = _spaceDragNow;
+        _spaceDragNow = InputManager.BooleanState["SpaceDrag"][(int)Hand];
+
         ClickModifierRight = InputManager.BooleanState["ClickModifierRight"][(int)Hand];
 
         ClickModifierMiddle = InputManager.BooleanState["ClickModifierMiddle"][(int)Hand];
@@ -117,6 +126,35 @@ public class LaserPointer : BaseOverlay
         Scroll = InputManager.Vector3State["Scroll"][(int)Hand].y;
 
         RecalculateModifier();
+    }
+
+    private static bool _dragging;
+    private Vector3 _lastPosition;
+    private Vector3 _offset;
+    private HmdMatrix34_t matrix34_T;
+
+    private void SpaceDrag()
+    {
+        if (_dragging) return;
+        
+        if (_spaceDragBefore)
+        {
+            _offset += HandTransform.origin - _lastPosition;
+
+            if (!OpenVR.ChaperoneSetup.GetWorkingStandingZeroPoseToRawTrackingPose(ref matrix34_T))
+            {
+                Console.WriteLine("ERR: Failed to get Zero-Pose");
+                return;
+            }
+            
+            var universe = matrix34_T.ToTransform3D();
+            universe.origin = _offset;
+
+            universe.CopyTo(ref matrix34_T);
+            OpenVR.ChaperoneSetup.SetWorkingStandingZeroPoseToRawTrackingPose(ref matrix34_T);
+            OpenVR.ChaperoneSetup.CommitWorkingCopy(EChaperoneConfigFile.Live);
+        }
+        _lastPosition = HandTransform.origin;
     }
 
     private void RecalculateModifier()
@@ -331,6 +369,7 @@ public class LaserPointer : BaseOverlay
     {
         RecalculateTransform();
         UploadColor();
+        _dragging = false;
     }
 
     public override void SetBrightness(float brightness)
