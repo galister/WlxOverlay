@@ -4,7 +4,7 @@ namespace WlxOverlay.UI;
 
 public class LabelCentered : Label
 {
-    private int _textWidth = -1;
+    private List<(int w, int h)> _textSizes = new();
 
     public LabelCentered(string text, int x, int y, uint w, uint h) : base(text, x, y, w, h)
     {
@@ -15,26 +15,35 @@ public class LabelCentered : Label
         if (Text == null)
             return;
 
+        var lines = Text.Split('\n');
+
         if (Dirty)
         {
-            _textWidth = Font.GetTextWidth(Text);
+            _textSizes.Clear();
+            _textSizes.AddRange(lines.Select(l => Font.GetTextSize(l)));
             Dirty = false;
         }
 
-        var y = (int)(Y + Height / 2 - Font.Size() / 2);
-        var curX = (int)(X + Width / 2 - _textWidth / 2);
+        var linesHeight = Font.Size() + Font.LineSpacing() * (lines.Length - 1);
+        var curY = (int)(Y + Height / 2 - linesHeight / 2);
 
-        foreach (var g in Font.GetTextures(Text))
+        for (var i = 0; i < lines.Length; i++) 
         {
-            if (g == null)
+            var curX = (int)(X + Width / 2 - _textSizes[i].w / 2);
+
+            foreach (var g in Font.GetTextures(lines[i]))
             {
-                curX += Font.Size() / 3;
-                continue;
+                if (g == null)
+                {
+                    curX += Font.Size() / 3;
+                    continue;
+                }
+
+                GraphicsEngine.UiRenderer.DrawFont(g, FgColor, curX, curY, g.Texture.GetWidth(), g.Texture.GetHeight());
+
+                curX += g.AdvX;
             }
-
-            GraphicsEngine.UiRenderer.DrawFont(g, FgColor, curX, y, g.Texture.GetWidth(), g.Texture.GetHeight());
-
-            curX += g.AdvX;
+            curY += Font.LineSpacing();
         }
     }
 }

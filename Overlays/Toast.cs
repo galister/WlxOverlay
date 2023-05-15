@@ -37,26 +37,30 @@ public class Toast : BaseOverlay
 
     protected override void Initialize()
     {
-        var width = (uint)Font.GetTextWidth(_content ?? _title) + Padding;
+        var (w, h) = Font.GetTextSize(_content ?? _title);
+
+        var width = (uint)(w + Padding); 
+        var height = (uint)(_height - Font.Size() + h);
+
         WidthInMeters = width / 2000f;
 
-        _canvas = new Canvas(width, _height);
+        _canvas = new Canvas(width, height);
 
         Canvas.CurrentFont = Font;
         Canvas.CurrentBgColor = HexColor.FromRgb("#353535");
         Canvas.CurrentFgColor = HexColor.FromRgb("#aaaaaa");
-        _canvas.AddControl(new Panel(0, 0, width, _height));
+        _canvas.AddControl(new Panel(0, 0, width, height));
 
         if (_content == null)
         {
-            _canvas.AddControl(new LabelCentered(_title, 0, 0, width, _height));
+            _canvas.AddControl(new LabelCentered(_title, 0, 0, width, height));
         }
         else
         {
-            _canvas.AddControl(new LabelCentered(_content, 0, 0, width, _height - 36U));
+            _canvas.AddControl(new Label(_content, 0, 0, width, height - 36U));
 
             Canvas.CurrentBgColor = HexColor.FromRgb("#666666");
-            _canvas.AddControl(new Panel(0, (int)_height - 36, width, _height));
+            _canvas.AddControl(new Panel(0, (int)_height - 36, width, height));
             Canvas.CurrentFgColor = HexColor.FromRgb("#000000");
             _canvas.AddControl(new LabelCentered(_title, 0, (int)_height - 36, width, 36U));
         }

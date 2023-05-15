@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using WlxOverlay.Numerics;
 
 namespace WlxOverlay.GFX;
 
@@ -34,9 +35,11 @@ public class FontCollection
         _codePointToFont[0] = _codePointToFont['a'];
     }
 
-    public int GetTextWidth(string s)
+    public (int w, int h) GetTextSize(string s)
     {
-        return GetTextures(s).Sum(x => x?.AdvX ?? _size / 3);
+        var lines = s.Split('\n');
+        var maxW = lines.Max(l => GetTextures(l).Sum(x => x?.AdvX ?? _size / 3));
+        return (maxW, lines.Length * LineSpacing());
     }
 
     public IEnumerable<Glyph?> GetTextures(string s)
@@ -55,6 +58,8 @@ public class FontCollection
     }
 
     public int Size() => _size;
+
+    public int LineSpacing() => (int)(_size * 1.5f);
 
     public static void CloseHandles()
     {

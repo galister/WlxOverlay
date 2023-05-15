@@ -19,7 +19,7 @@ public class Label : Control
         get => _text;
         set
         {
-            _text = value;
+            _text = value?.ReplaceLineEndings("\n");
             Dirty = true;
             Canvas?.MarkDirty();
         }
@@ -50,15 +50,23 @@ public class Label : Control
         if (_text == null)
             return;
 
-        var curX = X;
-        foreach (var g in Font.GetTextures(_text))
+        var lines = _text.Split('\n');
+        var height = (int)(Font.Size() * 1.5f);
+
+        var curY = Y; 
+        foreach (var line in lines.Reverse())
         {
-            if (g == null)
-                continue;
+            var curX = X;
+            foreach (var g in Font.GetTextures(_text))
+            {
+                if (g == null)
+                    continue;
 
-            GraphicsEngine.UiRenderer.DrawFont(g, FgColor, curX, Y, g.Texture.GetWidth(), g.Texture.GetHeight());
+                GraphicsEngine.UiRenderer.DrawFont(g, FgColor, curX, Y, g.Texture.GetWidth(), g.Texture.GetHeight());
 
-            curX += g.AdvX;
+                curX += g.AdvX;
+            }
+            curY -= height;
         }
     }
 }
