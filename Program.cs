@@ -18,6 +18,8 @@ Console.WriteLine($"WlxOverlay {version}");
 if (!Config.Load())
     return;
 
+Session.Initialize();
+
 var manager = OverlayManager.Initialize();
 try
 {

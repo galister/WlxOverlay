@@ -178,20 +178,26 @@ public class NotificationsManager : IDisposable
                 if (!_messages.TryDequeue(out message))
                     continue;
 
-            var toast = new Toast(message.title, message.content, message.opacity, (uint)message.height, message.timeout);
-            OverlayManager.Instance.RegisterChild(toast);
+            if (!Session.Instance.NotificationsDnd)
+            {
+                var toast = new Toast(message.title, message.content, message.opacity, message.timeout);
+                OverlayManager.Instance.RegisterChild(toast);
 
-            string? audioPath = null;
-            if (message.audioPath == "default" || message.audioPath == "error" || message.audioPath == "warning") {
-                audioPath = _notificationSound;
-            } else if (File.Exists(message.audioPath)) {
-                audioPath = message.audioPath;
+                if (!Session.Instance.NotificationsMuteAudio)
+                {
+                    string? audioPath = null;
+                    if (message.audioPath == "default" || message.audioPath == "error" || message.audioPath == "warning") {
+                        audioPath = _notificationSound;
+                    } else if (File.Exists(message.audioPath)) {
+                        audioPath = message.audioPath;
+                    }
+
+                    if (audioPath != null && message.volume > 0.0f)
+                        _ = AudioManager.Instance.PlayAsync(audioPath, message.volume);
+                }
+
+                _nextToast = DateTime.UtcNow.AddSeconds(2);
             }
-
-            if (audioPath != null && message.volume > 0.0f)
-                _ = AudioManager.Instance.PlayAsync(audioPath, message.volume);
-
-            _nextToast = DateTime.UtcNow.AddSeconds(2);
         }
     }
 

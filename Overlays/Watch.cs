@@ -98,37 +98,34 @@ public class Watch : InteractableOverlay
         if (psiUp != null)
             _canvas.AddControl(new Button("+", 327, 116, 46, 32)
             {
-                PointerDown = () => Runner.TryStart(psiUp)
+                PointerDown = _ => Runner.TryStart(psiUp)
             });
 
         var psiDn = Runner.StartInfoFromArgs(Config.Instance.VolumeDnCmd);
         if (psiDn != null)
             _canvas.AddControl(new Button("-", 327, 52, 46, 32)
             {
-                PointerDown = () => Runner.TryStart(psiDn)
+                PointerDown = _ => Runner.TryStart(psiDn)
             });
 
         // Bottom row
         Canvas.CurrentBgColor = HexColor.FromRgb("#406050");
-        Canvas.CurrentFgColor = HexColor.FromRgb("#AACCBB");
+        Canvas.CurrentFgColor = HexColor.FromRgb("#CCBBAA");
 
         int bottomRowStart = 0;
 
-        if (Config.Instance.ExperimentalFeatures)
+        _canvas.AddControl(new Button("☰", 2, 2, 36, 36)
         {
-            _canvas.AddControl(new Button("C", 2, 2, 36, 36)
+            PointerDown = _ =>
             {
-                PointerDown = () =>
-                {
-                    WantVisible = false;
-                    Hide();
-                    var chaperoneSettings = new ChaperoneSettings(this);
-                    OverlayManager.Instance.RegisterChild(chaperoneSettings);
-                    chaperoneSettings.Show();
-                }
-            });
-            bottomRowStart = 40;
-        }
+                WantVisible = false;
+                Hide();
+                var chaperoneSettings = new AdvancedSettings(this);
+                OverlayManager.Instance.RegisterChild(chaperoneSettings);
+                chaperoneSettings.Show();
+            }
+        });
+        bottomRowStart = 40;
 
         var numButtons = screens.Count + 1;
         var btnWidth = (400 - bottomRowStart) / numButtons;
@@ -139,11 +136,11 @@ public class Watch : InteractableOverlay
         var kbPushedAt = DateTime.MinValue;
         _canvas.AddControl(new Button("Kbd", bottomRowStart + 2, 2, (uint)btnWidth - 4U, 36)
         {
-            PointerDown = () =>
+            PointerDown = _ =>
             {
                 kbPushedAt = DateTime.UtcNow;
             },
-            PointerUp = () =>
+            PointerUp = _ =>
             {
                 if ((DateTime.UtcNow - kbPushedAt).TotalSeconds > 2)
                     keyboard.ResetTransform();
@@ -164,11 +161,11 @@ public class Watch : InteractableOverlay
             var pushedAt = DateTime.MinValue;
             _canvas.AddControl(new Button(screenName, btnWidth * s + bottomRowStart + 2, 2, (uint)btnWidth - 4U, 36)
             {
-                PointerDown = () =>
+                PointerDown = _ =>
                 {
                     pushedAt = DateTime.UtcNow;
                 },
-                PointerUp = () =>
+                PointerUp = _ =>
                 {
                     if ((DateTime.UtcNow - pushedAt).TotalSeconds > 2)
                         screen.ResetTransform();

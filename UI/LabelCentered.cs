@@ -4,7 +4,7 @@ namespace WlxOverlay.UI;
 
 public class LabelCentered : Label
 {
-    private List<(int w, int h)> _textSizes = new();
+    private List<int> _textSizes = new();
 
     public LabelCentered(string text, int x, int y, uint w, uint h) : base(text, x, y, w, h)
     {
@@ -20,16 +20,17 @@ public class LabelCentered : Label
         if (Dirty)
         {
             _textSizes.Clear();
-            _textSizes.AddRange(lines.Select(l => Font.GetTextSize(l)));
+            _textSizes.AddRange(lines.Select(l => Font.GetTextSize(l).w));
             Dirty = false;
         }
 
-        var linesHeight = Font.Size() + Font.LineSpacing() * (lines.Length - 1);
-        var curY = (int)(Y + Height / 2 - linesHeight / 2);
+        var totalTextHeight = Font.Size() + Font.LineSpacing() * (lines.Length - 1);
+
+        var curY = (int)(Y + Height / 2 - totalTextHeight / 2);
 
         for (var i = 0; i < lines.Length; i++) 
         {
-            var curX = (int)(X + Width / 2 - _textSizes[i].w / 2);
+            var curX = (int)(X + Width / 2 - _textSizes[i] / 2);
 
             foreach (var g in Font.GetTextures(lines[i]))
             {
@@ -43,7 +44,7 @@ public class LabelCentered : Label
 
                 curX += g.AdvX;
             }
-            curY += Font.LineSpacing();
+            curY -= Font.LineSpacing();
         }
     }
 }

@@ -1,5 +1,6 @@
 using Valve.VR;
 using WlxOverlay.Numerics;
+using WlxOverlay.Types;
 
 namespace WlxOverlay.Core;
 
@@ -13,6 +14,10 @@ public class PlaySpaceManager
 
     public bool CanDrag => _canDrag;
 
+    private PlaySpaceManager()
+    {
+    }
+
     public void ApplyOffsetRelative(Vector3 relativeMovement)
     {
         _offset += relativeMovement;
@@ -22,7 +27,26 @@ public class PlaySpaceManager
 
     public void ResetOffset()
     {
-        _offset = Vector3.Zero;
+        _offset = Session.Instance.PlaySpaceOffset;
+        Apply();
+    }
+
+    public void SetAsDefault()
+    {
+        Session.Instance.PlaySpaceOffset = _offset;
+        Session.Instance.Persist();
+    }
+
+    public void FixFloor()
+    {
+        const float PADDING = 0.01f;
+
+        var left = InputManager.PoseState["LeftHand"].origin;
+        var right = InputManager.PoseState["RightHand"].origin;
+
+        var floorY = Mathf.Min(left.y, right.y);
+
+        _offset.y += floorY;
         Apply();
     }
 

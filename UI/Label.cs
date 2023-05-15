@@ -51,22 +51,24 @@ public class Label : Control
             return;
 
         var lines = _text.Split('\n');
-        var height = (int)(Font.Size() * 1.5f);
 
-        var curY = Y; 
-        foreach (var line in lines.Reverse())
+        var curY = Y + Font.LineSpacing() * (lines.Length - 1);
+        foreach (var line in lines)
         {
             var curX = X;
-            foreach (var g in Font.GetTextures(_text))
+            foreach (var g in Font.GetTextures(line))
             {
                 if (g == null)
+                {
+                    curX += Font.Size() / 3;
                     continue;
+                }
 
-                GraphicsEngine.UiRenderer.DrawFont(g, FgColor, curX, Y, g.Texture.GetWidth(), g.Texture.GetHeight());
+                GraphicsEngine.UiRenderer.DrawFont(g, FgColor, curX, curY, g.Texture.GetWidth(), g.Texture.GetHeight());
 
                 curX += g.AdvX;
             }
-            curY -= height;
+            curY -= Font.LineSpacing();
         }
     }
 }

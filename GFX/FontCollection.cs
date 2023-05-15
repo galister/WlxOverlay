@@ -39,7 +39,7 @@ public class FontCollection
     {
         var lines = s.Split('\n');
         var maxW = lines.Max(l => GetTextures(l).Sum(x => x?.AdvX ?? _size / 3));
-        return (maxW, lines.Length * LineSpacing());
+        return (maxW, _size + (lines.Length - 1) * LineSpacing());
     }
 
     public IEnumerable<Glyph?> GetTextures(string s)

@@ -7,7 +7,7 @@ public class ButtonBase : Panel
 {
     protected Label _label = null!;
 
-    private readonly Vector3 _baseBgColor;
+    private Vector3 _baseBgColor;
 
     protected bool IsHovered;
     protected bool IsClicked;
@@ -15,6 +15,17 @@ public class ButtonBase : Panel
     protected ButtonBase(int x, int y, uint w, uint h) : base(x, y, w, h)
     {
         _baseBgColor = Canvas.CurrentBgColor;
+    }
+
+    public void SetBgColor(Vector3 color)
+    {
+        _baseBgColor = color;
+        Canvas?.MarkDirty();
+    }
+
+    public void SetText(string text)
+    {
+        _label.Text = text;
     }
 
     public override void SetCanvas(Canvas canvas)
