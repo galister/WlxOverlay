@@ -109,12 +109,17 @@ public class OverlayManager : Application
         _showHideState = !_showHideState;
         lock (_overlayLock)
         {
-            foreach (var overlay in _overlays.Where(x => x.ShowHideBinding))
-            {
-                if (!_showHideState && overlay.Visible)
-                    overlay.Hide();
-                else if (_showHideState && !overlay.Visible && overlay.WantVisible)
-                    overlay.Show();
+            foreach (var overlay in _overlays)
+            {   
+                if (overlay is Watch w)
+                    w.Hidden = false;
+                else if (overlay.ShowHideBinding)
+                {
+                    if (!_showHideState && overlay.Visible)
+                        overlay.Hide();
+                    else if (_showHideState && !overlay.Visible && overlay.WantVisible)
+                        overlay.Show();
+                }
 
             }
         }

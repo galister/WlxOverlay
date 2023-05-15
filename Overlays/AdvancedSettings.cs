@@ -15,10 +15,6 @@ public class AdvancedSettings : InteractableOverlay
 {
     private readonly Canvas _canvas;
 
-    private readonly string _strPose;
-    private readonly Vector3 _vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
-    private readonly Vector3 _vec3InsideUnit = Vector3.Right;
-
     private List<Control> _globalControls = new();
     private List<Control> _polyControls = new();
 
@@ -27,6 +23,8 @@ public class AdvancedSettings : InteractableOverlay
 
     private Vector3 ActiveColorBG = HexColor.FromRgb("#77AA77");
     private Vector3 InactiveColorBG = HexColor.FromRgb("#006688");
+
+    private Watch _parent;
 
     private int AddTabPage(ContentPager p, Button b)
     {
@@ -43,15 +41,11 @@ public class AdvancedSettings : InteractableOverlay
         return idx;
     }
 
-    public AdvancedSettings(BaseOverlay parent) : base("AdvancedSettings")
+    public AdvancedSettings(Watch parent) : base("AdvancedSettings")
     {
-        _strPose = $"{Config.Instance.WatchHand}Hand";
-        if (Config.Instance.WatchHand == LeftRight.Right)
-        {
-            _vec3RelToHand.x *= -1;
-            _vec3InsideUnit.x *= -1;
-        }
+        _parent = parent;
 
+        WantVisible = true;
         WidthInMeters = 0.115f;
         ShowHideBinding = false;
         ZOrder = 68;
@@ -78,11 +72,28 @@ public class AdvancedSettings : InteractableOverlay
         Canvas.CurrentBgColor = ActiveColorBG;
         var settings = AddTabPage(pager, new Button("Settings", 2, 162, 130, 36));
 
-        pager.AddControl(settings, new LabelCentered("Play Space", 55, 136, 130, 24));
+        pager.AddControl(settings, new LabelCentered("Watch", 15, 136, 130, 24));
+
+        Canvas.CurrentBgColor = HexColor.FromRgb("#444488");
+        pager.AddControl(settings, new Button("Swap Hand", 15, 100, 130, 30) {
+            PointerDown = _ => parent.SwapHands()
+        });
+
+        Canvas.CurrentBgColor = HexColor.FromRgb("#884444");
+        pager.AddControl(settings, new Button("Hide", 15, 64, 130, 30) {
+            PointerDown = _ => 
+            {
+                parent.Hidden = true;
+                NotificationsManager.Toast("Watch Hidden", "Use Show/Hide binding to get it back.", alwaysShow: true);
+                Dispose();
+            }
+        });
+
+        pager.AddControl(settings, new LabelCentered("Play Space", 160, 136, 130, 24));
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#444488");
 
-        pager.AddControl(settings, new Button("Fix Floor", 55, 100, 130, 30) {
+        pager.AddControl(settings, new Button("Fix Floor", 160, 100, 130, 30) {
             PointerDown = _ => 
             {
                 for (var i = 0; i < 5; i++)
@@ -100,37 +111,37 @@ public class AdvancedSettings : InteractableOverlay
                 });
             }
         });
-        pager.AddControl(settings, new Button("Reset Offset", 55, 64, 130, 30) {
+        pager.AddControl(settings, new Button("Reset Offset", 160, 64, 130, 30) {
             PointerDown = _ => PlaySpaceManager.Instance.ResetOffset()
         });
-        pager.AddControl(settings, new Button("Make Default", 55, 28, 130, 30) {
+        pager.AddControl(settings, new Button("Make Default", 160, 28, 130, 30) {
             PointerDown = _ => PlaySpaceManager.Instance.SetAsDefault()
         });
 
-        pager.AddControl(settings, new LabelCentered("Notifications", 215, 136, 130, 24));
+        pager.AddControl(settings, new LabelCentered("Popups", 305, 136, 80, 24));
 
-        Canvas.CurrentBgColor = Session.Instance.NotificationsDnd ? ActiveColorBG : InactiveColorBG;
-        pager.AddControl(settings, new Button("DND", 215, 100, 130, 30) {
+        Canvas.CurrentBgColor = Session.Instance.NotificationsDnd ? InactiveColorBG : ActiveColorBG;
+        pager.AddControl(settings, new Button("Enable", 305, 100, 80, 30) {
             PointerDown = b => 
             {
                 Session.Instance.NotificationsDnd = !Session.Instance.NotificationsDnd;
-                b.SetBgColor(Session.Instance.NotificationsDnd ? ActiveColorBG : InactiveColorBG);
+                b.SetBgColor(Session.Instance.NotificationsDnd ? InactiveColorBG : ActiveColorBG);
                 Session.Instance.Persist();
             }
         });
 
-        Canvas.CurrentBgColor = Session.Instance.NotificationsMuteAudio ? ActiveColorBG : InactiveColorBG;
-        pager.AddControl(settings, new Button("Mute Audio", 215, 64, 130, 30) {
+        Canvas.CurrentBgColor = Session.Instance.NotificationsMuteAudio ? InactiveColorBG : ActiveColorBG;
+        pager.AddControl(settings, new Button("Audio", 305, 64, 80, 30) {
             PointerDown = b => 
             {
                 Session.Instance.NotificationsMuteAudio = !Session.Instance.NotificationsMuteAudio;
-                b.SetBgColor(Session.Instance.NotificationsMuteAudio ? ActiveColorBG : InactiveColorBG);
+                b.SetBgColor(Session.Instance.NotificationsMuteAudio ? InactiveColorBG : ActiveColorBG);
                 Session.Instance.Persist();
             }
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#444488");
-        pager.AddControl(settings, new Button("Test", 215, 28, 130, 30) {
+        pager.AddControl(settings, new Button("Test", 305, 28, 80, 30) {
             PointerDown = _ => NotificationsManager.Toast("Hello world!", "This is a test toast.\nあいうえお")
         });
         
@@ -303,7 +314,7 @@ public class AdvancedSettings : InteractableOverlay
                 }
 
                 Dispose();
-                parent.WantVisible = true;
+                parent.Hidden = false;
                 parent.Show();
             }
         });
@@ -424,9 +435,9 @@ public class AdvancedSettings : InteractableOverlay
     {
         base.AfterInput(batteryStateUpdated);
 
-        var controller = InputManager.PoseState[_strPose];
-        var tgt = controller.TranslatedLocal(_vec3InsideUnit).TranslatedLocal(_vec3RelToHand);
-        Transform = controller.TranslatedLocal(_vec3RelToHand).LookingAt(tgt.origin, -controller.basis.y);
+        var controller = InputManager.PoseState[_parent.StrPose];
+        var tgt = controller.TranslatedLocal(_parent.Vec3InsideUnit).TranslatedLocal(_parent.Vec3RelToHand);
+        Transform = controller.TranslatedLocal(_parent.Vec3RelToHand).LookingAt(tgt.origin, -controller.basis.y);
 
         UploadTransform();
 

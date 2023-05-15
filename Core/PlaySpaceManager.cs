@@ -39,8 +39,6 @@ public class PlaySpaceManager
 
     public void FixFloor()
     {
-        const float PADDING = 0.01f;
-
         var left = InputManager.PoseState["LeftHand"].origin;
         var right = InputManager.PoseState["RightHand"].origin;
 

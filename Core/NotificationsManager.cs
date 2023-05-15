@@ -32,7 +32,7 @@ public class NotificationsManager : IDisposable
         _instance.Start();
     }
 
-    public static void Toast(string title, string content, float timeout = 10)
+    public static void Toast(string title, string content, float timeout = 10, bool alwaysShow = false)
     {
         lock (_instance._lockObject)
             _instance._messages.Enqueue(new XSOMessage
@@ -42,7 +42,8 @@ public class NotificationsManager : IDisposable
                 messageType = 1,
                 content = content,
                 title = title,
-                opacity = 1
+                opacity = 1,
+                alwaysShow = alwaysShow,
             });
     }
 
@@ -178,7 +179,7 @@ public class NotificationsManager : IDisposable
                 if (!_messages.TryDequeue(out message))
                     continue;
 
-            if (!Session.Instance.NotificationsDnd)
+            if (!Session.Instance.NotificationsDnd || message.alwaysShow)
             {
                 var toast = new Toast(message.title, message.content, message.opacity, message.timeout);
                 OverlayManager.Instance.RegisterChild(toast);
@@ -229,4 +230,5 @@ public struct XSOMessage
     public float opacity { get; set; }
     public bool useBase64Icon { get; set; }
     public string? sourceApp { get; set; }
+    public bool alwaysShow { get;set; }
 }

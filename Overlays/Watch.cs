@@ -18,9 +18,11 @@ public class Watch : InteractableOverlay
 
     private float _flBrightness = 1f;
 
-    private readonly string _strPose;
-    private readonly Vector3 _vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
-    private readonly Vector3 _vec3InsideUnit = Vector3.Right;
+    internal string StrPose;
+    internal Vector3 Vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
+    internal Vector3 Vec3InsideUnit = Vector3.Right;
+
+    public bool Hidden;
 
     public Watch(BaseOverlay keyboard, IList<BaseOverlay> screens) : base("Watch")
     {
@@ -28,11 +30,11 @@ public class Watch : InteractableOverlay
             throw new InvalidOperationException("Can't have more than one Watch!");
         _instance = this;
 
-        _strPose = $"{Config.Instance.WatchHand}Hand";
+        StrPose = $"{Config.Instance.WatchHand}Hand";
         if (Config.Instance.WatchHand == LeftRight.Right)
         {
-            _vec3RelToHand.x *= -1;
-            _vec3InsideUnit.x *= -1;
+            Vec3RelToHand.x *= -1;
+            Vec3InsideUnit.x *= -1;
         }
 
         WidthInMeters = 0.115f;
@@ -118,11 +120,11 @@ public class Watch : InteractableOverlay
         {
             PointerDown = _ =>
             {
-                WantVisible = false;
+                Hidden = true;
                 Hide();
-                var chaperoneSettings = new AdvancedSettings(this);
-                OverlayManager.Instance.RegisterChild(chaperoneSettings);
-                chaperoneSettings.Show();
+                var advSettings = new AdvancedSettings(this);
+                OverlayManager.Instance.RegisterChild(advSettings);
+                advSettings.Show();
             }
         });
         bottomRowStart = 40;
@@ -178,6 +180,13 @@ public class Watch : InteractableOverlay
         _canvas.BuildInteractiveLayer();
     }
 
+    public void SwapHands()
+    {
+        StrPose = StrPose == "LeftHand" ? "RightHand" : "LeftHand";
+        Vec3RelToHand.x *= -1;
+        Vec3InsideUnit.x *= -1;
+    }
+
     private void OnBatteryStatesUpdated()
     {
         foreach (var c in _batteryControls)
@@ -221,9 +230,9 @@ public class Watch : InteractableOverlay
     {
         base.AfterInput(batteryStateUpdated);
 
-        var controller = InputManager.PoseState[_strPose];
-        var tgt = controller.TranslatedLocal(_vec3InsideUnit).TranslatedLocal(_vec3RelToHand);
-        Transform = controller.TranslatedLocal(_vec3RelToHand).LookingAt(tgt.origin, -controller.basis.y);
+        var controller = InputManager.PoseState[StrPose];
+        var tgt = controller.TranslatedLocal(Vec3InsideUnit).TranslatedLocal(Vec3RelToHand);
+        Transform = controller.TranslatedLocal(Vec3RelToHand).LookingAt(tgt.origin, -controller.basis.y);
 
         UploadTransform();
 
@@ -237,13 +246,20 @@ public class Watch : InteractableOverlay
         }
         else
         {
-            if (!Visible)
+            if (!Visible){
                 Show();
+            }
             UploadAlpha();
         }
 
         if (batteryStateUpdated)
             OnBatteryStatesUpdated();
+    }
+
+    public override void Show()
+    {
+        if (!Hidden)
+            base.Show();
     }
 
     protected internal override void OnPointerDown(PointerHit hitData)
