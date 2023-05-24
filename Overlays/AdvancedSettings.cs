@@ -199,23 +199,23 @@ public class AdvancedSettings : InteractableOverlay
         Canvas.CurrentBgColor = HexColor.FromRgb("#00AA00");
         pager.AddControl(video, new Button("+", 267, 116, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, 0.1f)
+            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, 0.1f, 0)
         });
 
         pager.AddControl(video, new Button("-", 267, 52, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, -0.1f)
+            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, -0.1f, 0)
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#0000DD");
         pager.AddControl(video, new Button("+", 327, 116, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, 0.1f)
+            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, 0.1f, 0)
         });
 
         pager.AddControl(video, new Button("-", 327, 52, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, -0.1f)
+            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, -0.1f, 0)
         });
 
         // --------------- strokes ------------------
@@ -323,7 +323,7 @@ public class AdvancedSettings : InteractableOverlay
         _canvas.BuildInteractiveLayer();
     }
 
-    private void AdjustSetting(string key, float amount)
+    private void AdjustSetting(string key, float amount, float min = 0.1f)
     {
         EVRSettingsError err = new (); 
         var cur = OpenVR.Settings.GetFloat(OpenVR.k_pch_SteamVR_Section, key, ref err);
@@ -334,7 +334,7 @@ public class AdvancedSettings : InteractableOverlay
             Console.WriteLine($"Err: Could not get {key}: {msg}");
             return;
         }
-        var val = Mathf.Clamp(cur + amount, 0.1f, 1f);
+        var val = Mathf.Clamp(cur + amount, min, 1f);
         OpenVR.Settings.SetFloat(OpenVR.k_pch_SteamVR_Section, key, val, ref err);
         if (err != EVRSettingsError.None)
         {
