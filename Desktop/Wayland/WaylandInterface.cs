@@ -103,6 +103,8 @@ public class WaylandInterface : IDisposable
 
                 foreach (var output in _outputs.Values)
                 {
+                    if (output == null)
+                        continue;
                     var data = await XdgScreenCastHandler.PromptUserAsync(output);
                     if (data != null)
                     {
@@ -184,8 +186,8 @@ public class WaylandInterface : IDisposable
             if (!_outputs.TryGetValue(e.Name, out var output))
                 return;
 
-            output.Dispose();
             _outputs.Remove(e.Name);
+            output.Dispose();
         };
     }
 
