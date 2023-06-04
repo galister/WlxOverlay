@@ -8,6 +8,10 @@
 # - Index of the screen, in order of occurrence ("0": first screen)
 default_screen: 0
 
+## Override arbitrary env variables
+# override_env:
+#   WAYLAND_DISPLAY: wayland-1
+
 # enable if you cannot see lasers for some reason
 fallback_cursors: false
 

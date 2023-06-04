@@ -18,6 +18,10 @@ Console.WriteLine($"WlxOverlay {version}");
 if (!Config.Load())
     return;
 
+if (Config.Instance.OverrideEnv != null)
+  foreach (var pair in Config.Instance.OverrideEnv)
+    Environment.SetEnvironmentVariable(pair.Key, pair.Value);
+
 Session.Initialize();
 
 var manager = OverlayManager.Initialize();

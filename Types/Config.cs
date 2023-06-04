@@ -110,4 +110,6 @@ public class Config
     public bool FallbackCursors;
 
     public Dictionary<string, string> ExportInputs;
+
+    public Dictionary<string, string>? OverrideEnv;
 }
