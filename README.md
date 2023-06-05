@@ -23,7 +23,9 @@ Features:
 
 [Check out the Wiki here!](https://github.com/galister/X11Overlay/wiki/Getting-Started)
 
-Join the discussion here: https://discord.gg/gHwJ2vwSWV
+Join the discussion!
+- Discord: https://discord.gg/gHwJ2vwSWV
+- Matrix Space: `#linux-vr-adventures:matrix.org`
 
 # Known Issues
 - Dragging curved displays very close may make them disappear. Long click the toggle on the watch to force respawn.
