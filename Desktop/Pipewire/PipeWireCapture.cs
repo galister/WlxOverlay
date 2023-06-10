@@ -190,7 +190,7 @@ public class PipeWireCapture : IDisposable
             {
                 case spa_data_type.SPA_DATA_DmaBuf:
                     {
-                        Console.WriteLine("Got SPA_DATA_DmaBuf");
+                        Console.WriteLine($"[{DateTime.UtcNow:O}] Got SPA_DATA_DmaBuf");
                         var planes = pb->n_datas;
 
                         var format = FromSpaFormats[info->raw.format];
@@ -222,7 +222,7 @@ public class PipeWireCapture : IDisposable
                     }
                 case spa_data_type.SPA_DATA_MemFd:
                     {
-                        Console.WriteLine("Got SPA_DATA_MemFd");
+                        Console.WriteLine($"[{DateTime.UtcNow:O}] Got SPA_DATA_MemFd");
                         _attribs[0] = (nint)spa_data_type.SPA_DATA_MemFd;
                         _attribs[1] = (nint)pb->datas[0].fd;
                         _attribs[2] = (nint)pb->datas[0].chunk->size;
@@ -231,14 +231,14 @@ public class PipeWireCapture : IDisposable
                     }
                 case spa_data_type.SPA_DATA_MemPtr:
                     {
-                        Console.WriteLine("Got SPA_DATA_MemPtr");
+                        Console.WriteLine($"[{DateTime.UtcNow:O}] Got SPA_DATA_MemPtr");
                         _attribs[0] = (nint)spa_data_type.SPA_DATA_MemPtr;
                         _attribs[1] = pb->datas[0].data;
                         break;
                     }
                 default:
                 {
-                    Console.WriteLine($"Unsupported buffer type: {pb->datas[0].type}");
+                    Console.WriteLine($"[{DateTime.UtcNow:O}] Unsupported buffer type: {pb->datas[0].type}");
                     break;
                 }
             }
