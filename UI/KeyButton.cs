@@ -22,9 +22,9 @@ public class KeyButton : ButtonBase
 
     private readonly Vector3[] _modeColors =
     {
-        HexColor.FromRgb("#006080"),
-        HexColor.FromRgb("#b03000"),
-        HexColor.FromRgb("#600080")
+        HexColor.FromRgb(Config.Instance.PrimaryColor ?? Config.DefaultPrimaryColor),
+        HexColor.FromRgb(Config.Instance.ShiftColor ?? Config.DefaultShiftColor),
+        HexColor.FromRgb(Config.Instance.AltColor ?? Config.DefaultAltColor)
     };
 
     private readonly bool[] _visibility = new bool[3];

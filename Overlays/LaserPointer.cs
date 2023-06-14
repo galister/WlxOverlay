@@ -32,9 +32,9 @@ public class LaserPointer : BaseOverlay
     private static readonly float RotationOffset = Mathf.DegToRad(-90);
 
     private static readonly Vector3[] ModeColors = {
-        HexColor.FromRgb("#006080"),
-        HexColor.FromRgb("#B03000"),
-        HexColor.FromRgb("#600080"),
+        HexColor.FromRgb(Config.Instance.PrimaryColor ?? Config.DefaultPrimaryColor),
+        HexColor.FromRgb(Config.Instance.ShiftColor ?? Config.DefaultShiftColor),
+        HexColor.FromRgb(Config.Instance.AltColor ?? Config.DefaultAltColor),
         HexColor.FromRgb("#A0A0A0"),
     };
 

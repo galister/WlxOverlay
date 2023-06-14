@@ -107,6 +107,14 @@ public class Config
 
     public string DefaultScreen;
 
+    public const string DefaultPrimaryColor = "#006080";
+    public const string DefaultShiftColor = "#B03000";
+    public const string DefaultAltColor = "#600080";
+
+    public string? PrimaryColor;
+    public string? ShiftColor;
+    public string? AltColor;
+
     public bool FallbackCursors;
 
     public Dictionary<string, string> ExportInputs;
