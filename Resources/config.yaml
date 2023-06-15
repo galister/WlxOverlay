@@ -131,9 +131,9 @@ click_freeze_time: 0.3
 
 
 ## Pointer & keyboard colors
-primary_color: #006080
-shift_color: #B03000
-alt_color: #600080
+primary_color: '#006080'
+shift_color: '#B03000'
+alt_color: '#600080'
 
 ## Expose OpenVR input data to external applications
 ## Key is: "{Left|Right}.{ActionName}", action name is case sensitive input name defined in actions.json
