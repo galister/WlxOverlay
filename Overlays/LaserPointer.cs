@@ -102,28 +102,42 @@ public class LaserPointer : BaseOverlay
 
     protected float Scroll;
 
+    private bool GetBoolState(string name)
+    {
+        if (InputManager.BooleanState.TryGetValue(name, out var hands))
+            return hands[(int)Hand];
+        return false;
+    }
+
+    private Vector3 GetVec3State(string name)
+    {
+        if (InputManager.Vector3State.TryGetValue(name, out var hands))
+            return hands[(int)Hand];
+        return Vector3.Zero;
+    }
+
     private void EvaluateInput()
     {
         ClickBefore = ClickNow;
-        ClickNow = InputManager.BooleanState["Click"][(int)Hand];
+        ClickNow = GetBoolState("Click");
 
         GrabBefore = GrabNow;
-        GrabNow = InputManager.BooleanState["Grab"][(int)Hand];
+        GrabNow = GetBoolState("Grab");
 
         AltClickBefore = AltClickNow;
-        AltClickNow = InputManager.BooleanState["AltClick"][(int)Hand];
+        AltClickNow = GetBoolState("AltClick");
 
         _showHideBefore = _showHideNow;
-        _showHideNow = InputManager.BooleanState["ShowHide"][(int)Hand];
+        _showHideNow = GetBoolState("ShowHide");
 
         _spaceDragBefore = _spaceDragNow;
-        _spaceDragNow = InputManager.BooleanState["SpaceDrag"][(int)Hand];
+        _spaceDragNow = GetBoolState("SpaceDrag");
 
-        ClickModifierRight = InputManager.BooleanState["ClickModifierRight"][(int)Hand];
+        ClickModifierRight = GetBoolState("ClickModifierRight");
 
-        ClickModifierMiddle = InputManager.BooleanState["ClickModifierMiddle"][(int)Hand];
+        ClickModifierMiddle = GetBoolState("ClickModifierMiddle");
 
-        Scroll = InputManager.Vector3State["Scroll"][(int)Hand].y;
+        Scroll = GetVec3State("Scroll").y;
 
         RecalculateModifier();
     }
