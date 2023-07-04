@@ -1,24 +1,27 @@
-using Desktop.DBus;
 using Tmds.DBus.Protocol;
 using Tmds.Linux;
 using WlxOverlay.Numerics;
+using WlxOverlay.Protocols;
 using WlxOverlay.Types;
 
 namespace WlxOverlay.Desktop.Wayland;
 
 internal static class XdgScreenCastHandler
 {
-    public static async Task<XdgScreenData?> PromptUserAsync(WaylandOutput output)
+    public static async Task<uint?> PromptUserAsync(WaylandOutput output)
     {
         var data = new XdgScreenData(output);
         if (await data.InitDbusAsync())
-            return data;
+            return data.NodeId;
         return null;
     }
 }
 
-internal class XdgScreenData : PipewireOutput
+internal class XdgScreenData : IDisposable
 {
+    internal uint NodeId;
+    private WaylandOutput _output;
+    
     private Connection _dbus = null!;
     private DesktopService _service = null!;
     private ScreenCast _screenCast = null!;
@@ -29,18 +32,18 @@ internal class XdgScreenData : PipewireOutput
 
     public XdgScreenData(WaylandOutput output)
     {
-        output.CopyTo(this);
+        _output = output;
         _token = $"xdg_screen_{output.IdName}";
     }
 
     private Process? ShowNotification()
     {
-        Console.WriteLine($"Select the following screen: {Model} @ {Name}");
+        Console.WriteLine($"Select the following screen: {_output.Model} @ {_output.Name}");
         try
         {
             var psi = new ProcessStartInfo("notify-send")
             {
-                ArgumentList = { "-u", "critical", "-t", "120000", "-w", "WlxOverlay", $"Now select: {Model} @ {Name}" }
+                ArgumentList = { "-u", "critical", "-t", "120000", "-w", "WlxOverlay", $"Now select: {_output.Model} @ {_output.Name}" }
             }; 
             return Process.Start(psi);
 
@@ -73,7 +76,7 @@ internal class XdgScreenData : PipewireOutput
 
         if (await CreateSessionAsync() && await SelectSourcesAsync() && await StartCaptureAsync())
         {
-            RecalculateTransform();
+            _output.RecalculateTransform();
             return true;
         }
 
@@ -146,7 +149,7 @@ internal class XdgScreenData : PipewireOutput
             ["persist_mode"] = 2U, // persistent
         };
 
-        if (Config.TryGetFile($"screen-{Name}.token", out var file))
+        if (Config.TryGetFile($"screen-{_output.Name}.token", out var file))
             options.Add("restore_token", (await File.ReadAllLinesAsync(file))[0]);
 
         var state = 0L;
@@ -254,13 +257,13 @@ internal class XdgScreenData : PipewireOutput
                     if (!Directory.Exists(Config.UserConfigFolder))
                         Directory.CreateDirectory(Config.UserConfigFolder);
 
-                    var path = Path.Combine(Config.UserConfigFolder, $"screen-{Name}.token");
+                    var path = Path.Combine(Config.UserConfigFolder, $"screen-{_output.Name}.token");
                     File.WriteAllText(path, restoreToken);
                 }
 
                 if (streams[0].Item2.TryGetValue("size", out var maybeSize)
                     && maybeSize is ValueTuple<int, int> size)
-                    Size = new Vector2Int(size.Item1, size.Item2);
+                    _output.Size = new Vector2Int(size.Item1, size.Item2);
                 else
                 {
                     Console.WriteLine($"ERR Could not Start ScreenCast source: Unexpected format: size");
@@ -288,9 +291,8 @@ internal class XdgScreenData : PipewireOutput
         public Dictionary<string, object> Results;
     }
 
-    public override void Dispose()
+    public void Dispose()
     {
         _dbus.Dispose();
-        base.Dispose();
     }
 }

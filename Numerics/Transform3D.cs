@@ -19,6 +19,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
+using System.Numerics;
 using System.Runtime.InteropServices;
 
 namespace WlxOverlay.Numerics;
@@ -564,5 +565,16 @@ public struct Transform3D : IEquatable<Transform3D>
     public string ToString(string format)
     {
         return $"[X: {basis.x.ToString(format)}, Y: {basis.y.ToString(format)}, Z: {basis.z.ToString(format)}, O: {origin.ToString(format)}]";
+    }
+    
+    public Matrix4x4 ToSystemMatrix()
+    {
+        return new Matrix4x4
+        (
+            basis.Row0.x, basis.Row0.y, basis.Row0.z, 0,
+            basis.Row1.x, basis.Row1.y, basis.Row1.z, 0,
+            basis.Row2.x, basis.Row2.y, basis.Row2.z, 0,
+            origin.x, origin.y, origin.z, 1
+        );
     }
 }

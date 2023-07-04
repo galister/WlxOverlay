@@ -1,13 +1,16 @@
+using WlxOverlay.Backend;
+using WlxOverlay.Backend.OVR;
 using WlxOverlay.Core;
+using WlxOverlay.Core.Interactions;
 using WlxOverlay.GFX;
+using WlxOverlay.GUI;
+using WlxOverlay.Input;
 using WlxOverlay.Numerics;
-using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Types;
-using WlxOverlay.UI;
 
 namespace WlxOverlay.Overlays;
 
-public class KeyboardOverlay : GrabbableOverlay
+public class KeyboardOverlay : BaseOverlay, IInteractable, IGrabbable
 {
     private const uint PixelsPerKey = 80;
     private const uint ButtonPadding = 4;
@@ -73,14 +76,13 @@ public class KeyboardOverlay : GrabbableOverlay
 
     protected override void Initialize()
     {
-        var hmd = InputManager.HmdTransform;
+        var hmd = XrBackend.Current.Input.HmdTransform;
         var centerPoint = hmd.TranslatedLocal(SpawnPosition);
         Transform = hmd.LookingAt(centerPoint.origin, hmd.basis.y * hmd.basis.Inverse());
         Transform.origin = centerPoint.origin;
 
         Texture = _canvas.Initialize();
 
-        UpdateInteractionTransform();
         base.Initialize();
     }
 
@@ -91,32 +93,49 @@ public class KeyboardOverlay : GrabbableOverlay
         base.Render();
     }
 
-    protected internal override void OnPointerDown(PointerHit hitData)
+    public void OnPointerDown(PointerHit hitData)
     {
-        var action = _canvas.OnPointerDown(hitData.uv, hitData.hand);
-        hitData.pointer.ReleaseAction = action;
+        var action = _canvas.OnPointerDown(hitData.uv, hitData.pointer.Hand);
+        hitData.pointer.AddReleaseAction(action);
     }
 
-    protected internal override void OnPointerHover(PointerHit hitData)
+    public void OnPointerUp(PointerHit hitData)
     {
-        if (hitData.pointer.Hand == Config.Instance.PrimaryHand
-            || PrimaryPointer == null)
-            EnsurePrimary(hitData.pointer);
+    }
 
-        if (KeyButton.Mode != (int)PrimaryPointer!.Mode)
+    public void OnScroll(PointerHit hitData, float value)
+    {
+    }
+
+    public void OnPointerHover(PointerHit hitData)
+    {
+        if (hitData.isPrimary && KeyButton.Mode != (int) hitData.modifier)
         {
-            KeyButton.Mode = (int)PrimaryPointer!.Mode;
+            KeyButton.Mode = (int)hitData.modifier;
             _canvas.MarkDirty();
         }
 
-        _canvas.OnPointerHover(hitData.uv, hitData.hand);
-
-        base.OnPointerHover(hitData);
+        _canvas.OnPointerHover(hitData.uv, hitData.pointer.Hand);
     }
 
-    protected internal override void OnPointerLeft(LeftRight hand)
+    public void OnPointerLeft(LeftRight hand)
     {
-        base.OnPointerLeft(hand);
         _canvas.OnPointerLeft(hand);
+    }
+
+    public void OnGrabbed(PointerHit hitData)
+    {
+    }
+
+    public void OnDropped()
+    {
+    }
+
+    public void OnClickWhileHeld()
+    {
+    }
+
+    public void OnAltClickWhileHeld()
+    {
     }
 }

@@ -4,17 +4,20 @@ namespace WlxOverlay.Desktop;
 
 public class BaseOutput
 {
+    public uint IdName;
+    
     public static Rect2 OutputRect { get; private set; }
     
     public string Name { get; set; } = null!;
     public Vector2Int Position { get; set; }
     public Vector2Int Size { get; set; }
     public Transform2D Transform { get; protected set; } = Transform2D.Identity;
-    
-    public BaseOutput() { }
-    public BaseOutput(string name)
+
+    protected BaseOutput() { }
+    public BaseOutput(int x11Screen)
     {
-        Name = name;
+        IdName = (uint)x11Screen;
+        Name = $"Scr {x11Screen}";
     }
     
     public virtual void RecalculateTransform()

@@ -1,16 +1,17 @@
+using WlxOverlay.Backend;
 using WlxOverlay.Core;
+using WlxOverlay.Core.Interactions;
 using WlxOverlay.GFX;
+using WlxOverlay.GUI;
 using WlxOverlay.Numerics;
-using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Types;
-using WlxOverlay.UI;
 
 namespace WlxOverlay.Overlays;
 
 /// <summary>
 /// An overlay that shows time and has some buttons
 /// </summary>
-public class Watch : InteractableOverlay
+public class Watch : BaseOverlay, IInteractable
 {
     private static Watch? _instance;
     private readonly Canvas _canvas;
@@ -18,24 +19,29 @@ public class Watch : InteractableOverlay
 
     private float _flBrightness = 1f;
 
-    internal string StrPose;
+    internal LeftRight Hand;
     internal Vector3 Vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
     internal Vector3 Vec3InsideUnit = Vector3.Right;
 
     public bool Hidden;
 
-    public Watch(BaseOverlay keyboard, IList<BaseOverlay> screens) : base("Watch")
+    private bool _batteryStateUpdated;
+
+    public Watch(BaseOverlay keyboard) : base("Watch")
     {
         if (_instance != null)
             throw new InvalidOperationException("Can't have more than one Watch!");
         _instance = this;
 
-        StrPose = $"{Config.Instance.WatchHand}Hand";
+        Hand = Config.Instance.WatchHand;
         if (Config.Instance.WatchHand == LeftRight.Right)
         {
             Vec3RelToHand.x *= -1;
             Vec3InsideUnit.x *= -1;
         }
+
+        XrBackend.Current.Input.BatteryStatesUpdated += (_, _) 
+            => _batteryStateUpdated = true;
 
         WidthInMeters = 0.115f;
         ShowHideBinding = false;
@@ -114,7 +120,7 @@ public class Watch : InteractableOverlay
         Canvas.CurrentBgColor = HexColor.FromRgb("#406050");
         Canvas.CurrentFgColor = HexColor.FromRgb("#CCBBAA");
 
-        int bottomRowStart = 0;
+        int bottomRowStart;
 
         _canvas.AddControl(new Button("☰", 2, 2, 36, 36)
         {
@@ -123,11 +129,13 @@ public class Watch : InteractableOverlay
                 Hidden = true;
                 Hide();
                 var advSettings = new AdvancedSettings(this);
-                OverlayManager.Instance.RegisterChild(advSettings);
+                OverlayRegistry.Register(advSettings);
                 advSettings.Show();
             }
         });
         bottomRowStart = 40;
+
+        var screens = OverlayRegistry.ListOverlays().Where(x => x is DesktopOverlay).ToList();
 
         var numButtons = screens.Count + 1;
         var btnWidth = (400 - bottomRowStart) / numButtons;
@@ -182,7 +190,7 @@ public class Watch : InteractableOverlay
 
     public void SwapHands()
     {
-        StrPose = StrPose == "LeftHand" ? "RightHand" : "LeftHand";
+        Hand = LeftRight.Left == Hand ? LeftRight.Right : LeftRight.Left;
         Vec3RelToHand.x *= -1;
         Vec3InsideUnit.x *= -1;
     }
@@ -193,15 +201,15 @@ public class Watch : InteractableOverlay
             _canvas.RemoveControl(c);
         _batteryControls.Clear();
 
-        var numStates = InputManager.DeviceStates.Count;
-
-        if (numStates > 0)
+        var states = XrBackend.Current.GetBatteryStates();
+        
+        if (states.Count > 0)
         {
-            var stateWidth = 400 / numStates;
+            var stateWidth = 400 / states.Count;
 
-            for (var s = 0; s < numStates; s++)
+            for (var s = 0; s < states.Count; s++)
             {
-                var device = InputManager.DeviceStates[s];
+                var device = states[s];
 
                 var indicator = new BatteryIndicator(device, stateWidth * s + 2, 162, (uint)stateWidth - 4U, 36);
                 _canvas.AddControl(indicator);
@@ -214,8 +222,6 @@ public class Watch : InteractableOverlay
     protected override void Initialize()
     {
         Texture = _canvas.Initialize();
-
-        UpdateInteractionTransform();
         base.Initialize();
     }
 
@@ -226,17 +232,17 @@ public class Watch : InteractableOverlay
         base.Render();
     }
 
-    protected internal override void AfterInput(bool batteryStateUpdated)
+    protected internal override void AfterInput()
     {
-        base.AfterInput(batteryStateUpdated);
+        base.AfterInput();
 
-        var controller = InputManager.PoseState[StrPose];
+        var controller = XrBackend.Current.Input.HandTransform(Hand);
         var tgt = controller.TranslatedLocal(Vec3InsideUnit).TranslatedLocal(Vec3RelToHand);
         Transform = controller.TranslatedLocal(Vec3RelToHand).LookingAt(tgt.origin, -controller.basis.y);
 
         UploadTransform();
 
-        var toHmd = (InputManager.HmdTransform.origin - Transform.origin).Normalized();
+        var toHmd = (XrBackend.Current.Input.HmdTransform.origin - Transform.origin).Normalized();
         var unclampedAlpha = MathF.Log(0.7f, Transform.basis.z.Dot(toHmd)) - 1f;
         Alpha = Mathf.Clamp(unclampedAlpha, 0f, 1f);
         if (Alpha < 0.1)
@@ -252,8 +258,11 @@ public class Watch : InteractableOverlay
             UploadAlpha();
         }
 
-        if (batteryStateUpdated)
+        if (_batteryStateUpdated)
+        {
             OnBatteryStatesUpdated();
+            _batteryStateUpdated = false;
+        }
     }
 
     public override void Show()
@@ -262,32 +271,31 @@ public class Watch : InteractableOverlay
             base.Show();
     }
 
-    protected internal override void OnPointerDown(PointerHit hitData)
+    public void OnPointerDown(PointerHit hitData)
     {
-        base.OnPointerDown(hitData);
-        var action = _canvas.OnPointerDown(hitData.uv, hitData.hand);
-        hitData.pointer.ReleaseAction = action;
+        var action = _canvas.OnPointerDown(hitData.uv, hitData.pointer.Hand);
+        hitData.pointer.AddReleaseAction(action);
     }
 
-    protected internal override void OnPointerHover(PointerHit hitData)
+    public void OnPointerUp(PointerHit hitData)
     {
-        base.OnPointerHover(hitData);
-        _canvas.OnPointerHover(hitData.uv, hitData.hand);
     }
 
-    protected internal override void OnPointerLeft(LeftRight hand)
+    public void OnPointerHover(PointerHit hitData)
     {
-        base.OnPointerLeft(hand);
+        _canvas.OnPointerHover(hitData.uv, hitData.pointer.Hand);
+    }
+
+    public void OnPointerLeft(LeftRight hand)
+    {
         _canvas.OnPointerLeft(hand);
     }
 
-    protected internal override void OnScroll(PointerHit hitData, float value)
+    public void OnScroll(PointerHit hitData, float value)
     {
-        base.OnScroll(hitData, value);
-
         var lastColorMultiplier = _flBrightness;
         _flBrightness = Mathf.Clamp(_flBrightness + Mathf.Pow(value, 3) * 0.25f, 0.1f, 1f);
         if (Math.Abs(lastColorMultiplier - _flBrightness) > float.Epsilon)
-            OverlayManager.Instance.SetBrightness(_flBrightness);
+            OverlayRegistry.Execute(x => x.SetBrightness(_flBrightness));
     }
 }

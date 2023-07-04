@@ -9,8 +9,6 @@ public class WaylandOutput : BaseOutput, IDisposable
     public WlOutput? Handle;
     protected WlOutputTransform? WlTransform;
     
-    public uint IdName;
-    
     public Vector2Int LogicalSize { get; protected set; }
 
     public WaylandOutput(uint idName, WlOutput? handle)

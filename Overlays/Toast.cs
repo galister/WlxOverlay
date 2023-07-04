@@ -1,9 +1,10 @@
+using WlxOverlay.Backend;
+using WlxOverlay.Backend.OVR;
 using WlxOverlay.Core;
 using WlxOverlay.GFX;
+using WlxOverlay.GUI;
 using WlxOverlay.Numerics;
-using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Types;
-using WlxOverlay.UI;
 
 namespace WlxOverlay.Overlays;
 
@@ -80,7 +81,7 @@ public class Toast : BaseOverlay
         base.Initialize();
     }
 
-    protected internal override void AfterInput(bool batteryStateUpdated)
+    protected internal override void AfterInput()
     {
         if (_fadeEnd < DateTime.UtcNow)
         {
@@ -96,8 +97,8 @@ public class Toast : BaseOverlay
 
         var moveProgress = (float)((_fadeEnd - DateTime.UtcNow) / _totalFadeTime);
 
-        base.AfterInput(batteryStateUpdated);
-        Transform = InputManager.HmdTransform
+        base.AfterInput();
+        Transform = XrBackend.Current.Input.HmdTransform
             .TranslatedLocal(Vector3.Forward * (0.5f + 0.05f * moveProgress))
             .TranslatedLocal(Vector3.Down * 0.2f);
 

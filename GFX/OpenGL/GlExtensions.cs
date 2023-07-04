@@ -4,10 +4,12 @@ namespace WlxOverlay.GFX.OpenGL;
 
 public static class GlExtensions
 {
-    public static void AssertNone(this GLEnum error)
+    [Conditional("DEBUG")]
+    public static void DebugAssertSuccess(this GL gl)
     {
+        var error = gl.GetError();
         if (error != GLEnum.None)
-            throw new ApplicationException($"[Err] {error}");
+            Console.WriteLine($"[Err] {error}");
     }
 
     public static void Assert(this GLEnum error, GLEnum expected)

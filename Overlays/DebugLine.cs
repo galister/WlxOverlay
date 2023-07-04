@@ -1,9 +1,10 @@
 #if DEBUG
 
+using WlxOverlay.Backend;
+using WlxOverlay.Backend.OVR;
 using WlxOverlay.Core;
 using WlxOverlay.GFX;
 using WlxOverlay.Numerics;
-using WlxOverlay.Overlays.Simple;
 
 namespace WlxOverlay.Overlays;
 
@@ -42,7 +43,7 @@ public class DebugLine : BaseLine
     {
         base.SetPoints(start, end, false);
 
-        var hmd = InputManager.HmdTransform;
+        var hmd = XrBackend.Current.Input.HmdTransform;
         // billboard towards hmd
         var viewDirection = hmd.origin - start;
 

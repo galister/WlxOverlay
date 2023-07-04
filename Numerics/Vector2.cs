@@ -19,9 +19,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 
-using System.Runtime.InteropServices;
-using Valve.VR;
-
 namespace WlxOverlay.Numerics;
 
 /// <summary>
@@ -1020,15 +1017,5 @@ public struct Vector2 : IEquatable<Vector2>
     public string ToString(string format)
     {
         return $"({x.ToString(format)}, {y.ToString(format)})";
-    }
-
-    public static explicit operator Vector2(HmdVector2_t v)
-    {
-        return new Vector2(v.v0, v.v1);
-    }
-
-    public static explicit operator HmdVector2_t(Vector2 v)
-    {
-        return new HmdVector2_t { v0 = v.x, v1 = v.y };
     }
 }

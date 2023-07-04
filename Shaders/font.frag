@@ -1,4 +1,4 @@
-#version 330 core
+#version 330
 in vec2 fUv;
 
 uniform sampler2D uTexture0;

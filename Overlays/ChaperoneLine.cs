@@ -1,5 +1,4 @@
 using WlxOverlay.Numerics;
-using WlxOverlay.Overlays.Simple;
 
 namespace WlxOverlay.Overlays;
 

@@ -1,5 +1,7 @@
+using Silk.NET.Core;
 using Silk.NET.OpenGL;
 using Silk.NET.Maths;
+using Silk.NET.OpenXR;
 using Silk.NET.Windowing;
 using Silk.NET.Windowing.Glfw;
 using Valve.VR;
@@ -16,6 +18,8 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
     public static GlShader SpriteShader = null!;
     public static GlShader ColorShader = null!;
     public static GlShader FontShader = null!;
+    public static GlShader SrgbShader = null!;
+    public static GlShader QuadShader = null!;
 
     public GlGraphicsEngine()
     {
@@ -23,14 +27,14 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
             throw new InvalidOperationException("Another GraphicsEngine exists.");
         GraphicsEngine.Instance = this;
     }
-
+    
     public void StartEventLoop()
     {
         var options = WindowOptions.Default;
         options.IsVisible = false;
         options.Size = new Vector2D<int>(800, 600);
         options.Title = "WlxOverlay";
-        options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Compatability, ContextFlags.ForwardCompatible, new APIVersion(4, 5));
+        options.API = new GraphicsAPI(ContextAPI.OpenGL, ContextProfile.Core, ContextFlags.ForwardCompatible, new APIVersion(4, 5));
         options.VSync = false;
 
         GlfwWindowing.Use();
@@ -43,9 +47,16 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
 
     private void OnLoad()
     {
-        _gl = GL.GetApi(_window.GLContext);
+        _gl = GL.GetApi(_window);
+        
         _gl.Enable(EnableCap.Texture2D);
+        _gl.DebugAssertSuccess();
+        
+        //_gl.Enable(EnableCap.DepthTest);
+        //_gl.DebugAssertSuccess();
+        
         _gl.Enable(EnableCap.Blend);
+        _gl.DebugAssertSuccess();
 
         _gl.GetError();
         Console.WriteLine("GL Context initialized");
@@ -54,8 +65,53 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         SpriteShader = new GlShader(_gl, vertShader, GetShaderPath("sprite.frag"));
         ColorShader = new GlShader(_gl, vertShader, GetShaderPath("color.frag"));
         FontShader = new GlShader(_gl, vertShader, GetShaderPath("font.frag"));
+        SrgbShader = new GlShader(_gl, vertShader, GetShaderPath("srgb.frag"));
+        QuadShader = new GlShader(_gl, vertShader, GetShaderPath("tex-color.frag"));
 
-        GraphicsEngine.UiRenderer = new GlUiRenderer(_gl);
+        GraphicsEngine.Renderer = new GlRenderer(_gl);
+        MainLoop.Initialize();
+    }
+
+    public GraphicsBinding XrGraphicsBinding()
+    {
+        var glfwWindow = _window.Native!.Glfw!.Value;
+        var display = glfwGetEGLDisplay();
+        var handle = glfwGetEGLContext(glfwWindow);
+        var config = IntPtr.Zero;
+
+        // Hack: GLFW does not expose EGLConfig, but we know that it comes right before the context handle.
+        for (var i = 0; i < 1000; i++) unsafe
+        {
+            var lp = (IntPtr*) IntPtr.Add(glfwWindow, i);
+            var val = *lp;
+            if (val == handle)
+            {
+                config = *(IntPtr*)IntPtr.Add(glfwWindow, i - 8).ToPointer();
+                break;
+            }
+        }
+
+        if (config == IntPtr.Zero)
+            throw new ApplicationException("Could not find EGLConfig");
+
+        GetProcAddress getProcAddress = EGL.GetProcAddress;
+        
+        var binding = new GraphicsBindingEGLMNDX
+        {
+            Type = StructureType.GraphicsBindingEglMndx,
+            Display = display,
+            Config = config,
+            Context = handle,
+            GetProcAddress = new PfnVoidFunction(getProcAddress),
+        };
+        return binding;
+    }
+    
+    private delegate IntPtr GetProcAddress(string s);
+
+    public GlStereoRenderer CreateStereoRenderer()
+    {
+        return new GlStereoRenderer(_gl);
     }
 
     private string GetShaderPath(string shader)
@@ -65,7 +121,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
 
     private void OnRender(double _)
     {
-        OverlayManager.Instance.Update();
+        MainLoop.Update();
     }
 
     public ITexture TextureFromFile(string path, GraphicsFormat internalFormat = GraphicsFormat.RGBA8)
@@ -100,6 +156,12 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         {
             return new GlTexture(_gl, ptr, width, height, pixelFmt, pixelType, internalFmt);
         }
+    }
+
+    public ITexture TextureFromHandle(IntPtr handle, uint width, uint height,
+        GraphicsFormat internalFormat = GraphicsFormat.RGBA8)
+    {
+        return new GlTexture(_gl, handle, width, height, GraphicsFormatAsInternal(internalFormat));
     }
 
     public ETextureType GetTextureType()
@@ -140,4 +202,10 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
     }
+    
+    [DllImport("libglfw.so")]
+    public static extern IntPtr glfwGetEGLDisplay();
+    
+    [DllImport("libglfw.so")]
+    public static extern IntPtr glfwGetEGLContext(IntPtr glfwWindow);
 }

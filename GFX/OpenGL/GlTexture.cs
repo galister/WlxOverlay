@@ -1,9 +1,4 @@
-using System.Runtime.InteropServices;
-using System.Text;
 using Silk.NET.OpenGL;
-using SixLabors.ImageSharp;
-using SixLabors.ImageSharp.PixelFormats;
-using WlxOverlay.Desktop;
 
 namespace WlxOverlay.GFX.OpenGL;
 
@@ -26,7 +21,7 @@ public class GlTexture : ITexture
         _gl = gl;
         _internalFormat = internalFormat;
         Handle = _gl.GenTexture();
-        _gl.GetError().AssertNone();
+        _gl.DebugAssertSuccess();
 
         Bind();
 
@@ -44,13 +39,25 @@ public class GlTexture : ITexture
                     {
                         gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, maxY - y, (uint)accessor.Width, 1,
                             PixelFormat.Rgba, PixelType.UnsignedByte, data);
-                        _gl.GetError().AssertNone();
+                        _gl.DebugAssertSuccess();
                     }
                 }
             });
         }
 
         SetParameters();
+    }
+
+    public unsafe GlTexture(GL gl, IntPtr handle, uint width, uint height,
+        InternalFormat internalFormat = InternalFormat.Rgba8, bool dynamic = false)
+    {
+        _gl = gl;
+        _dynamic = dynamic;
+
+        Handle = (uint)handle;
+        
+        Bind();
+        Allocate(internalFormat, width, height, PixelFormat.Rgba, PixelType.UnsignedByte, null);
     }
 
     public unsafe GlTexture(GL gl, uint width, uint height, InternalFormat internalFormat = InternalFormat.Rgba8,
@@ -60,7 +67,7 @@ public class GlTexture : ITexture
         _dynamic = dynamic;
 
         Handle = _gl.GenTexture();
-        _gl.GetError().AssertNone();
+        _gl.DebugAssertSuccess();
 
         Bind();
 
@@ -74,11 +81,13 @@ public class GlTexture : ITexture
     {
         _gl = gl;
         Handle = _gl.GenTexture();
-        _gl.GetError().AssertNone();
+        _gl.DebugAssertSuccess();
         Bind();
 
         _gl.PixelStore(GLEnum.PackAlignment, 1);
+        _gl.DebugAssertSuccess();
         _gl.PixelStore(GLEnum.UnpackAlignment, 1);
+        _gl.DebugAssertSuccess();
         //We want the ability to create a texture using data generated from code as well.
         //Setting the data of a texture.
         Allocate(internalFormat, width, height, pixelFormat, pixelType, data);
@@ -96,6 +105,7 @@ public class GlTexture : ITexture
         _gl.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMaxLevel, 8);
         //Generating mipmaps.
         _gl.GenerateMipmap(TextureTarget.Texture2D);
+        _gl.DebugAssertSuccess();
     }
 
     private unsafe void Allocate(InternalFormat internalFormat, uint width, uint height,
@@ -106,20 +116,24 @@ public class GlTexture : ITexture
 
         _internalFormat = internalFormat;
         _gl.TexImage2D(TextureTarget.Texture2D, 0, (int)internalFormat, width, height, 0, pixelFormat, pixelType, data);
-        _gl.GetError().AssertNone();
+        _gl.DebugAssertSuccess();
     }
 
     public void Bind(TextureUnit textureSlot = TextureUnit.Texture0)
     {
         //When we bind a texture we can choose which texture slot we can bind it to.
         _gl.ActiveTexture(textureSlot);
+        _gl.DebugAssertSuccess();
+        
         _gl.BindTexture(TextureTarget.Texture2D, Handle);
+        _gl.DebugAssertSuccess();
     }
 
     public void Dispose()
     {
         //In order to dispose we need to delete the OpenGL handle for the texture.
         _gl.DeleteTexture(Handle);
+        _gl.DebugAssertSuccess();
     }
 
     public unsafe void LoadRawImage(IntPtr ptr, GraphicsFormat graphicsFormat, uint newWidth = 0, uint newHeight = 0)
@@ -136,7 +150,7 @@ public class GlTexture : ITexture
 
         //_gl.TexImage2D(TextureTarget.Texture2D, 0, InternalFormat.Rgba8, Width, Height, 0, pf, pt, d);
         _gl.TexSubImage2D(TextureTarget.Texture2D, 0, 0, 0, Width, Height, pf, pt, d);
-        _gl.GetError().AssertNone();
+        _gl.DebugAssertSuccess();
     }
 
     public unsafe void LoadRawSubImage(IntPtr ptr, GraphicsFormat graphicsFormat, int xOffset, int yOffset, int width, int height)
@@ -147,13 +161,17 @@ public class GlTexture : ITexture
         Bind();
 
         _gl.TexSubImage2D(TextureTarget.Texture2D, 0, xOffset, yOffset, (uint)width, (uint)height, pf, pt, d);
-        _gl.GetError().AssertNone();
+        _gl.DebugAssertSuccess();
     }
 
     public void CopyTo(ITexture target, uint width = 0, uint height = 0, int srcX = 0, int srcY = 0, int dstX = 0, int dstY = 0)
     {
-        var glTarget = (GlTexture)target;
+        if (target is GlTexture glTarget)
+            CopyTo(glTarget.Handle, width, height, srcX, srcY, dstX, dstY);
+    }
 
+    public void CopyTo(uint target, uint width = 0, uint height = 0, int srcX = 0, int srcY = 0, int dstX = 0, int dstY = 0)
+    {
         if (width == 0)
             width = Width;
 
@@ -161,8 +179,9 @@ public class GlTexture : ITexture
             height = Height;
 
         _gl.CopyImageSubData(Handle, GLEnum.Texture2D, 0, srcX, srcY, 0,
-            glTarget.Handle, GLEnum.Texture2D, 0, dstX, dstY, 0,
+            target, GLEnum.Texture2D, 0, dstX, dstY, 0,
             width, height, 1);
+        _gl.DebugAssertSuccess();
     }
 
     public unsafe void Resize(uint width, uint height)
@@ -174,9 +193,9 @@ public class GlTexture : ITexture
         Height = height;
         
         Bind();
-        _gl.GetError().AssertNone();
+        
         _gl.TexImage2D(TextureTarget.Texture2D, 0, _internalFormat, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
-        _gl.GetError().AssertNone();
+        _gl.DebugAssertSuccess();
     }
     
     public void LoadEglImage(IntPtr eglImage, uint width, uint height)
@@ -184,7 +203,7 @@ public class GlTexture : ITexture
         Bind();
 
         EGL.ImageTargetTexture2DOES((int)GLEnum.Texture2D, eglImage);
-        _gl.GetError().AssertNone();
+        _gl.DebugAssertSuccess();
 
         Width = width;
         Height = height;

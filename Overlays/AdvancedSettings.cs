@@ -1,30 +1,32 @@
-using WlxOverlay.Core;
 using WlxOverlay.GFX;
 using WlxOverlay.Numerics;
-using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Types;
-using WlxOverlay.UI;
-using Valve.VR;
+using WlxOverlay.Backend;
+using WlxOverlay.Core.Interactions;
+using WlxOverlay.Core.Interactions.Internal;
+using WlxOverlay.Extras;
+using WlxOverlay.GUI;
+using TaskScheduler = WlxOverlay.Core.TaskScheduler;
 
 namespace WlxOverlay.Overlays;
 
 /// <summary>
 /// An overlay that shows chaperone settings
 /// </summary>
-public class AdvancedSettings : InteractableOverlay
+public class AdvancedSettings : BaseOverlay, IInteractable
 {
     private readonly Canvas _canvas;
 
-    private List<Control> _globalControls = new();
-    private List<Control> _polyControls = new();
+    private readonly List<Control> _globalControls = new();
+    private readonly List<Control> _polyControls = new();
 
     private ChaperonePolygon? _selection;
-    private List<Button> _tabButtons = new();
+    private readonly List<Button> _tabButtons = new();
 
-    private Vector3 ActiveColorBG = HexColor.FromRgb("#77AA77");
-    private Vector3 InactiveColorBG = HexColor.FromRgb("#006688");
+    private readonly Vector3 ActiveColorBG = HexColor.FromRgb("#77AA77");
+    private readonly Vector3 InactiveColorBG = HexColor.FromRgb("#006688");
 
-    private Watch _parent;
+    private readonly Watch _parent;
 
     private int AddTabPage(ContentPager p, Button b)
     {
@@ -99,23 +101,23 @@ public class AdvancedSettings : InteractableOverlay
                 for (var i = 0; i < 5; i++)
                 {
                     var i1 = i;
-                    OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(i), () =>
+                    TaskScheduler.ScheduleTask(DateTime.UtcNow.AddSeconds(i), () =>
                     {
                         label.Text = $"Put controller on floor! {5 - i1}s";
                     });
                 }
-                OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(5), () => 
+                TaskScheduler.ScheduleTask(DateTime.UtcNow.AddSeconds(5), () => 
                 {
-                    PlaySpaceManager.Instance.FixFloor();
+                    PlaySpaceMover.FixFloor();
                     label.Text = "";
                 });
             }
         });
         pager.AddControl(settings, new Button("Reset Offset", 160, 64, 130, 30) {
-            PointerDown = _ => PlaySpaceManager.Instance.ResetOffset()
+            PointerDown = _ => PlaySpaceMover.ResetOffset()
         });
         pager.AddControl(settings, new Button("Make Default", 160, 28, 130, 30) {
-            PointerDown = _ => PlaySpaceManager.Instance.SetAsDefault()
+            PointerDown = _ => PlaySpaceMover.SetAsDefault()
         });
 
         pager.AddControl(settings, new LabelCentered("Popups", 305, 136, 80, 24));
@@ -158,9 +160,9 @@ public class AdvancedSettings : InteractableOverlay
         {
             PointerDown = _ => 
             {
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainR_Float, 1f);
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, 1f);
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, 1f);
+                XrBackend.Current.AdjustGain(0, 1f);
+                XrBackend.Current.AdjustGain(1, 1f);
+                XrBackend.Current.AdjustGain(2, 1f);
             }
         });
 
@@ -169,9 +171,9 @@ public class AdvancedSettings : InteractableOverlay
         {
             PointerDown = _ => 
             {
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainR_Float, 0.1f);
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, 0.1f);
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, 0.1f);
+                XrBackend.Current.AdjustGain(0, 0.1f);
+                XrBackend.Current.AdjustGain(1, 0.1f);
+                XrBackend.Current.AdjustGain(2, 0.1f);
             }
         });
 
@@ -179,43 +181,43 @@ public class AdvancedSettings : InteractableOverlay
         {
             PointerDown = _ => 
             {
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainR_Float, -0.1f);
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, -0.1f);
-                AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, -0.1f);
+                XrBackend.Current.AdjustGain(0, -0.1f);
+                XrBackend.Current.AdjustGain(1, -0.1f);
+                XrBackend.Current.AdjustGain(2, -0.1f);
             }
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#DD0000");
         pager.AddControl(video, new Button("+", 207, 116, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainR_Float, 0.1f)
+            PointerDown = _ => XrBackend.Current.AdjustGain(0, 0.1f)
         });
 
         pager.AddControl(video, new Button("-", 207, 52, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainR_Float, -0.1f)
+            PointerDown = _ => XrBackend.Current.AdjustGain(0, -0.1f)
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#00AA00");
         pager.AddControl(video, new Button("+", 267, 116, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, 0.1f, 0)
+            PointerDown = _ => XrBackend.Current.AdjustGain(1, 0.1f)
         });
 
         pager.AddControl(video, new Button("-", 267, 52, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainG_Float, -0.1f, 0)
+            PointerDown = _ => XrBackend.Current.AdjustGain(1, -0.1f)
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#0000DD");
         pager.AddControl(video, new Button("+", 327, 116, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, 0.1f, 0)
+            PointerDown = _ => XrBackend.Current.AdjustGain(2, 0.1f)
         });
 
         pager.AddControl(video, new Button("-", 327, 52, 46, 32)
         {
-            PointerDown = _ => AdjustSetting(OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float, -0.1f, 0)
+            PointerDown = _ => XrBackend.Current.AdjustGain(2, -0.1f)
         });
 
         // --------------- strokes ------------------
@@ -243,12 +245,12 @@ public class AdvancedSettings : InteractableOverlay
                 for (var i = 0; i < 10; i++)
                 {
                     var i1 = i;
-                    OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(i), () =>
+                    TaskScheduler.ScheduleTask(DateTime.UtcNow.AddSeconds(i), () =>
                     {
                         label.Text = $"Loading in {10 - i1}s...";
                     });
                 }
-                OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(10), () =>
+                TaskScheduler.ScheduleTask(DateTime.UtcNow.AddSeconds(10), () =>
                 {
                     ChaperoneManager.Instance.LoadFromFile();
                     label.Text = "";
@@ -262,12 +264,12 @@ public class AdvancedSettings : InteractableOverlay
                 for (var i = 0; i < 10; i++)
                 {
                     var i1 = i;
-                    OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(i), () =>
+                    TaskScheduler.ScheduleTask(DateTime.UtcNow.AddSeconds(i), () =>
                     {
                         label.Text = $"Saving in {10 - i1}s...";
                     });
                 }
-                OverlayManager.Instance.ScheduleTask(DateTime.UtcNow.AddSeconds(10), () =>
+                TaskScheduler.ScheduleTask(DateTime.UtcNow.AddSeconds(10), () =>
                 {
                     ChaperoneManager.Instance.SaveToFile();
                     label.Text = "";
@@ -281,7 +283,7 @@ public class AdvancedSettings : InteractableOverlay
             PointerDown = b =>
             {
                 if (!FinalizePolygon()) {
-                    OverlayManager.Instance.PointerInteractions.Add(NewPolygonAction);
+                    InteractionsHandler.RegisterCustomInteraction(nameof(NewPolygonAction), NewPolygonAction);
                     b.SetText("Finish");
                     label.Text = "Add segments using right hand.";
                 }
@@ -323,32 +325,12 @@ public class AdvancedSettings : InteractableOverlay
         _canvas.BuildInteractiveLayer();
     }
 
-    private void AdjustSetting(string key, float amount, float min = 0.1f)
-    {
-        EVRSettingsError err = new (); 
-        var cur = OpenVR.Settings.GetFloat(OpenVR.k_pch_SteamVR_Section, key, ref err);
-
-        if (err != EVRSettingsError.None)
-        {
-            var msg = OpenVR.Settings.GetSettingsErrorNameFromEnum(err);
-            Console.WriteLine($"Err: Could not get {key}: {msg}");
-            return;
-        }
-        var val = Mathf.Clamp(cur + amount, min, 1f);
-        OpenVR.Settings.SetFloat(OpenVR.k_pch_SteamVR_Section, key, val, ref err);
-        if (err != EVRSettingsError.None)
-        {
-            var msg = OpenVR.Settings.GetSettingsErrorNameFromEnum(err);
-            Console.WriteLine($"Err: Could not set {key}: {msg}");
-        }
-    }
-
     private InteractionResult NewPolygonAction(InteractionArgs args)
     {
         if (args.Hand == Config.Instance.WatchHand)
             return InteractionResult.Unhandled;
 
-        if (args.Click)
+        if (!args.Before.Click && args.Now.Click)
         {
             _selection = new ChaperonePolygon
             {
@@ -356,8 +338,8 @@ public class AdvancedSettings : InteractableOverlay
                 Points = new List<Vector3> { args.HandTransform.origin, args.HandTransform.origin }
             };
             ChaperoneManager.Instance.Polygons.Add(_selection);
-            OverlayManager.Instance.PointerInteractions.Clear();
-            OverlayManager.Instance.PointerInteractions.Add(BuildPolygonAction);
+            InteractionsHandler.UnregisterCustomInteraction(nameof(NewPolygonAction));
+            InteractionsHandler.RegisterCustomInteraction(nameof(BuildPolygonAction), BuildPolygonAction);
         }
         return new InteractionResult { Length = 0.002f, Color = Vector3.One, Handled = true };
     }
@@ -366,7 +348,7 @@ public class AdvancedSettings : InteractableOverlay
     {
         if (_selection == null)
         {
-            OverlayManager.Instance.PointerInteractions.Clear();
+            InteractionsHandler.UnregisterCustomInteraction(nameof(BuildPolygonAction));
             return new InteractionResult { Handled = true };
         }
 
@@ -380,7 +362,7 @@ public class AdvancedSettings : InteractableOverlay
             origin.y = _selection.Points[lastIdx - 1].y;
 
         _selection.Points[lastIdx] = origin;
-        if (args.Click)
+        if (!args.Before.Click && args.Now.Click)
             _selection.Points.Add(args.HandTransform.origin);
         ChaperoneManager.Instance.PolygonsChanged();
         return new InteractionResult { Length = 0.002f, Color = Vector3.One, Handled = true };
@@ -390,7 +372,7 @@ public class AdvancedSettings : InteractableOverlay
     {
         if (_selection == null) return false;
 
-        OverlayManager.Instance.PointerInteractions.Clear();
+        InteractionsHandler.UnregisterCustomInteraction(nameof(BuildPolygonAction));
         var lastIdx = _selection!.Points.Count - 1;
         _selection.Points[lastIdx] = _selection.Points[0];
         _selection = null;
@@ -419,8 +401,6 @@ public class AdvancedSettings : InteractableOverlay
     protected override void Initialize()
     {
         Texture = _canvas.Initialize();
-
-        UpdateInteractionTransform();
         base.Initialize();
     }
 
@@ -431,17 +411,17 @@ public class AdvancedSettings : InteractableOverlay
         base.Render();
     }
 
-    protected internal override void AfterInput(bool batteryStateUpdated)
+    protected internal override void AfterInput()
     {
-        base.AfterInput(batteryStateUpdated);
+        base.AfterInput();
 
-        var controller = InputManager.PoseState[_parent.StrPose];
+        var controller = XrBackend.Current.Input.HandTransform(_parent.Hand);
         var tgt = controller.TranslatedLocal(_parent.Vec3InsideUnit).TranslatedLocal(_parent.Vec3RelToHand);
         Transform = controller.TranslatedLocal(_parent.Vec3RelToHand).LookingAt(tgt.origin, -controller.basis.y);
 
         UploadTransform();
 
-        var toHmd = (InputManager.HmdTransform.origin - Transform.origin).Normalized();
+        var toHmd = (XrBackend.Current.Input.HmdTransform.origin - Transform.origin).Normalized();
         var unclampedAlpha = MathF.Log(0.7f, Transform.basis.z.Dot(toHmd)) - 1f;
         Alpha = Mathf.Clamp(unclampedAlpha, 0f, 1f);
         if (Alpha < float.Epsilon)
@@ -458,27 +438,25 @@ public class AdvancedSettings : InteractableOverlay
         }
     }
 
-    protected internal override void OnPointerDown(PointerHit hitData)
+    public void OnPointerDown(PointerHit hitData)
     {
-        base.OnPointerDown(hitData);
-        var action = _canvas.OnPointerDown(hitData.uv, hitData.hand);
-        hitData.pointer.ReleaseAction = action;
+        var action = _canvas.OnPointerDown(hitData.uv, hitData.pointer.Hand);
+        hitData.pointer.AddReleaseAction(action);
     }
 
-    protected internal override void OnPointerHover(PointerHit hitData)
+    public void OnPointerUp(PointerHit hitData)
     {
-        base.OnPointerHover(hitData);
-        _canvas.OnPointerHover(hitData.uv, hitData.hand);
     }
 
-    protected internal override void OnPointerLeft(LeftRight hand)
+    public void OnPointerHover(PointerHit hitData)
     {
-        base.OnPointerLeft(hand);
+        _canvas.OnPointerHover(hitData.uv, hitData.pointer.Hand);
+    }
+
+    public void OnPointerLeft(LeftRight hand)
+    {
         _canvas.OnPointerLeft(hand);
     }
 
-    protected internal override void OnScroll(PointerHit hitData, float value)
-    {
-        base.OnScroll(hitData, value);
-    }
+    public void OnScroll(PointerHit hitData, float value) { }
 }

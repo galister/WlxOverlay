@@ -1,4 +1,5 @@
 using System.Reflection;
+using WlxOverlay.Core.Interactions;
 using WlxOverlay.Overlays;
 using YamlDotNet.Serialization;
 using YamlDotNet.Serialization.NamingConventions;

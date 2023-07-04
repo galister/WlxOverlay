@@ -5,7 +5,7 @@ namespace WlxOverlay.GFX;
 public static class GraphicsEngine
 {
     public static IGraphicsEngine Instance = null!;
-    public static IUiRenderer UiRenderer = null!;
+    public static IRenderer Renderer = null!;
 }
 
 public interface IGraphicsEngine
@@ -21,6 +21,8 @@ public interface IGraphicsEngine
     public ITexture TextureFromRaw(uint width, uint height, GraphicsFormat inputFormat, Span<byte> data,
         GraphicsFormat internalFormat = GraphicsFormat.RGBA8);
 
+    public ITexture TextureFromHandle(IntPtr handle, uint width, uint height, GraphicsFormat internalFormat = GraphicsFormat.RGBA8);
+    
     public ETextureType GetTextureType();
 
     public void Shutdown();

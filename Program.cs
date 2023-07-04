@@ -1,9 +1,11 @@
-﻿using WlxOverlay.Core;
-using WlxOverlay.Desktop;
-using WlxOverlay.Desktop.Wayland;
+﻿using WlxOverlay.Backend;
+using WlxOverlay.Core;
+using WlxOverlay.Core.Interactions;
+using WlxOverlay.Core.Subsystem;
+using WlxOverlay.Extras;
 using WlxOverlay.GFX.OpenGL;
+using WlxOverlay.Input;
 using WlxOverlay.Overlays;
-using WlxOverlay.Overlays.Simple;
 using WlxOverlay.Types;
 
 var version = "unknown-version";
@@ -24,83 +26,28 @@ if (Config.Instance.OverrideEnv != null)
 
 Session.Initialize();
 
-var manager = OverlayManager.Initialize();
-try
-{
-    KeyboardProvider.Instance = new UInput();
-}
-catch (ApplicationException)
-{
-    Console.WriteLine("FATAL Could not register uinput device.");
-    Console.WriteLine("FATAL Check that you are in the `input` group or otherwise have access.");
-    Console.WriteLine("FATAL Try: sudo usermod -a -G input $USER");
-    return;
-}
+if (args.Contains("--xr"))
+    XrBackend.UseOpenXR();
+else
+    XrBackend.UseOpenVR();
+InputProvider.UseUInput();
 
 void SignalHandler(PosixSignalContext context)
 {
     context.Cancel = true;
-    manager.Stop();
+    Console.WriteLine($"Received signal {context.Signal}. Exiting...");
+    MainLoop.Shutdown();
 }
 
 PosixSignalRegistration.Create(PosixSignal.SIGINT, SignalHandler);
 PosixSignalRegistration.Create(PosixSignal.SIGHUP, SignalHandler);
 PosixSignalRegistration.Create(PosixSignal.SIGTERM, SignalHandler);
 
-if (Config.Instance.NoAutoStart)
-    ManifestInstaller.EnsureUninstalled();
-else
-    ManifestInstaller.EnsureInstalled();
+if (Config.Instance.LeftUsePtt)
+    PttHandler.Add(LeftRight.Left);
 
-if (!Config.Instance.FallbackCursors)
-    manager.RegisterChild(new DesktopCursor());
-
-var leftPointer = Config.Instance.LeftUsePtt
-    ? new LaserPointerWithPushToTalk(LeftRight.Left)
-    : new LaserPointer(LeftRight.Left);
-
-var rightPointer = Config.Instance.RightUsePtt
-    ? new LaserPointerWithPushToTalk(LeftRight.Right)
-    : new LaserPointer(LeftRight.Right);
-
-if (Config.Instance.PrimaryHand == LeftRight.Left)
-{
-    manager.RegisterChild(leftPointer);
-    manager.RegisterChild(rightPointer);
-}
-else
-{
-    manager.RegisterChild(rightPointer);
-    manager.RegisterChild(leftPointer);
-}
-
-var screens = new List<BaseOverlay>();
-
-
-if (WaylandInterface.TryInitialize())
-{
-    await foreach (var screen in WaylandInterface.Instance!.CreateScreensAsync())
-    {
-        manager.RegisterChild(screen);
-        screens.Add(screen);
-    }
-}
-else
-{
-    Console.WriteLine("X11 desktop detected.");
-    var numScreens = XorgScreen.NumScreens();
-    for (var s = 0; s < numScreens; s++)
-    {
-        var screen = new XorgScreen(s);
-        manager.RegisterChild(screen);
-        screens.Add(screen);
-    }
-}
-
-AudioManager.Initialize();
-
-if (!string.IsNullOrWhiteSpace(Config.Instance.NotificationsEndpoint))
-    NotificationsManager.Initialize();
+if (Config.Instance.RightUsePtt)
+    PttHandler.Add(LeftRight.Right);
 
 if (!KeyboardLayout.Load())
 {
@@ -109,12 +56,26 @@ if (!KeyboardLayout.Load())
 }
 
 var keyboard = new KeyboardOverlay();
-manager.RegisterChild(keyboard);
+OverlayRegistry.Register(keyboard);
 
-foreach (var screen in screens)
-    manager.RegisterChild(screen);
+if (WaylandSubsystem.TryInitialize(out var wayland))
+{
+    MainLoop.AddSubsystem(wayland);
+    await wayland.CreateScreensAsync();
+}
+else if (XshmSubsystem.TryInitialize(out var xshm))
+{
+    MainLoop.AddSubsystem(xshm);
+    xshm.CreateScreens();
+}
 
-manager.RegisterChild(new Watch(keyboard, screens));
+AudioManager.Initialize();
+
+if (!string.IsNullOrWhiteSpace(Config.Instance.NotificationsEndpoint))
+    NotificationsManager.Initialize();
+
+var watch = new Watch(keyboard);
+OverlayRegistry.Register(watch);
 
 var engine = new GlGraphicsEngine();
 engine.StartEventLoop();
