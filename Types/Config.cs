@@ -12,7 +12,10 @@ namespace WlxOverlay.Types;
 
 public class Config
 {
-    public static readonly IDeserializer YamlDeserializer = new DeserializerBuilder().WithNamingConvention(UnderscoredNamingConvention.Instance).Build();
+    public static readonly IDeserializer YamlDeserializer = new DeserializerBuilder()
+        .WithNamingConvention(UnderscoredNamingConvention.Instance)
+        .IgnoreUnmatchedProperties()
+        .Build();
 
     public static readonly string AppDir = Environment.GetEnvironmentVariable("APPDIR") != null
                                             ? Path.Combine(Environment.GetEnvironmentVariable("APPDIR")!, "usr", "bin")
