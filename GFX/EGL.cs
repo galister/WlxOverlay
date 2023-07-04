@@ -98,8 +98,11 @@ public static class EGL
     [DllImport("libEGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "eglGetProcAddress")]
     public static extern IntPtr GetProcAddress([MarshalAs(UnmanagedType.LPStr)] string procName);
     
-    [DllImport("libGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "glXGetProcAddress")]
-    public static extern IntPtr GlXGetProcAddress([MarshalAs(UnmanagedType.LPStr)] string procName);
+    [DllImport("libEGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "eglQueryContext")]
+    public static extern EglEnum QueryContext(IntPtr dpy, IntPtr ctx, EglEnum attribute, ref int value);
+    
+    [DllImport("libEGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "eglChooseConfig")]
+    public static extern unsafe EglEnum ChooseConfig(IntPtr dpy, int* attribList, IntPtr* configs, int configSize, int* numConfig);
 
     public static glEGLImageTargetTexture2DOES ImageTargetTexture2DOES = null!;
 
@@ -331,6 +334,7 @@ public enum EglEnum
     PlatformWaylandKhr = 0x31D8,
     PlatformX11Khr = 0x31D5,
     PlatformX11ScreenKhr = 0x31D6,
+    AttributeConfigId = 0x3028,
 }
 
 public enum DrmFormat

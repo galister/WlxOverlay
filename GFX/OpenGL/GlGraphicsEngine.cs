@@ -72,27 +72,23 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         MainLoop.Initialize();
     }
 
-    public GraphicsBinding XrGraphicsBinding()
+    public unsafe GraphicsBinding XrGraphicsBinding()
     {
-        var glfwWindow = _window.Native!.Glfw!.Value;
         var display = glfwGetEGLDisplay();
-        var handle = glfwGetEGLContext(glfwWindow);
+        var handle = glfwGetEGLContext(_window.Native!.Glfw!.Value);
+
+        var configId = 0;
+        if (EGL.QueryContext(display, handle, EglEnum.AttributeConfigId, ref configId) != EglEnum.True)
+            throw new ApplicationException("Could not query EGL context config ID");
+
+        var attribList = new[] { (int)EglEnum.AttributeConfigId, configId, (int)EglEnum.None };
+        var numConfigs = 0;
         var config = IntPtr.Zero;
-
-        // Hack: GLFW does not expose EGLConfig, but we know that it comes right before the context handle.
-        for (var i = 0; i < 1000; i++) unsafe
+        fixed(int* attribListPtr = attribList)
         {
-            var lp = (IntPtr*) IntPtr.Add(glfwWindow, i);
-            var val = *lp;
-            if (val == handle)
-            {
-                config = *(IntPtr*)IntPtr.Add(glfwWindow, i - 8).ToPointer();
-                break;
-            }
+            if (EGL.ChooseConfig(display, attribListPtr, &config, 1, &numConfigs) != EglEnum.True || numConfigs != 1)
+                throw new ApplicationException("Could not query EGL context config");
         }
-
-        if (config == IntPtr.Zero)
-            throw new ApplicationException("Could not find EGLConfig");
 
         GetProcAddress getProcAddress = EGL.GetProcAddress;
         
