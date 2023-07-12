@@ -20,8 +20,8 @@ public abstract class BaseLine : BaseOverlay
     {
         if (_sharedTexture == null)
         {
-            var pixels = new byte[] { 255, 255, 255, 255 };
-            _sharedTexture = GraphicsEngine.Instance.TextureFromRaw(1, 1, GraphicsFormat.RGBA8, pixels);
+            var pixels = Enumerable.Repeat((byte)255, 3).ToArray();
+            _sharedTexture = GraphicsEngine.Instance.TextureFromRaw(1, 1, GraphicsFormat.RGB8, pixels);
         }
 
         Texture = _sharedTexture;

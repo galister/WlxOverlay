@@ -39,11 +39,11 @@ public class Canvas : IDisposable
 
     public ITexture Initialize()
     {
-        _texture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGBA8, true);
+        _texture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGB8, true);
         if (!Config.Instance.FallbackCursors)
             return _texture;
 
-        _swapTexture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGBA8, true);
+        _swapTexture = GraphicsEngine.Instance.EmptyTexture(Width, Height, GraphicsFormat.RGB8, true);
         return _swapTexture;
     }
 

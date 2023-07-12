@@ -20,7 +20,6 @@ public class OXRState
     public ActionSet ActionSet;
     
     public long PredictedDisplayTime;
-    public long PredictedDisplayPeriod;
     public bool ShouldRender;
     
     public EnvironmentBlendMode BlendMode;
@@ -474,7 +473,6 @@ public class OXRState
         Api.WaitFrame(Session, null, &state).EnsureSuccess();
         
         PredictedDisplayTime = state.PredictedDisplayTime;
-        PredictedDisplayPeriod = state.PredictedDisplayPeriod;
         ShouldRender = (Bool32)state.ShouldRender;
     }
 
@@ -566,6 +564,28 @@ public class OXRState
         return path;
     }
     
+    public unsafe string PathToString(ulong path)
+    {
+        var buf = stackalloc byte[256];
+
+        var length = 0u;
+        Api.PathToString(Instance, path, 256U, &length, buf);
+        
+        return Encoding.UTF8.GetString(buf, (int)length);
+    }
+
+    public unsafe ulong GetCurrentInteractionProfile(ulong topLevelPath)
+    {
+        var state = new InteractionProfileState
+        {
+            Type = StructureType.InteractionProfileState,
+            Next = null
+        };
+
+        Api.GetCurrentInteractionProfile(Session, topLevelPath, &state).EnsureSuccess();
+        return state.InteractionProfile;
+    }
+    
     public unsafe void BeginSession(bool overlay = false)
     {
         if (_sessionRunning)
@@ -597,17 +617,6 @@ public class OXRState
     }
 
     public void DestroySession() => Api.DestroySession(Session);
-
-    public unsafe ulong GetCurrentInteractionProfile(ulong path)
-    {
-        var state = new InteractionProfileState
-        {
-            Type = StructureType.InteractionProfileState,
-            Next = null
-        };
-        Api.GetCurrentInteractionProfile(Session, path, &state).EnsureSuccess();
-        return state.InteractionProfile;
-    }
 
     [UnmanagedFunctionPointer(CallingConvention.Cdecl)]
     private unsafe delegate Result xrGetOpenGLGraphicsRequirementsKHR(Instance instance, ulong sys_id, GraphicsRequirementsOpenGLKHR* req);

@@ -41,13 +41,10 @@ public class OXRBackend : IXrBackend
         _oxr.EnumerateSwapchainImages();
         
         _oxr.CreateProjectionViews(renderSize);
-
         _oxr.CreateReferenceSpace(ReferenceSpaceType.Local, Transform3D.Identity);
 
         _oxr.CreateActionSet();
-        
         _input.Initialize();
-        
         _oxr.AttachActionSet();
         
         _renderer.Initialize();
@@ -155,7 +152,11 @@ public class OXRBackend : IXrBackend
                 }
                 case StructureType.EventDataInteractionProfileChanged:
                 {
-                    Console.WriteLine("[Info] OpenXR interaction profile changed");
+                    var topLevelPath = _oxr.StringToPath("/user/hand/left");
+                    var profilePath = _oxr.GetCurrentInteractionProfile(topLevelPath);
+                    var profileName = _oxr.PathToString(profilePath);
+                    
+                    Console.WriteLine($"[Info] OpenXR interaction profile changed: {profileName}");
                     break;
                 }
                 default:

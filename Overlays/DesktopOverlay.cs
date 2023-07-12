@@ -52,7 +52,7 @@ public class DesktopOverlay : BaseOverlay, IInteractable, IGrabbable
         Transform.origin = centerPoint.origin;
         OnOrientationChanged();
 
-        Texture = GraphicsEngine.Instance.EmptyTexture((uint)Screen.Size.X, (uint)Screen.Size.Y, internalFormat: GraphicsFormat.RGBA8, dynamic: true);
+        Texture = GraphicsEngine.Instance.EmptyTexture((uint)Screen.Size.X, (uint)Screen.Size.Y, internalFormat: GraphicsFormat.RGB8, dynamic: true);
         base.Initialize();
     }
 
