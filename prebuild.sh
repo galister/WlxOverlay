@@ -14,8 +14,3 @@ cmake --build . -j$(nproc)
 mv libwlxshm.so ../../
 cd ../..
 
-cd lib/StereoKit || exit 1
-cmake . -DSK_LINUX_EGL=ON -DSK_PHYSICS=OFF -DSK_BUILD_TESTS=OFF
-cmake --build . -j$(nproc)
-mv libStereoKitC.so ../../runtimes/linux-x64/native/
-cd ../..
