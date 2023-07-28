@@ -17,7 +17,6 @@ public sealed class OVROverlay : IOverlay
     private Overlay? _childOverlay;
     
     private bool _created;
-    private bool _textureUploaded;
     
     /// <summary>
     /// Transforms texture UV (rect) to overlay UV (square)
@@ -164,14 +163,10 @@ public sealed class OVROverlay : IOverlay
 
     public void Render()
     {
-        if (_overlay == null)
+        if (_overlay == null || _parent.Texture == null)
             return;
         
-        if (_parent.Texture!.IsDynamic() || !_textureUploaded)
-        {
-            UploadTexture(_overlay, _parent.Texture);
-            _textureUploaded = true;
-        }
+        UploadTexture(_overlay, _parent.Texture);
     }
 
     public void Show()
@@ -195,7 +190,6 @@ public sealed class OVROverlay : IOverlay
             _overlay!.Destroy();
             _overlay = null;
             _created = false;
-            _textureUploaded = false;
         }
         else
             _overlay!.Hide();

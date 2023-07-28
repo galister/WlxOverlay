@@ -30,7 +30,7 @@ internal class PointerData
         Before = Now;
         XrBackend.Current.Input.InputState(Pointer.Hand, ref Now);
 
-#if DEBUG
+#if DEBUG_INPUT
         if (Before.Click != Now.Click)
             Console.WriteLine($"[Dbg] {Pointer.Hand} Click {Before.Click} -> {Now.Click}");
         if (Before.Grab != Now.Grab)
