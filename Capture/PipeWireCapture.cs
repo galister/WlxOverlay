@@ -53,12 +53,16 @@ public class PipeWireCapture : IDesktopCapture
         _height = (uint)output.Size.Y;
     }
 
-    public static void Load(bool dmaBuf)
+    public static void Load()
     {
         _pwVersion = Marshal.PtrToStringAnsi(pw_get_library_version());
         Console.WriteLine("PipeWire version: " + _pwVersion);
 
-        if (!dmaBuf) return;
+        if (!EGL.IsDmabufSupported())
+        {
+            Console.WriteLine("EGL extensions not loaded, DMA-Buf will not be used.");
+            return;
+        }
 
         if (string.Compare(_pwVersion, "0.3.33", StringComparison.Ordinal) >= 0)
             LoadDmaBufFormats();

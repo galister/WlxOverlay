@@ -54,6 +54,8 @@ public class WaylandSubsystem : ISubsystem
 
         if (Config.Instance.WaylandCapture != "pw-fallback")
             EGL.Initialize();
+        else 
+            Console.WriteLine("Not loading EGL due to pw-fallback.");
 
         instance = new WaylandSubsystem();
 
@@ -73,10 +75,8 @@ public class WaylandSubsystem : ISubsystem
                 instance._captureMethod = CaptureMethod.WlrScreenCopy;
                 break;
             case "pipewire":
-                instance._captureMethod = CaptureMethod.PipeWireDmaBuf;
-                break;
             case "pw-fallback":
-                instance._captureMethod = CaptureMethod.PipeWireMemFd;
+                instance._captureMethod = CaptureMethod.PipeWire;
                 break;
             default:
                 if (instance._supportedCaptureMethods.Contains(CaptureMethod.WlrDmaBuf))
@@ -84,7 +84,7 @@ public class WaylandSubsystem : ISubsystem
                 else if (instance._supportedCaptureMethods.Contains(CaptureMethod.WlrScreenCopy))
                     instance._captureMethod = CaptureMethod.WlrScreenCopy;
                 else
-                    instance._captureMethod = CaptureMethod.PipeWireDmaBuf;
+                    instance._captureMethod = CaptureMethod.PipeWire;
                 break;
         }
 
@@ -127,20 +127,16 @@ public class WaylandSubsystem : ISubsystem
                     OverlayRegistry.Register(screen);
                 }
                 break;
-            case CaptureMethod.PipeWireDmaBuf:
-                Console.WriteLine("Using PipeWire DMA-Buf capture.");
-                await CreatePipeWireScreensAsync(true);
-                break;
-            case CaptureMethod.PipeWireMemFd:
-                Console.WriteLine("Using PipeWire MemFd capture.");
-                await CreatePipeWireScreensAsync(false);
+            case CaptureMethod.PipeWire:
+                Console.WriteLine("Using PipeWire capture.");
+                await CreatePipeWireScreensAsync();
                 break;
         }
     }
 
-    private async Task CreatePipeWireScreensAsync(bool dmaBuf)
+    private async Task CreatePipeWireScreensAsync()
     {
-        PipeWireCapture.Load(dmaBuf);
+        PipeWireCapture.Load();
 
         if (_outputs.Values.Count > 0)
         {
@@ -252,8 +248,7 @@ public class WaylandSubsystem : ISubsystem
 
     private enum CaptureMethod
     {
-        PipeWireMemFd,
-        PipeWireDmaBuf,
+        PipeWire,
         WlrDmaBuf,
         WlrScreenCopy
     }

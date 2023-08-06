@@ -16,28 +16,16 @@ public static class EGL
     };
 
     public static IntPtr Display { get; private set; }
-
-    public static void UseExisting(IntPtr eglDisplay)
-    {
-        if (_initialized)
-            return;
-        _initialized = true;
-        
-        LoadPfn("eglQueryDmaBufFormatsEXT", ref QueryDmaBufFormatsEXT);
-        LoadPfn("eglQueryDmaBufModifiersEXT", ref QueryDmaBufModifiersEXT);
-
-        Display = eglDisplay;
-    }
     
     public static void Initialize()
     {
         if (_initialized)
             return;
         _initialized = true;
-        
-        LoadPfn("eglGetPlatformDisplayEXT", ref eglGetPlatformDisplayEXT);
 
-        if (LoadPfn("glEGLImageTargetTexture2DOES", ref ImageTargetTexture2DOES, false))
+        LoadPfn("glEGLImageTargetTexture2DOES", ref ImageTargetTexture2DOES);
+
+        if (LoadPfn("eglGetPlatformDisplayEXT", ref eglGetPlatformDisplayEXT))
         {
             Display = eglGetPlatformDisplayEXT(EglEnum.PlatformWaylandExt, IntPtr.Zero, IntPtr.Zero);
 
@@ -61,21 +49,24 @@ public static class EGL
 
         if (Initialize(Display, out var major, out var minor) == EglEnum.False)
             throw new ApplicationException("eglInitialize returned EGL_FALSE!");
+        
+        LoadPfn("eglQueryDmaBufFormatsEXT", ref QueryDmaBufFormatsEXT);
+        LoadPfn("eglQueryDmaBufModifiersEXT", ref QueryDmaBufModifiersEXT);
 
         GlfwProvider.GLFW.Value.WindowHint(WindowHintContextApi.ContextCreationApi, ContextApi.EglContextApi);
 
         Console.WriteLine($"EGL {major}.{minor} initialized.");
     }
+    
+    public static bool IsDmabufSupported() => QueryDmaBufFormatsEXT != null 
+                                              && QueryDmaBufModifiersEXT != null 
+                                              && ImageTargetTexture2DOES != null;
 
-    private static bool LoadPfn<T>(string name, ref T target, bool throwIfMissing = true) where T : Delegate
+    private static bool LoadPfn<T>(string name, ref T? target) where T : Delegate
     {
         var pfn = GetProcAddress(name);
         if (pfn == IntPtr.Zero)
-        {
-            if (throwIfMissing)
-                throw new ApplicationException($"Could not get function pointer to {name}");
             return false;
-        }
         target = Marshal.GetDelegateForFunctionPointer<T>(pfn);
         return true;
     }
@@ -104,11 +95,11 @@ public static class EGL
     [DllImport("libEGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "eglChooseConfig")]
     public static extern unsafe EglEnum ChooseConfig(IntPtr dpy, int* attribList, IntPtr* configs, int configSize, int* numConfig);
 
-    public static glEGLImageTargetTexture2DOES ImageTargetTexture2DOES = null!;
+    public static glEGLImageTargetTexture2DOES? ImageTargetTexture2DOES;
 
-    public static eglQueryDmaBufModifiersEXT QueryDmaBufModifiersEXT = null!;
-    public static eglQueryDmaBufFormatsEXT QueryDmaBufFormatsEXT = null!;
-    private static eglGetPlatformDisplayEXTDelegate eglGetPlatformDisplayEXT = null!;
+    public static eglQueryDmaBufModifiersEXT? QueryDmaBufModifiersEXT;
+    public static eglQueryDmaBufFormatsEXT? QueryDmaBufFormatsEXT;
+    private static eglGetPlatformDisplayEXTDelegate? eglGetPlatformDisplayEXT;
     public unsafe delegate EglEnum eglQueryDmaBufFormatsEXT(IntPtr dpy, int maxFormats, DrmFormat* formats, int* numFormats);
     public unsafe delegate EglEnum eglQueryDmaBufModifiersEXT(IntPtr dpy, DrmFormat format, int maxModifiers, ulong* modifiers, IntPtr externalOnly, int* numModifiers);
 
