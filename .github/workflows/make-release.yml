@@ -20,7 +20,7 @@ jobs:
           sudo add-apt-repository -syn universe
           sudo add-apt-repository -syn ppa:pipewire-debian/pipewire-upstream
           sudo apt-get update
-          sudo apt-get install fuse dotnet-sdk-6.0 liblttng-ust0 cmake
+          sudo apt-get install fuse dotnet-sdk-6.0 liblttng-ust0 cmake clang-10
           sudo apt-get install libxcb1 libxcb1-dev libxcb-randr0 libxcb-randr0-dev libxcb-shm0 libxcb-shm0-dev libxcb-xinerama0 libxcb-xinerama0-dev libpipewire-0.3-0 libpipewire-0.3-dev libspa-0.2-dev
           
           test -f linuxdeploy-x86_64.AppImage || wget -q "https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage"
