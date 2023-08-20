@@ -5,6 +5,8 @@ Primarily made this because I couldn't find a proper desktop overlay for Linux.
 
 Formerly known as X11Overlay
 
+For the OpenXR overlay, see [WlxOverlay X](https://github.com/galister/wlx-overlay-x).
+
 Features:
 - Access your screens from within OpenVR / SteamVR
 - Works with a huge variety of setups, including tiling window managers.
