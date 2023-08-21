@@ -68,8 +68,8 @@ public class XshmCapture : IDesktopCapture
 
         if (mouse.X >= 0 && mouse.X < _screen.Size.X && mouse.Y >= 0 && mouse.Y < _screen.Size.Y)
         {
-            var w = _mouseTex!.GetWidth();
-            var h = _mouseTex.GetHeight();
+            var w = _mouseTex!.GetWidth() * (_screen.Size.X / 4096f);
+            var h = _mouseTex.GetHeight() * (_screen.Size.X / 4096f);
             var x = mouse.X - w * 0.5f;
             var y = mouse.Y - h * 0.5f;
             
