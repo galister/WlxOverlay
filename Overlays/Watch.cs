@@ -56,12 +56,16 @@ public class Watch : BaseOverlay, IInteractable
 
         Canvas.CurrentFgColor = HexColor.FromRgb("#FFFFFF");
 
+        var timeFormat = Config.Instance.Use12hTime ? "hh:mm" : "HH:mm";
+
         Canvas.CurrentFont = FontCollection.Get(46, FontStyle.Bold);
-        _canvas.AddControl(new DateTimeLabel("HH:mm", TimeZoneInfo.Local, 19, 107, 200, 50));
+        _canvas.AddControl(new DateTimeLabel(timeFormat, TimeZoneInfo.Local, 19, 107, 200, 50));
 
         Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
         _canvas.AddControl(new DateTimeLabel("d", TimeZoneInfo.Local, 20, 80, 200, 50));
         _canvas.AddControl(new DateTimeLabel("dddd", TimeZoneInfo.Local, 20, 60, 200, 50));
+        if (Config.Instance.Use12hTime)
+          _canvas.AddControl(new DateTimeLabel("tt", TimeZoneInfo.Local, 175, 107, 200, 50));
 
         if (Config.Instance.AltTimezone1 != null)
         {
@@ -72,9 +76,13 @@ public class Watch : BaseOverlay, IInteractable
 
             Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
             _canvas.AddControl(new Label(tzDisplay, 210, 137, 200, 50));
+            if (Config.Instance.Use12hTime) {
+              Canvas.CurrentFont = FontCollection.Get(9, FontStyle.Bold);
+              _canvas.AddControl(new DateTimeLabel("tt", tz, 294, 107, 200, 50));
+            }
 
             Canvas.CurrentFont = FontCollection.Get(24, FontStyle.Bold);
-            _canvas.AddControl(new DateTimeLabel("HH:mm", tz, 210, 107, 200, 50));
+            _canvas.AddControl(new DateTimeLabel(timeFormat, tz, 210, 107, 200, 50));
         }
 
         if (Config.Instance.AltTimezone2 != null)
@@ -85,9 +93,13 @@ public class Watch : BaseOverlay, IInteractable
 
             Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
             _canvas.AddControl(new Label(tzDisplay, 210, 82, 200, 50));
+            if (Config.Instance.Use12hTime) {
+              Canvas.CurrentFont = FontCollection.Get(9, FontStyle.Bold);
+              _canvas.AddControl(new DateTimeLabel("tt", tz, 294, 52, 200, 50));
+            }
 
             Canvas.CurrentFont = FontCollection.Get(24, FontStyle.Bold);
-            _canvas.AddControl(new DateTimeLabel("HH:mm", tz, 210, 52, 200, 50));
+            _canvas.AddControl(new DateTimeLabel(timeFormat, tz, 210, 52, 200, 50));
         }
 
         // Volume controls

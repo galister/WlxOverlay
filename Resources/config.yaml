@@ -59,6 +59,9 @@ keyboard_volume: 1.0
 ## 0 to disable. default: 0.1
 keyboard_haptics: 0.1
 
+## 12-hour format 
+#use_12h_time: true
+
 ## additional timezones to display, other than your local time. optional.
 alt_timezone1: Asia/Tokyo
 alt_timezone2: America/Chicago

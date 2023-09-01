@@ -76,6 +76,10 @@ public class Config
     public string[]? VolumeUpCmd;
     public string[]? VolumeDnCmd;
 
+    // work around case conversion issue
+    public bool use_12h_time;
+    public bool Use12hTime => use_12h_time;
+
     public string? AltTimezone1;
     public string? AltTimezone2;
 
