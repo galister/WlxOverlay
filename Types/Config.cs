@@ -21,8 +21,13 @@ public class Config
                                             ? Path.Combine(Environment.GetEnvironmentVariable("APPDIR")!, "usr", "bin")
                                             : Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location)!;
 
-    public static readonly string UserConfigFolder =
-        Path.Combine(Environment.GetEnvironmentVariable("HOME")!, ".config", "wlxoverlay");
+    private static readonly string? XdgConfigHomeFolder = Environment.GetEnvironmentVariable("XDG_CONFIG_HOME");
+
+    public static readonly string UserConfigFolder = (
+        string.IsNullOrWhiteSpace(XdgConfigHomeFolder)
+        ? Path.Combine(Environment.GetEnvironmentVariable("HOME")!, ".config", "wlxoverlay")
+        : Path.Combine(XdgConfigHomeFolder, "wlxoverlay")
+    );
 
     public static readonly string ResourcesFolder = Path.Combine(AppDir, "Resources");
 
