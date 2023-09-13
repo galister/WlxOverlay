@@ -13,7 +13,7 @@ public static class PttHandler
 
         var dnStart = Runner.StartInfoFromArgs(dnCmd);
         var upStart = Runner.StartInfoFromArgs(upCmd);
-        
+
         InteractionsHandler.RegisterCustomInteraction($"PTT-{hand}", args =>
         {
             if (hand != args.Hand)
@@ -21,7 +21,7 @@ public static class PttHandler
 
             if (!args.Before.AltClick && args.Now.AltClick)
             {
-                if (upStart != null) 
+                if (upStart != null)
                     Process.Start(upStart);
             }
             else if (args.Before.AltClick && !args.Now.AltClick)
@@ -29,7 +29,7 @@ public static class PttHandler
                 if (dnStart != null)
                     Process.Start(dnStart);
             }
-            
+
             return InteractionResult.OK;
         });
     }

@@ -16,7 +16,7 @@ public class GlVertexArray<TVertexType, TIndexType> : IDisposable
 
         _handle = _gl.GenVertexArray();
         _gl.DebugAssertSuccess();
-        
+
         Bind();
         vbo.Bind();
         ebo.Bind();

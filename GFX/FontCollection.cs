@@ -87,8 +87,8 @@ public class FontCollection
             _codePointToFont[codepoint] = _codePointToFont[0];
             return;
         }
-        
-        try 
+
+        try
         {
             var font = new Font(parts[0], int.Parse(parts[1]), size);
             lock (Lock)

@@ -11,7 +11,7 @@ namespace WlxOverlay.Core.Subsystem;
 public class WaylandSubsystem : ISubsystem
 {
     public static string? DisplayName;
-    
+
     private DateTime _nextRoundTrip = DateTime.UtcNow;
 
     private readonly Dictionary<uint, WaylandOutput> _outputs = new();
@@ -54,7 +54,7 @@ public class WaylandSubsystem : ISubsystem
 
         if (Config.Instance.WaylandCapture != "pw-fallback")
             EGL.Initialize();
-        else 
+        else
             Console.WriteLine("Not loading EGL due to pw-fallback.");
 
         instance = new WaylandSubsystem();
@@ -65,7 +65,7 @@ public class WaylandSubsystem : ISubsystem
             instance._display.Roundtrip();
             Thread.Sleep(50);
         }
-        
+
         switch (Config.Instance.WaylandCapture)
         {
             case "dmabuf":
@@ -113,7 +113,7 @@ public class WaylandSubsystem : ISubsystem
                 Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZwlrExportDmabufManagerV1.Name}");
                 foreach (var output in _outputs.Values)
                 {
-                    var screen = new DesktopOverlay(output, 
+                    var screen = new DesktopOverlay(output,
                         new WlrCapture<DmaBufFrame>(output));
                     OverlayRegistry.Register(screen);
                 }
@@ -122,7 +122,7 @@ public class WaylandSubsystem : ISubsystem
                 Console.WriteLine($"Using desktop capture protocol: {WlInterface.ZwlrScreencopyManagerV1.Name}");
                 foreach (var output in _outputs.Values)
                 {
-                    var screen = new DesktopOverlay(output, 
+                    var screen = new DesktopOverlay(output,
                         new WlrCapture<ScreenCopyFrame>(output));
                     OverlayRegistry.Register(screen);
                 }
@@ -149,7 +149,7 @@ public class WaylandSubsystem : ISubsystem
             {
                 if (output == null!) // idk why, but it happens
                     continue;
-                
+
                 var data = await XdgScreenCastHandler.PromptUserAsync(output);
                 if (data != null)
                 {
@@ -175,7 +175,7 @@ public class WaylandSubsystem : ISubsystem
                 var screen = new DesktopOverlay(output, new PipeWireCapture(output, data.Value));
                 OverlayRegistry.Register(screen);
                 Console.WriteLine($"{output.Name} -> {data.Value}");
-                
+
             }
             else
                 Console.WriteLine($"{output.Name} will not be used.");

@@ -28,7 +28,7 @@ public class LabelCentered : Label
 
         var curY = (int)(Y + Height / 2 - totalTextHeight / 2);
 
-        for (var i = 0; i < lines.Length; i++) 
+        for (var i = 0; i < lines.Length; i++)
         {
             var curX = (int)(X + Width / 2 - _textSizes[i] / 2);
 

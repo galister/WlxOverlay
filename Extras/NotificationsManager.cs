@@ -188,9 +188,12 @@ public class NotificationsManager : IDisposable
                 if (!Session.Instance.NotificationsMuteAudio)
                 {
                     string? audioPath = null;
-                    if (message.audioPath is "default" or "error" or "warning") {
+                    if (message.audioPath is "default" or "error" or "warning")
+                    {
                         audioPath = _notificationSound;
-                    } else if (File.Exists(message.audioPath)) {
+                    }
+                    else if (File.Exists(message.audioPath))
+                    {
                         audioPath = message.audioPath;
                     }
 
@@ -231,5 +234,5 @@ public struct XSOMessage
     public float opacity { get; set; }
     public bool useBase64Icon { get; set; }
     public string? sourceApp { get; set; }
-    public bool alwaysShow { get;set; }
+    public bool alwaysShow { get; set; }
 }

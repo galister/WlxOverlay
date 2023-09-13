@@ -34,19 +34,19 @@ public class OXROverlay : IOverlay
     {
         Width = width;
     }
-    
-    public void SetAlpha(float alpha) 
+
+    public void SetAlpha(float alpha)
         => Alpha = alpha;
 
-    public void SetColor(Vector3 c) 
+    public void SetColor(Vector3 c)
         => Color = new Vector3(c.x, c.y, c.z);
 
     public void SetTransform(Transform3D transform)
         => Transform = transform;
 
-    public void SetZOrder(uint _) {}
-    
-    public void SetCurvature(float _) {}
+    public void SetZOrder(uint _) { }
+
+    public void SetCurvature(float _) { }
     public bool TestInteraction(IPointer pointer, out PointerHit hit)
     {
         hit = null!;

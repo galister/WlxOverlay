@@ -8,7 +8,7 @@ public class WaylandOutput : BaseOutput, IDisposable
     public string Model { get; private set; } = null!;
     public WlOutput? Handle;
     protected WlOutputTransform? WlTransform;
-    
+
     public Vector2Int LogicalSize { get; protected set; }
 
     public WaylandOutput(uint idName, WlOutput? handle)
@@ -26,18 +26,18 @@ public class WaylandOutput : BaseOutput, IDisposable
     {
         Name = e.Name;
     }
-    
+
     internal void SetSize(object? _, ZxdgOutputV1.LogicalSizeEventArgs e)
     {
         LogicalSize = new Vector2Int(e.Width, e.Height);
     }
-    
+
     internal void SetGeometry(object? _, WlOutput.GeometryEventArgs e)
     {
         Model = e.Model;
         WlTransform = e.Transform;
     }
-    
+
     internal void SetMode(object? _, WlOutput.ModeEventArgs e)
     {
         Size = new Vector2Int(e.Width, e.Height);
@@ -50,15 +50,15 @@ public class WaylandOutput : BaseOutput, IDisposable
         {
             case WlOutputTransform._90:
             case WlOutputTransform.Flipped90:
-                Transform = new Transform2D(0, size.Y, -size.X, 0, Position.X+size.X, Position.Y);
+                Transform = new Transform2D(0, size.Y, -size.X, 0, Position.X + size.X, Position.Y);
                 break;
             case WlOutputTransform._180:
             case WlOutputTransform.Flipped180:
-                Transform = new Transform2D(-size.X, 0, 0, -size.Y, Position.X+size.X, Position.Y+size.Y);
+                Transform = new Transform2D(-size.X, 0, 0, -size.Y, Position.X + size.X, Position.Y + size.Y);
                 break;
             case WlOutputTransform._270:
             case WlOutputTransform.Flipped270:
-                Transform = new Transform2D(0, -size.Y, size.X, 0, Position.X, Position.Y+size.Y);
+                Transform = new Transform2D(0, -size.Y, size.X, 0, Position.X, Position.Y + size.Y);
                 break;
             default:
                 Transform = new Transform2D(size.X, 0, 0, size.Y, Position.X, Position.Y);

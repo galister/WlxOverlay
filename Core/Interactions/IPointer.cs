@@ -13,9 +13,9 @@ public interface IPointer
         HexColor.FromRgb(Config.Instance.AltColor ?? Config.DefaultAltColor),
         HexColor.FromRgb("#A0A0A0"),
     };
-    
+
     public Transform3D Transform => XrBackend.Current.Input.HandTransform(Hand);
-    
+
     public LeftRight Hand { get; }
 
     public void SetLength(float length);

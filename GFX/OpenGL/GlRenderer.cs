@@ -61,10 +61,10 @@ public class GlRenderer : IRenderer, IDisposable
 
         _gl.BlendFuncSeparate(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
         _gl.DebugAssertSuccess();
-        
+
         _gl.BlendEquationSeparate(BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd);
         _gl.DebugAssertSuccess();
-        
+
         _gl.ColorMask(true, true, true, true);
         _gl.DebugAssertSuccess();
     }
@@ -76,7 +76,7 @@ public class GlRenderer : IRenderer, IDisposable
         _framebuffer?.Dispose();
         _framebuffer = null;
     }
-    
+
     public void Clear()
     {
         _gl.Clear(ClearBufferMask.ColorBufferBit);
@@ -111,7 +111,7 @@ public class GlRenderer : IRenderer, IDisposable
         _vao.Bind();
         shader.Use();
         glSprite.Bind();
-        
+
         shader.SetUniformM4("projection", _projectionMatrix);
         shader.SetUniform("uTexture0", 0);
 

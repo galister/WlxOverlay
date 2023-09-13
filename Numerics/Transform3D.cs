@@ -566,7 +566,7 @@ public struct Transform3D : IEquatable<Transform3D>
     {
         return $"[X: {basis.x.ToString(format)}, Y: {basis.y.ToString(format)}, Z: {basis.z.ToString(format)}, O: {origin.ToString(format)}]";
     }
-    
+
     public Matrix4x4 ToSystemMatrix()
     {
         return new Matrix4x4

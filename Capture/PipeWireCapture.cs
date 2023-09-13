@@ -116,7 +116,7 @@ public class PipeWireCapture : IDesktopCapture
 
         _dmaBufFormats = (IntPtr)container;
     }
-    
+
     /// <summary>
     /// Call this from BaseOverlay.Render()
     /// </summary>
@@ -202,7 +202,7 @@ public class PipeWireCapture : IDesktopCapture
         {
             _width = info->raw.size.width;
             _height = info->raw.size.height;
-            
+
             switch (pb->datas[0].type)
             {
                 case spa_data_type.SPA_DATA_DmaBuf:

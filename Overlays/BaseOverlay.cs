@@ -32,7 +32,7 @@ public class BaseOverlay : IDisposable
 
     public readonly string Key;
     public Vector3 LocalScale = Vector3.One;
-    
+
     private const string Prefix = "WlxOverlay_";
 
     protected BaseOverlay(string key)
@@ -66,7 +66,7 @@ public class BaseOverlay : IDisposable
     private const float NearDistance = 0.35f;
     private const float FarResetDistance = 20f;
     private const float NearResetDistance = 0.2f;
-    
+
     public virtual void Show()
     {
         if (SavedSpawnPosition.HasValue)
@@ -200,7 +200,7 @@ public class BaseOverlay : IDisposable
     {
         if (SavedSpawnPosition == null)
             return;
-        
+
         SavedSpawnPosition = SpawnPosition;
         var globalRef = XrBackend.Current.Input.HmdTransform.TranslatedLocal(SpawnPosition);
         Transform.origin = globalRef.origin;
@@ -212,7 +212,7 @@ public class BaseOverlay : IDisposable
         if (!Visible)
             Show();
     }
-    
+
     public virtual void Dispose()
     {
         Hide();

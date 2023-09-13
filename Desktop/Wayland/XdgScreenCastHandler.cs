@@ -21,7 +21,7 @@ internal class XdgScreenData : IDisposable
 {
     internal uint NodeId;
     private WaylandOutput _output;
-    
+
     private Connection _dbus = null!;
     private DesktopService _service = null!;
     private ScreenCast _screenCast = null!;
@@ -44,7 +44,7 @@ internal class XdgScreenData : IDisposable
             var psi = new ProcessStartInfo("notify-send")
             {
                 ArgumentList = { "-u", "critical", "-t", "120000", "-w", "WlxOverlay", $"Now select: {_output.Model} @ {_output.Name}" }
-            }; 
+            };
             return Process.Start(psi);
 
         }
@@ -188,7 +188,7 @@ internal class XdgScreenData : IDisposable
             false);
 
         await _screenCast.SelectSourcesAsync(_sessionPath!, options);
-        
+
         long val;
         var waited = 0;
         Process? p = null;

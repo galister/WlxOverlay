@@ -172,6 +172,6 @@ public class FontLoaderException : Exception
 {
     public FontLoaderException(string str) : base(str)
     {
-        
+
     }
 }

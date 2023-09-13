@@ -29,7 +29,7 @@ public static class OVRExtensions
         Console.WriteLine("[Err] " + err + " while " + string.Join(" ", message));
         return true;
     }
-    
+
     public static Vector2 ToWlx(this HmdVector2_t v)
     {
         return new Vector2(v.v0, v.v1);
@@ -39,7 +39,7 @@ public static class OVRExtensions
     {
         return new HmdVector2_t { v0 = v.x, v1 = v.y };
     }
-    
+
     public static void CopyTo(this Vector2 v, ref HmdVector2_t h)
     {
         h.v0 = v.x;

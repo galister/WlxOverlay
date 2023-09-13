@@ -34,7 +34,7 @@ internal class InteractionData
         hitData = null!;
         return false;
     }
-    
+
     #region Pointer Interaction
     private void EnsurePrimary(PointerData data)
     {
@@ -53,9 +53,9 @@ internal class InteractionData
     {
         PrimaryPointer ??= pointer;
         HitsThisFrame.Add(hitData);
-        
+
         hitData.isPrimary = PrimaryPointer.Pointer == pointer.Pointer;
-        
+
         if (Overlay is IInteractable interactable)
             interactable.OnPointerHover(hitData);
     }
@@ -64,7 +64,7 @@ internal class InteractionData
     {
         if (PrimaryPointer?.Pointer.Hand == hand)
             PrimaryPointer = null;
-        
+
         if (Overlay is IInteractable interactable)
             interactable.OnPointerLeft(hand);
     }
@@ -73,11 +73,11 @@ internal class InteractionData
     {
         EnsurePrimary(pointer);
         hitData.isPrimary = true;
-        
+
         if (Overlay is IInteractable interactable)
             interactable.OnPointerDown(hitData);
     }
-    
+
     internal void OnPointerUp(PointerHit hitData)
     {
         if (Overlay is IInteractable interactable)
@@ -97,7 +97,7 @@ internal class InteractionData
     /// Default spawn point, relative to HMD
     /// </summary>
     private Vector3 _grabOffset;
-    
+
     internal void OnGrabbed(PointerData pointer, PointerHit hitData)
     {
         if (PrimaryPointer != null && pointer != PrimaryPointer)
@@ -106,7 +106,7 @@ internal class InteractionData
         PrimaryPointer = pointer;
 
         _grabOffset = PrimaryPointer.Pointer.Transform.AffineInverse() * Overlay.Transform.origin;
-        
+
         if (Overlay is IGrabbable grabbable)
             grabbable.OnGrabbed(hitData);
     }
@@ -122,7 +122,7 @@ internal class InteractionData
     internal void OnDropped()
     {
         Overlay.SavedSpawnPosition = XrBackend.Current.Input.HmdTransform.AffineInverse() * Overlay.Transform.origin;
-        
+
         if (Overlay is IGrabbable grabbable)
             grabbable.OnDropped();
     }
@@ -130,7 +130,7 @@ internal class InteractionData
     internal void OnClickWhileHeld()
     {
         OnGrabHeld();
-        
+
         if (Overlay is IGrabbable grabbable)
             grabbable.OnClickWhileHeld();
     }
@@ -138,7 +138,7 @@ internal class InteractionData
     internal void OnAltClickWhileHeld()
     {
         OnGrabHeld();
-        
+
         if (Overlay is IGrabbable grabbable)
             grabbable.OnAltClickWhileHeld();
     }
@@ -165,6 +165,6 @@ internal class InteractionData
 
         _grabOffset = newGrabOffset;
     }
-    
+
     #endregion
 }

@@ -19,7 +19,7 @@ public interface IXrBackend
     void SetZeroPose(Vector3 offset);
 
     void AdjustGain(int ch, float gain);
-    
+
     IOverlay CreateOverlay(BaseOverlay overlay);
 
     void Destroy();

@@ -14,7 +14,7 @@ public class OXRBackend : IXrBackend
     private SessionState state;
 
     private uint swapchainIndex;
-    
+
     public float DisplayFrequency { get; private set; }
     public IList<TrackedDevice> GetBatteryStates()
     {
@@ -36,19 +36,19 @@ public class OXRBackend : IXrBackend
         _oxr.CreateInstance("XR_KHR_opengl_enable", "XR_MNDX_egl_enable", "XR_KHR_composition_layer_depth", "XR_EXTX_overlay");
         _oxr.GetViewConfig(out var renderSize);
         _oxr.CreateSession();
-        
+
         _oxr.CreateSwapchain(renderSize);
         _oxr.EnumerateSwapchainImages();
-        
+
         _oxr.CreateProjectionViews(renderSize);
         _oxr.CreateReferenceSpace(ReferenceSpaceType.Local, Transform3D.Identity);
 
         _oxr.CreateActionSet();
         _input.Initialize();
         _oxr.AttachActionSet();
-        
+
         _renderer.Initialize();
-        
+
         DisplayFrequency = 90; // TODO
     }
 
@@ -56,10 +56,10 @@ public class OXRBackend : IXrBackend
     {
         if (!HandleEvents())
             return LoopShould.Idle;
-            
-        if(state is < SessionState.Ready or > SessionState.Focused)
+
+        if (state is < SessionState.Ready or > SessionState.Focused)
             return LoopShould.Idle;
-        
+
         _oxr.WaitFrame();
         _oxr.BeginFrame();
         if (!_oxr.ShouldRender)
@@ -67,13 +67,13 @@ public class OXRBackend : IXrBackend
 
         if (!_oxr.TryAcquireSwapchainImage(out swapchainIndex))
             return LoopShould.NotRender;
-        
+
         _oxr.LocateView();
-        
+
         _input.Update();
-        
+
         _renderer.Clear();
-        
+
         return LoopShould.Render;
     }
 
@@ -85,7 +85,7 @@ public class OXRBackend : IXrBackend
             return;
         }
         _renderer.Render(swapchainIndex);
-        
+
         _oxr.ReleaseSwapchainImage();
         _oxr.EndFrame();
     }
@@ -114,56 +114,56 @@ public class OXRBackend : IXrBackend
             switch (eventData.Type)
             {
                 case StructureType.EventDataInstanceLossPending:
-                {
-                    var lossEvent = Unsafe.As<EventDataBuffer, EventDataInstanceLossPending>(ref eventData);
-                    Console.WriteLine("[Err] OpenXR instance loss pending at " + lossEvent.LossTime + ". Destroying instance.");
-                    return false;
-                }
-                case StructureType.EventDataSessionStateChanged:
-                {
-                    var sessionEvent = Unsafe.As<EventDataBuffer, EventDataSessionStateChanged>(ref eventData);
-                    Console.WriteLine("[Info] OpenXR session state changed " + state + " -> " + sessionEvent.State);
-                    state = sessionEvent.State;
-                    switch (sessionEvent.State)
                     {
-                        case SessionState.Idle:
-                        case SessionState.Unknown:
-                        {
-                            return false;
-                        }
-                        case SessionState.Ready:
-                        {
-                            _oxr.BeginSession();
-                            return true;
-                        }
-                        case SessionState.Stopping:
-                        {
-                            _oxr.EndSession();
-                            return false;
-                        }
-                        case SessionState.LossPending:
-                        case SessionState.Exiting:
-                        {
-                            _oxr.DestroySession();
-                            return false;
-                        }
+                        var lossEvent = Unsafe.As<EventDataBuffer, EventDataInstanceLossPending>(ref eventData);
+                        Console.WriteLine("[Err] OpenXR instance loss pending at " + lossEvent.LossTime + ". Destroying instance.");
+                        return false;
                     }
-                    break;
-                }
+                case StructureType.EventDataSessionStateChanged:
+                    {
+                        var sessionEvent = Unsafe.As<EventDataBuffer, EventDataSessionStateChanged>(ref eventData);
+                        Console.WriteLine("[Info] OpenXR session state changed " + state + " -> " + sessionEvent.State);
+                        state = sessionEvent.State;
+                        switch (sessionEvent.State)
+                        {
+                            case SessionState.Idle:
+                            case SessionState.Unknown:
+                                {
+                                    return false;
+                                }
+                            case SessionState.Ready:
+                                {
+                                    _oxr.BeginSession();
+                                    return true;
+                                }
+                            case SessionState.Stopping:
+                                {
+                                    _oxr.EndSession();
+                                    return false;
+                                }
+                            case SessionState.LossPending:
+                            case SessionState.Exiting:
+                                {
+                                    _oxr.DestroySession();
+                                    return false;
+                                }
+                        }
+                        break;
+                    }
                 case StructureType.EventDataInteractionProfileChanged:
-                {
-                    var topLevelPath = _oxr.StringToPath("/user/hand/left");
-                    var profilePath = _oxr.GetCurrentInteractionProfile(topLevelPath);
-                    var profileName = _oxr.PathToString(profilePath);
-                    
-                    Console.WriteLine($"[Info] OpenXR interaction profile changed: {profileName}");
-                    break;
-                }
+                    {
+                        var topLevelPath = _oxr.StringToPath("/user/hand/left");
+                        var profilePath = _oxr.GetCurrentInteractionProfile(topLevelPath);
+                        var profileName = _oxr.PathToString(profilePath);
+
+                        Console.WriteLine($"[Info] OpenXR interaction profile changed: {profileName}");
+                        break;
+                    }
                 default:
-                {
-                    Console.WriteLine("[Info] OpenXR event " + eventData.Type);
-                    break;
-                }
+                    {
+                        Console.WriteLine("[Info] OpenXR event " + eventData.Type);
+                        break;
+                    }
             }
         }
 

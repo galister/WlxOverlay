@@ -22,7 +22,7 @@ public interface IGraphicsEngine
         GraphicsFormat internalFormat = GraphicsFormat.RGBA8);
 
     public ITexture TextureFromHandle(IntPtr handle, uint width, uint height, GraphicsFormat internalFormat = GraphicsFormat.RGBA8);
-    
+
     public ETextureType GetTextureType();
 
     public void Shutdown();

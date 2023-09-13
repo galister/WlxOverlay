@@ -43,7 +43,7 @@ public class Toast : BaseOverlay
         {
             (w, h) = Font.GetTextSize(_title);
         }
-        else 
+        else
         {
             var (w1, _) = Font.GetTextSize(_title);
             var (w2, h2) = Font.GetTextSize(_content);
@@ -51,7 +51,7 @@ public class Toast : BaseOverlay
             h = (int)h2 + 50;
         }
 
-        var width = (uint)(w + Padding); 
+        var width = (uint)(w + Padding);
         var height = (uint)h;
 
         WidthInMeters = width / 2000f;
@@ -69,7 +69,7 @@ public class Toast : BaseOverlay
         }
         else
         {
-            _canvas.AddControl(new Label(_content, Padding/2, PaddingY/2, (uint)w, height - 36U));
+            _canvas.AddControl(new Label(_content, Padding / 2, PaddingY / 2, (uint)w, height - 36U));
 
             Canvas.CurrentBgColor = HexColor.FromRgb("#666666");
             _canvas.AddControl(new Panel(0, h - 36, width, height));

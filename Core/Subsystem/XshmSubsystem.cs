@@ -17,7 +17,7 @@ public class XshmSubsystem : ISubsystem
         instance = null!;
         return false;
     }
-    
+
     public void CreateScreens()
     {
         Console.WriteLine("X11 desktop detected.");
@@ -28,7 +28,7 @@ public class XshmSubsystem : ISubsystem
             OverlayRegistry.Register(screen);
         }
     }
-    
+
     public void Initialize()
     {
     }
@@ -37,7 +37,7 @@ public class XshmSubsystem : ISubsystem
     {
         XshmCapture.ResetMouse();
     }
-    
+
     public void Dispose()
     {
     }

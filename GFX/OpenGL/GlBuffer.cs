@@ -17,14 +17,14 @@ public class GlBuffer<TDataType> : IDisposable
 
         _handle = _gl.GenBuffer();
         _gl.DebugAssertSuccess();
-        
+
         Bind();
         fixed (void* d = data)
         {
             _gl.BufferData(bufferType, (nuint)(data.Length * sizeof(TDataType)), d, BufferUsageARB.StaticDraw);
         }
         _gl.DebugAssertSuccess();
-        
+
         Unbind();
     }
 

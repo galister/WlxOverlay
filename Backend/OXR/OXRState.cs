@@ -15,13 +15,13 @@ public class OXRState
     public Instance Instance;
     public ulong System;
     public Session Session;
-    
+
     public Space PlaySpace;
     public ActionSet ActionSet;
-    
+
     public long PredictedDisplayTime;
     public bool ShouldRender;
-    
+
     public EnvironmentBlendMode BlendMode;
     public ViewConfigurationType ViewConfigType;
 
@@ -111,7 +111,7 @@ public class OXRState
 
         ulong system = 0;
         var getInfo = new SystemGetInfo(formFactor: FormFactor.HeadMountedDisplay)
-            { Type = StructureType.SystemGetInfo };
+        { Type = StructureType.SystemGetInfo };
         Api.GetSystem(instance, in getInfo, ref system).EnsureSuccess();
 
         System = system;
@@ -360,7 +360,7 @@ public class OXRState
             Type = StructureType.SpaceVelocity,
             Next = null
         };
-        
+
         var xrLocation = new SpaceLocation
         {
             Type = StructureType.SpaceLocation,
@@ -432,8 +432,8 @@ public class OXRState
             Duration = (long)(durationSec * 1_000_000_000L),
             Frequency = frequencyHz,
         };
-        
-        Api.ApplyHapticFeedback(Session, &info, (HapticBaseHeader *)(&haptic)).LogOnFail();
+
+        Api.ApplyHapticFeedback(Session, &info, (HapticBaseHeader*)(&haptic)).LogOnFail();
     }
 
     public unsafe void LocateView()
@@ -451,11 +451,11 @@ public class OXRState
             Type = StructureType.ViewState,
             Next = null,
         };
-        
+
         var viewCount = NumViews;
         Api.LocateView(Session, &info, &state, viewCount, &viewCount, Views).EnsureSuccess();
         NumViews = viewCount;
-        
+
         for (var i = 0; i < viewCount; i++)
         {
             ProjectionViews[i].Fov = Views[i].Fov;
@@ -471,22 +471,22 @@ public class OXRState
             Next = null,
         };
         Api.WaitFrame(Session, null, &state).EnsureSuccess();
-        
+
         PredictedDisplayTime = state.PredictedDisplayTime;
         ShouldRender = (Bool32)state.ShouldRender;
     }
 
-    
+
     public unsafe void BeginFrame()
     {
         Api.BeginFrame(Session, null).EnsureSuccess();
     }
-    
+
     public unsafe void EndFrame(bool nullFrame = false)
     {
         var projections = stackalloc CompositionLayerProjection[1];
         var numProjections = 0U;
-        
+
         fixed (CompositionLayerProjectionView* ptrView = ProjectionViews)
         {
             if (!nullFrame)
@@ -512,27 +512,28 @@ public class OXRState
                 Layers = (CompositionLayerBaseHeader**)&projections,
                 Next = null,
             };
-            
+
             Api.EndFrame(Session, &frameEndInfo).EnsureSuccess();
         }
     }
-    
+
     public unsafe bool TryAcquireSwapchainImage(out uint swapchainIndex)
     {
         var index = 0u;
         Api.AcquireSwapchainImage(Swapchain, null, &index).EnsureSuccess();
         swapchainIndex = index;
 
-        var waitInfo = new SwapchainImageWaitInfo(timeout: long.MaxValue) { 
+        var waitInfo = new SwapchainImageWaitInfo(timeout: long.MaxValue)
+        {
             Type = StructureType.SwapchainImageWaitInfo,
             Next = null,
         };
 
         if (Api.WaitSwapchainImage(Swapchain, in waitInfo) == Result.Success)
             return true;
-        
+
         var releaseInfo = new SwapchainImageReleaseInfo
-        { 
+        {
             Type = StructureType.SwapchainImageReleaseInfo,
             Next = null,
         };
@@ -563,14 +564,14 @@ public class OXRState
         Api.StringToPath(Instance, pathString, &path);
         return path;
     }
-    
+
     public unsafe string PathToString(ulong path)
     {
         var buf = stackalloc byte[256];
 
         var length = 0u;
         Api.PathToString(Instance, path, 256U, &length, buf);
-        
+
         return Encoding.UTF8.GetString(buf, (int)length);
     }
 
@@ -585,7 +586,7 @@ public class OXRState
         Api.GetCurrentInteractionProfile(Session, topLevelPath, &state).EnsureSuccess();
         return state.InteractionProfile;
     }
-    
+
     public unsafe void BeginSession(bool overlay = false)
     {
         if (_sessionRunning)
@@ -597,7 +598,7 @@ public class OXRState
             Next = null,
             CreateFlags = OverlaySessionCreateFlagsEXTX.None,
         };
-        
+
         var info = new SessionBeginInfo
         {
             Type = StructureType.SessionBeginInfo,

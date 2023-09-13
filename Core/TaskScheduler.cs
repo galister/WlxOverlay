@@ -4,10 +4,10 @@ public static class TaskScheduler
 {
     private static readonly Queue<(DateTime notBefore, Action action)> _scheduledTasks = new();
     private static readonly object _lockObject = new();
-    
+
     public static void ScheduleTask(DateTime notBefore, Action action)
     {
-        lock (_lockObject) 
+        lock (_lockObject)
             _scheduledTasks.Enqueue((notBefore, action));
     }
 

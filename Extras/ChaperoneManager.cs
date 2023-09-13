@@ -15,7 +15,7 @@ public class ChaperoneManager
     public bool WantVisible;
     public float MaxAlpha = 1f;
     public float FadeDistance = 5f;
-    
+
     public readonly List<ChaperonePolygon> Polygons = new();
     private readonly List<ChaperoneLine> _chaperoneLines = new();
 

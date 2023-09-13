@@ -10,13 +10,13 @@ public static class OXRExtensions
         if (result != Result.Success)
             throw new ApplicationException($"[Err] OpenXR: {result}");
     }
-    
+
     public static void LogOnFail(this Result result)
     {
         if (result != Result.Success)
             Console.WriteLine($"[Warn] OpenXR: {result}");
     }
-    
+
     public static Quaternionf ToOxr(this Quaternion q)
     {
         return new Quaternionf(q.x, q.y, q.z, q.w);
@@ -26,12 +26,12 @@ public static class OXRExtensions
     {
         return new Vector3f(v.x, v.y, v.z);
     }
-    
+
     public static Posef ToOxr(this Transform3D t)
     {
         return new Posef(t.basis.GetQuaternion().ToOxr(), t.origin.ToOxr());
     }
-    
+
     public static Quaternion ToWlx(this Quaternionf q)
     {
         return new Quaternion(q.X, q.Y, q.Z, q.W);

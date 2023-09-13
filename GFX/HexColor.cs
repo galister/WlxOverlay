@@ -10,7 +10,7 @@ public class HexColor
         var c = ColorTranslator.FromHtml(str);
         return new Vector3(c.R, c.G, c.B) / byte.MaxValue;
     }
-    
+
     private const float DIV12 = 1f / 12.92f;
     private const float DIV1 = 1f / 1.055f;
     private const float THRESHOLD = 0.04045f;

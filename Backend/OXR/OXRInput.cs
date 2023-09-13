@@ -9,24 +9,24 @@ public class OXRInput : IXrInput
 {
     private readonly OXRState _oxr;
     private readonly OXRPointer[] _pointers;
-    
+
     public event EventHandler? BatteryStatesUpdated;
     public Transform3D HmdTransform { get; private set; }
 
     public OXRInput(OXRState oxr)
     {
         _oxr = oxr;
-        
+
         var left = new OXRPointer(_oxr, LeftRight.Left);
         var right = new OXRPointer(_oxr, LeftRight.Right);
-        
-        _pointers = Config.Instance.PrimaryHand == LeftRight.Left 
-            ? new [] { left, right }
-            : new [] { right, left };
-        
+
+        _pointers = Config.Instance.PrimaryHand == LeftRight.Left
+            ? new[] { left, right }
+            : new[] { right, left };
+
         InteractionsHandler.RegisterPointers(_pointers[0], _pointers[1]);
     }
-    
+
     public Transform3D HandTransform(LeftRight hand)
     {
         return _pointers[(int)hand].Transform3D;
@@ -45,10 +45,10 @@ public class OXRInput : IXrInput
     public void Update()
     {
         HmdTransform = new Transform3D(
-            _oxr.Views[0].Pose.Orientation.ToWlx(), 
+            _oxr.Views[0].Pose.Orientation.ToWlx(),
             (_oxr.Views[0].Pose.Position.ToWlx() + _oxr.Views[1].Pose.Position.ToWlx()) * 0.5f
             );
-        
+
         foreach (var pointer in _pointers)
             pointer.Update();
     }

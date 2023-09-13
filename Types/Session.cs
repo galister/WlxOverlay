@@ -8,7 +8,7 @@ using YamlDotNet.Serialization.NamingConventions;
 
 namespace WlxOverlay.Types;
 
-public class Session 
+public class Session
 {
     public static Session Instance;
 
@@ -21,7 +21,7 @@ public class Session
         _serializer = new SerializerBuilder()
           .WithNamingConvention(UnderscoredNamingConvention.Instance)
           .Build();
-        
+
         if (File.Exists(_path))
             try
             {
@@ -36,7 +36,7 @@ public class Session
     public void Persist()
     {
         if (!Directory.Exists(Config.UserConfigFolder))
-          Directory.CreateDirectory(Config.UserConfigFolder);
+            Directory.CreateDirectory(Config.UserConfigFolder);
 
         var yaml = _serializer.Serialize(this);
         File.WriteAllText(_path, yaml);
