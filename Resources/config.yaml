@@ -110,6 +110,9 @@ primary_hand: Right
 ## "Left" or "Right"
 watch_hand: Left
 
+## Position of the watch relative to controller pose. Y is inverted for right.
+#watch_position: [ -0.05, -0.05, 0.15 ]
+
 # The color of the pointer can be set 2 ways:
 # - modifier bindings ("ClickModifierRight" and "ClickModifierMiddle")
 # - hand orientation
@@ -131,7 +134,6 @@ middle_click_orientation: false
 ## Seconds to freeze the cursor for after clicking.
 ## Aims to help with double clicking.
 click_freeze_time: 0.3
-
 
 ## Pointer & keyboard colors
 #primary_color: '#006080'

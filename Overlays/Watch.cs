@@ -20,7 +20,7 @@ public class Watch : BaseOverlay, IInteractable
     private float _flBrightness = 1f;
 
     internal LeftRight Hand;
-    internal Vector3 Vec3RelToHand = new(-0.05f, -0.05f, 0.15f);
+    internal Vector3 Vec3RelToHand;
     internal Vector3 Vec3InsideUnit = Vector3.Right;
 
     public bool Hidden;
@@ -33,6 +33,12 @@ public class Watch : BaseOverlay, IInteractable
             throw new InvalidOperationException("Can't have more than one Watch!");
         _instance = this;
 
+        var relative_pos = Config.Instance.WatchPosition ?? new[] { -0.05f, -0.05f, 0.15f };
+        if (relative_pos.Length != 3)
+            throw new InvalidOperationException("watch_position must be an array of 3 floats!");
+        
+        Vec3RelToHand = new Vector3(relative_pos[0], relative_pos[1], relative_pos[2]);
+        
         Hand = Config.Instance.WatchHand;
         if (Config.Instance.WatchHand == LeftRight.Right)
         {
