@@ -22,7 +22,7 @@ public static class InputProvider
             Console.WriteLine("FATAL Try: sudo usermod -a -G input $USER");
         }
     }
-    
+
     public static void UseDummy()
     {
         Mouse = new DummyMouse();

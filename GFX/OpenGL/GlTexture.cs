@@ -11,7 +11,7 @@ public class GlTexture : ITexture
 
     public uint Width { get; private set; }
     public uint Height { get; private set; }
-    
+
     private InternalFormat _internalFormat;
 
     private readonly bool _dynamic;
@@ -55,7 +55,7 @@ public class GlTexture : ITexture
         _dynamic = dynamic;
 
         Handle = (uint)handle;
-        
+
         Bind();
         Allocate(internalFormat, width, height, PixelFormat.Rgba, PixelType.UnsignedByte, null);
     }
@@ -124,7 +124,7 @@ public class GlTexture : ITexture
         //When we bind a texture we can choose which texture slot we can bind it to.
         _gl.ActiveTexture(textureSlot);
         _gl.DebugAssertSuccess();
-        
+
         _gl.BindTexture(TextureTarget.Texture2D, Handle);
         _gl.DebugAssertSuccess();
     }
@@ -188,16 +188,16 @@ public class GlTexture : ITexture
     {
         if (Width == width && Height == height)
             return;
-        
+
         Width = width;
         Height = height;
-        
+
         Bind();
-        
+
         _gl.TexImage2D(TextureTarget.Texture2D, 0, _internalFormat, width, height, 0, PixelFormat.Rgba, PixelType.UnsignedByte, null);
         _gl.DebugAssertSuccess();
     }
-    
+
     public void LoadEglImage(IntPtr eglImage, uint width, uint height)
     {
         Bind();

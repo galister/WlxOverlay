@@ -54,7 +54,7 @@ public class OVRPointer : BaseOverlay, IPointer
         else if (Visible)
             Hide();
     }
-    
+
     private void RecalculateTransform()
     {
         var hmd = XrBackend.Current.Input.HmdTransform;

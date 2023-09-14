@@ -37,7 +37,7 @@ public class AdvancedSettings : BaseOverlay, IInteractable
         _canvas.AddControl(b);
         _tabButtons.Add(b);
 
-        p.ActivePageChanged += (_, i) => 
+        p.ActivePageChanged += (_, i) =>
           b.SetBgColor(i == idx ? ActiveColorBG : InactiveColorBG);
 
         return idx;
@@ -69,7 +69,7 @@ public class AdvancedSettings : BaseOverlay, IInteractable
         var pager = new ContentPager(_canvas);
 
         // --------------- settings ------------------
-        
+
         Canvas.CurrentFgColor = Vector3.One;
         Canvas.CurrentBgColor = ActiveColorBG;
         var settings = AddTabPage(pager, new Button("Settings", 2, 162, 130, 36));
@@ -77,13 +77,15 @@ public class AdvancedSettings : BaseOverlay, IInteractable
         pager.AddControl(settings, new LabelCentered("Watch", 15, 136, 130, 24));
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#444488");
-        pager.AddControl(settings, new Button("Swap Hand", 15, 100, 130, 30) {
+        pager.AddControl(settings, new Button("Swap Hand", 15, 100, 130, 30)
+        {
             PointerDown = _ => parent.SwapHands()
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#884444");
-        pager.AddControl(settings, new Button("Hide", 15, 64, 130, 30) {
-            PointerDown = _ => 
+        pager.AddControl(settings, new Button("Hide", 15, 64, 130, 30)
+        {
+            PointerDown = _ =>
             {
                 parent.Hidden = true;
                 NotificationsManager.Toast("Watch Hidden", "Use Show/Hide binding to get it back.", alwaysShow: true);
@@ -95,8 +97,9 @@ public class AdvancedSettings : BaseOverlay, IInteractable
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#444488");
 
-        pager.AddControl(settings, new Button("Fix Floor", 160, 100, 130, 30) {
-            PointerDown = _ => 
+        pager.AddControl(settings, new Button("Fix Floor", 160, 100, 130, 30)
+        {
+            PointerDown = _ =>
             {
                 for (var i = 0; i < 5; i++)
                 {
@@ -106,25 +109,28 @@ public class AdvancedSettings : BaseOverlay, IInteractable
                         label.Text = $"Put controller on floor! {5 - i1}s";
                     });
                 }
-                TaskScheduler.ScheduleTask(DateTime.UtcNow.AddSeconds(5), () => 
+                TaskScheduler.ScheduleTask(DateTime.UtcNow.AddSeconds(5), () =>
                 {
                     PlaySpaceMover.FixFloor();
                     label.Text = "";
                 });
             }
         });
-        pager.AddControl(settings, new Button("Reset Offset", 160, 64, 130, 30) {
+        pager.AddControl(settings, new Button("Reset Offset", 160, 64, 130, 30)
+        {
             PointerDown = _ => PlaySpaceMover.ResetOffset()
         });
-        pager.AddControl(settings, new Button("Make Default", 160, 28, 130, 30) {
+        pager.AddControl(settings, new Button("Make Default", 160, 28, 130, 30)
+        {
             PointerDown = _ => PlaySpaceMover.SetAsDefault()
         });
 
         pager.AddControl(settings, new LabelCentered("Popups", 305, 136, 80, 24));
 
         Canvas.CurrentBgColor = Session.Instance.NotificationsDnd ? InactiveColorBG : ActiveColorBG;
-        pager.AddControl(settings, new Button("Enable", 305, 100, 80, 30) {
-            PointerDown = b => 
+        pager.AddControl(settings, new Button("Enable", 305, 100, 80, 30)
+        {
+            PointerDown = b =>
             {
                 Session.Instance.NotificationsDnd = !Session.Instance.NotificationsDnd;
                 b.SetBgColor(Session.Instance.NotificationsDnd ? InactiveColorBG : ActiveColorBG);
@@ -133,8 +139,9 @@ public class AdvancedSettings : BaseOverlay, IInteractable
         });
 
         Canvas.CurrentBgColor = Session.Instance.NotificationsMuteAudio ? InactiveColorBG : ActiveColorBG;
-        pager.AddControl(settings, new Button("Audio", 305, 64, 80, 30) {
-            PointerDown = b => 
+        pager.AddControl(settings, new Button("Audio", 305, 64, 80, 30)
+        {
+            PointerDown = b =>
             {
                 Session.Instance.NotificationsMuteAudio = !Session.Instance.NotificationsMuteAudio;
                 b.SetBgColor(Session.Instance.NotificationsMuteAudio ? InactiveColorBG : ActiveColorBG);
@@ -143,22 +150,23 @@ public class AdvancedSettings : BaseOverlay, IInteractable
         });
 
         Canvas.CurrentBgColor = HexColor.FromRgb("#444488");
-        pager.AddControl(settings, new Button("Test", 305, 28, 80, 30) {
+        pager.AddControl(settings, new Button("Test", 305, 28, 80, 30)
+        {
             PointerDown = _ => NotificationsManager.Toast("Hello world!", "This is a test toast.\nあいうえお")
         });
-        
+
         // --------------- video ------------------
 
         Canvas.CurrentFgColor = Vector3.One;
         Canvas.CurrentBgColor = InactiveColorBG;
         var video = AddTabPage(pager, new Button("Video", 136, 162, 129, 36));
-        
+
         Canvas.CurrentBgColor = HexColor.FromRgb("#444488");
         Canvas.CurrentFgColor = Vector3.One;
 
         pager.AddControl(video, new Button("Reset", 35, 84, 70, 32)
         {
-            PointerDown = _ => 
+            PointerDown = _ =>
             {
                 XrBackend.Current.AdjustGain(0, 1f);
                 XrBackend.Current.AdjustGain(1, 1f);
@@ -169,7 +177,7 @@ public class AdvancedSettings : BaseOverlay, IInteractable
         Canvas.CurrentBgColor = HexColor.FromRgb("#909090");
         pager.AddControl(video, new Button("+", 127, 116, 46, 32)
         {
-            PointerDown = _ => 
+            PointerDown = _ =>
             {
                 XrBackend.Current.AdjustGain(0, 0.1f);
                 XrBackend.Current.AdjustGain(1, 0.1f);
@@ -179,7 +187,7 @@ public class AdvancedSettings : BaseOverlay, IInteractable
 
         pager.AddControl(video, new Button("-", 127, 52, 46, 32)
         {
-            PointerDown = _ => 
+            PointerDown = _ =>
             {
                 XrBackend.Current.AdjustGain(0, -0.1f);
                 XrBackend.Current.AdjustGain(1, -0.1f);
@@ -282,13 +290,14 @@ public class AdvancedSettings : BaseOverlay, IInteractable
         {
             PointerDown = b =>
             {
-                if (!FinalizePolygon()) {
+                if (!FinalizePolygon())
+                {
                     InteractionsHandler.RegisterCustomInteraction(nameof(NewPolygonAction), NewPolygonAction);
                     b.SetText("Finish");
                     label.Text = "Add segments using right hand.";
                 }
-                else 
-                { 
+                else
+                {
                     b.SetText("New Polygon");
                     label.Text = "";
                 }

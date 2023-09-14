@@ -7,7 +7,7 @@ namespace WlxOverlay.GFX;
 public static class EGL
 {
     private static bool _initialized;
-    
+
     public static readonly EglEnum[,] DmaBufAttribs = {
         { EglEnum.DmaBufPlane0FdExt, EglEnum.DmaBufPlane0OffsetExt, EglEnum.DmaBufPlane0PitchExt, EglEnum.DmaBufPlane0ModifierLoExt, EglEnum.DmaBufPlane0ModifierHiExt },
         { EglEnum.DmaBufPlane1FdExt, EglEnum.DmaBufPlane1OffsetExt, EglEnum.DmaBufPlane1PitchExt, EglEnum.DmaBufPlane1ModifierLoExt, EglEnum.DmaBufPlane1ModifierHiExt },
@@ -16,7 +16,7 @@ public static class EGL
     };
 
     public static IntPtr Display { get; private set; }
-    
+
     public static void Initialize()
     {
         if (_initialized)
@@ -49,7 +49,7 @@ public static class EGL
 
         if (Initialize(Display, out var major, out var minor) == EglEnum.False)
             throw new ApplicationException("eglInitialize returned EGL_FALSE!");
-        
+
         LoadPfn("eglQueryDmaBufFormatsEXT", ref QueryDmaBufFormatsEXT);
         LoadPfn("eglQueryDmaBufModifiersEXT", ref QueryDmaBufModifiersEXT);
 
@@ -57,9 +57,9 @@ public static class EGL
 
         Console.WriteLine($"EGL {major}.{minor} initialized.");
     }
-    
-    public static bool IsDmabufSupported() => QueryDmaBufFormatsEXT != null 
-                                              && QueryDmaBufModifiersEXT != null 
+
+    public static bool IsDmabufSupported() => QueryDmaBufFormatsEXT != null
+                                              && QueryDmaBufModifiersEXT != null
                                               && ImageTargetTexture2DOES != null;
 
     private static bool LoadPfn<T>(string name, ref T? target) where T : Delegate
@@ -88,10 +88,10 @@ public static class EGL
 
     [DllImport("libEGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "eglGetProcAddress")]
     public static extern IntPtr GetProcAddress([MarshalAs(UnmanagedType.LPStr)] string procName);
-    
+
     [DllImport("libEGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "eglQueryContext")]
     public static extern EglEnum QueryContext(IntPtr dpy, IntPtr ctx, EglEnum attribute, ref int value);
-    
+
     [DllImport("libEGL.so.1", CharSet = CharSet.Ansi, EntryPoint = "eglChooseConfig")]
     public static extern unsafe EglEnum ChooseConfig(IntPtr dpy, int* attribList, IntPtr* configs, int configSize, int* numConfig);
 

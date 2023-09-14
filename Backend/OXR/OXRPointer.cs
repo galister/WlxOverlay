@@ -26,7 +26,7 @@ public class OXRPointer : IPointer
     private const int IN_MENU = 7;
     private const int IN_SYS = 8;
     private const int OUT_HAPTIC = 9;
-    
+
     private readonly OXRAction[] Actions =
     {
         new(ActionType.PoseInput, "/input/grip/pose" ),
@@ -40,7 +40,7 @@ public class OXRPointer : IPointer
         new(ActionType.BooleanInput, "/input/system/click" ),
         new(ActionType.VibrationOutput, "/output/haptic" ),
     };
-    
+
     public OXRPointer(OXRState oxr, LeftRight hand)
     {
         _oxr = oxr;
@@ -58,12 +58,12 @@ public class OXRPointer : IPointer
                 myAction.Paths[0].Split('/', StringSplitOptions.RemoveEmptyEntries)[1..].Select(x => char.ToUpper(x[0]) + x[1..]));
             myAction.Action = _oxr.CreateAction(myAction.Type, name);
         }
-        
+
         foreach (var profile in OXRAction.SupportedProfiles)
         {
             var profileId = _oxr.StringToPath(profile);
             var bindings = new List<ActionSuggestedBinding>();
-            
+
             for (var i = 0; i < Actions.Length; i++)
             {
                 ref var myAction = ref Actions[i];
@@ -85,14 +85,14 @@ public class OXRPointer : IPointer
                     }
                 }
             }
-            
-            if (bindings.Count > 0) 
+
+            if (bindings.Count > 0)
                 _oxr.SuggestInteractionProfileBinding(profileId, bindings.ToArray());
         }
 
         _mySpace = _oxr.CreateActionSpace(Actions[IN_POSE].Action, Transform3D.Identity);
     }
-    
+
     public LeftRight Hand { get; }
     public void SetLength(float length)
     {
@@ -108,30 +108,30 @@ public class OXRPointer : IPointer
     {
         _oxr.ApplyHapticFeedback(Actions[OUT_HAPTIC].Action, 0, durationSec, amplitude, frequencyHz);
     }
-    
+
     public void Update()
     {
         if (_oxr.TryGetPoseAction(Actions[IN_POSE].Action, _mySpace, _oxr.PredictedDisplayTime, out var pose))
             Transform3D = pose;
-        
+
         if (_oxr.TryGetFloatAction(Actions[IN_TRIGGER].Action, out var fVal))
             State.Click = fVal > 0.5f;
-        
+
         if (_oxr.TryGetFloatAction(Actions[IN_GRIP].Action, out fVal))
             State.Grab = fVal > 0.5f;
-        
+
         if (_oxr.TryGetFloatAction(Actions[IN_STICK_Y].Action, out fVal))
             State.Scroll = fVal;
-        
+
         if (_oxr.TryGetBoolAction(Actions[IN_X_TOUCH].Action, out var bVal))
             State.ClickModifierMiddle = bVal;
-        
+
         if (_oxr.TryGetBoolAction(Actions[IN_Y_TOUCH].Action, out bVal))
             State.ClickModifierRight = bVal;
-        
+
         if (_oxr.TryGetBoolAction(Actions[IN_SYS].Action, out bVal))
             State.ShowHide = bVal;
-        
+
         if (_oxr.TryGetBoolAction(Actions[IN_MENU].Action, out bVal))
             State.ShowHide = bVal;
     }

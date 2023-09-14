@@ -22,7 +22,7 @@ public interface IOverlay : IDisposable
     public void SetCurvature(float curvature);
 
     public bool TestInteraction(IPointer pointer, out PointerHit hit);
-    
+
     public Transform3D UvToWorld(Vector2 uv);
 
     public void Render();

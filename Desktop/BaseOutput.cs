@@ -5,9 +5,9 @@ namespace WlxOverlay.Desktop;
 public class BaseOutput
 {
     public uint IdName;
-    
+
     public static Rect2 OutputRect { get; private set; }
-    
+
     public string Name { get; set; } = null!;
     public Vector2Int Position { get; set; }
     public Vector2Int Size { get; set; }
@@ -19,13 +19,13 @@ public class BaseOutput
         IdName = (uint)x11Screen;
         Name = $"Scr {x11Screen}";
     }
-    
+
     public virtual void RecalculateTransform()
     {
         Transform = new Transform2D(Size.X, 0, 0, Size.Y, Position.X, Position.Y);
         MergeOutputRect();
     }
-    
+
     protected void MergeOutputRect()
     {
         var origin = Transform * Vector2.Zero;

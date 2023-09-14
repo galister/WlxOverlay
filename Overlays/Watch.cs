@@ -40,7 +40,7 @@ public class Watch : BaseOverlay, IInteractable
             Vec3InsideUnit.x *= -1;
         }
 
-        XrBackend.Current.Input.BatteryStatesUpdated += (_, _) 
+        XrBackend.Current.Input.BatteryStatesUpdated += (_, _)
             => _batteryStateUpdated = true;
 
         WidthInMeters = 0.115f;
@@ -65,7 +65,7 @@ public class Watch : BaseOverlay, IInteractable
         _canvas.AddControl(new DateTimeLabel("d", TimeZoneInfo.Local, 20, 80, 200, 50));
         _canvas.AddControl(new DateTimeLabel("dddd", TimeZoneInfo.Local, 20, 60, 200, 50));
         if (Config.Instance.Use12hTime)
-          _canvas.AddControl(new DateTimeLabel("tt", TimeZoneInfo.Local, 175, 107, 200, 50));
+            _canvas.AddControl(new DateTimeLabel("tt", TimeZoneInfo.Local, 175, 107, 200, 50));
 
         if (Config.Instance.AltTimezone1 != null)
         {
@@ -76,9 +76,10 @@ public class Watch : BaseOverlay, IInteractable
 
             Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
             _canvas.AddControl(new Label(tzDisplay, 210, 137, 200, 50));
-            if (Config.Instance.Use12hTime) {
-              Canvas.CurrentFont = FontCollection.Get(9, FontStyle.Bold);
-              _canvas.AddControl(new DateTimeLabel("tt", tz, 294, 107, 200, 50));
+            if (Config.Instance.Use12hTime)
+            {
+                Canvas.CurrentFont = FontCollection.Get(9, FontStyle.Bold);
+                _canvas.AddControl(new DateTimeLabel("tt", tz, 294, 107, 200, 50));
             }
 
             Canvas.CurrentFont = FontCollection.Get(24, FontStyle.Bold);
@@ -93,9 +94,10 @@ public class Watch : BaseOverlay, IInteractable
 
             Canvas.CurrentFont = FontCollection.Get(14, FontStyle.Bold);
             _canvas.AddControl(new Label(tzDisplay, 210, 82, 200, 50));
-            if (Config.Instance.Use12hTime) {
-              Canvas.CurrentFont = FontCollection.Get(9, FontStyle.Bold);
-              _canvas.AddControl(new DateTimeLabel("tt", tz, 294, 52, 200, 50));
+            if (Config.Instance.Use12hTime)
+            {
+                Canvas.CurrentFont = FontCollection.Get(9, FontStyle.Bold);
+                _canvas.AddControl(new DateTimeLabel("tt", tz, 294, 52, 200, 50));
             }
 
             Canvas.CurrentFont = FontCollection.Get(24, FontStyle.Bold);
@@ -214,7 +216,7 @@ public class Watch : BaseOverlay, IInteractable
         _batteryControls.Clear();
 
         var states = XrBackend.Current.GetBatteryStates();
-        
+
         if (states.Count > 0)
         {
             var stateWidth = 400 / states.Count;
@@ -264,7 +266,8 @@ public class Watch : BaseOverlay, IInteractable
         }
         else
         {
-            if (!Visible){
+            if (!Visible)
+            {
                 Show();
             }
             UploadAlpha();

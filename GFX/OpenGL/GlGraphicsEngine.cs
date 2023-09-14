@@ -27,7 +27,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
             throw new InvalidOperationException("Another GraphicsEngine exists.");
         GraphicsEngine.Instance = this;
     }
-    
+
     public void StartEventLoop()
     {
         var options = WindowOptions.Default;
@@ -48,13 +48,13 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
     private void OnLoad()
     {
         _gl = GL.GetApi(_window);
-        
+
         _gl.Enable(EnableCap.Texture2D);
         _gl.DebugAssertSuccess();
-        
+
         //_gl.Enable(EnableCap.DepthTest);
         //_gl.DebugAssertSuccess();
-        
+
         _gl.Enable(EnableCap.Blend);
         _gl.DebugAssertSuccess();
 
@@ -84,14 +84,14 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         var attribList = new[] { (int)EglEnum.AttributeConfigId, configId, (int)EglEnum.None };
         var numConfigs = 0;
         var config = IntPtr.Zero;
-        fixed(int* attribListPtr = attribList)
+        fixed (int* attribListPtr = attribList)
         {
             if (EGL.ChooseConfig(display, attribListPtr, &config, 1, &numConfigs) != EglEnum.True || numConfigs != 1)
                 throw new ApplicationException("Could not query EGL context config");
         }
 
         GetProcAddress getProcAddress = EGL.GetProcAddress;
-        
+
         var binding = new GraphicsBindingEGLMNDX
         {
             Type = StructureType.GraphicsBindingEglMndx,
@@ -102,7 +102,7 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
         };
         return binding;
     }
-    
+
     private delegate IntPtr GetProcAddress(string s);
 
     public GlStereoRenderer CreateStereoRenderer()
@@ -198,10 +198,10 @@ public sealed class GlGraphicsEngine : IGraphicsEngine
             _ => throw new ArgumentOutOfRangeException(nameof(format), format, null)
         };
     }
-    
+
     [DllImport("libglfw.so")]
     public static extern IntPtr glfwGetEGLDisplay();
-    
+
     [DllImport("libglfw.so")]
     public static extern IntPtr glfwGetEGLContext(IntPtr glfwWindow);
 }

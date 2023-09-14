@@ -13,15 +13,16 @@ public static class PlaySpaceMover
 
     public static bool CanDrag => _canDrag;
 
-    private static Vector3 _lastPosition;
+    private static Vector3 _startPosition;
     public static void OnSpaceDrag(Vector3 handPos, bool spaceDragBefore)
     {
         if (!CanDrag)
             return;
-        
+
         if (spaceDragBefore)
-            ApplyOffsetRelative(handPos - _lastPosition);
-        _lastPosition = handPos;
+            ApplyOffsetRelative(handPos - _startPosition);
+        else
+            _startPosition = handPos;
     }
 
     private static void ApplyToOverlays(Vector3 offset)
@@ -38,7 +39,7 @@ public static class PlaySpaceMover
     private static void ApplyOffsetRelative(Vector3 relativeMovement)
     {
         ApplyToOverlays(relativeMovement * -1f);
-        
+
         _offset += relativeMovement;
         Apply();
         _canDrag = false;
@@ -48,7 +49,7 @@ public static class PlaySpaceMover
     {
         var moveAmount = Session.Instance.PlaySpaceOffset - _offset;
         ApplyToOverlays(moveAmount * -1f);
-        
+
         _offset = Session.Instance.PlaySpaceOffset;
         Apply();
     }
@@ -80,4 +81,4 @@ public static class PlaySpaceMover
     {
         XrBackend.Current.SetZeroPose(_offset);
     }
-} 
+}

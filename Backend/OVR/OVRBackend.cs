@@ -14,12 +14,12 @@ public class OVRBackend : Application, IXrBackend
 
     private readonly OVRInput _input;
     public IXrInput Input => _input;
-    
+
     private DateTime _nextDeviceUpdate = DateTime.MinValue;
-    
+
     private VREvent_t _vrEvent;
     private readonly uint _vrEventSize;
-    
+
     private float _secondsSinceLastVsync;
     private ulong _frameCounter;
 
@@ -31,7 +31,7 @@ public class OVRBackend : Application, IXrBackend
             OVRManifestInstaller.EnsureUninstalled();
         else
             OVRManifestInstaller.EnsureInstalled();
-        
+
         var error = EVRInitError.None;
         OpenVR.GetGenericInterface(OpenVR.IVROverlay_Version, ref error);
         if (error.TryPrint())
@@ -54,7 +54,7 @@ public class OVRBackend : Application, IXrBackend
 
         _vrEventSize = (uint)Marshal.SizeOf(typeof(VREvent_t));
     }
-    
+
     public IList<TrackedDevice> GetBatteryStates() => _input.DeviceStates;
     public void Initialize()
     {
@@ -76,15 +76,15 @@ public class OVRBackend : Application, IXrBackend
                     break;
             }
         }
-        
+
         _input.Update();
-        
+
         if (_nextDeviceUpdate < DateTime.UtcNow)
         {
             _input.UpdateDeviceStates();
             _nextDeviceUpdate = DateTime.UtcNow.AddSeconds(10);
         }
-        
+
         return LoopShould.Render;
     }
 
@@ -106,7 +106,7 @@ public class OVRBackend : Application, IXrBackend
             Console.WriteLine("ERR: Failed to get Zero-Pose");
             return;
         }
-        
+
         var universe = OVRExtensions.ToTransform3D(matrix34_T);
         universe.origin = offset;
 
@@ -123,13 +123,13 @@ public class OVRBackend : Application, IXrBackend
         OpenVR.k_pch_SteamVR_HmdDisplayColorGainB_Float
     };
     private readonly float[] channelMin = { 0.1f, 0f, 0f };
-    
+
     public void AdjustGain(int ch, float amount)
     {
         var key = colorChannels[ch];
         var min = channelMin[ch];
-        
-        EVRSettingsError err = new (); 
+
+        EVRSettingsError err = new();
         var cur = OpenVR.Settings.GetFloat(OpenVR.k_pch_SteamVR_Section, key, ref err);
 
         if (err != EVRSettingsError.None)

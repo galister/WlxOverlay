@@ -31,9 +31,9 @@ public class GlStereoRenderer : IDisposable
     private readonly GlFramebuffer?[] _fbs = new GlFramebuffer[2];
     private readonly Transform3D[] _pvMatrices = new Transform3D[2];
     private readonly Rect2Di[] _viewRects = new Rect2Di[2];
-    
+
     private GlShader _shader = GlGraphicsEngine.QuadShader;
-    
+
     public GlStereoRenderer(GL gl)
     {
         _gl = gl;
@@ -47,7 +47,7 @@ public class GlStereoRenderer : IDisposable
         _vao.VertexAttributePointer(1, 2, VertexAttribPointerType.Float, 4, 2);
         _gl.DebugAssertSuccess();
     }
-    
+
     public void Begin(uint[] eyeTextures, Rect2Di[] rects, Transform3D[] projectionViews)
     {
         for (var i = 0; i < 2; i++)
@@ -59,13 +59,13 @@ public class GlStereoRenderer : IDisposable
 
         _gl.BlendFuncSeparate(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha, BlendingFactor.One, BlendingFactor.OneMinusSrcAlpha);
         _gl.DebugAssertSuccess();
-        
+
         _gl.BlendEquationSeparate(BlendEquationModeEXT.FuncAdd, BlendEquationModeEXT.FuncAdd);
         _gl.DebugAssertSuccess();
-        
+
         _gl.ColorMask(true, true, true, true);
         _gl.DebugAssertSuccess();
-        
+
         _vao.Bind();
     }
 
@@ -80,22 +80,22 @@ public class GlStereoRenderer : IDisposable
         _gl.BindTexture(TextureTarget.Texture2D, 0);
         _shader.SetUniform("uTexture0", 0);
         _shader.SetUniform("uColor", color.x, color.y, color.z, 1f);
-        
+
         for (var eye = 0; eye < 2; eye++)
         {
             ref var rect = ref _viewRects[eye];
-            
+
             _gl.Viewport(rect.Offset.X, rect.Offset.Y, (uint)rect.Extent.Width, (uint)rect.Extent.Height);
             _gl.DebugAssertSuccess();
-            
+
             var m = Matrix4X4.CreateOrthographicOffCenter(0, rect.Extent.Width, 0, rect.Extent.Height, -5f, 5f);
 
             for (var i = 0; i < 4; i++)
-            for (var j = 0; j < 4; j++)
-                _projectionMatrix[i * 4 + j] = m[i, j];
-            
+                for (var j = 0; j < 4; j++)
+                    _projectionMatrix[i * 4 + j] = m[i, j];
+
             _shader.SetUniformM4("projection", _projectionMatrix);
-            
+
             _gl.DrawElements(PrimitiveType.Triangles, (uint)_indices.Length, DrawElementsType.UnsignedInt, null);
             _gl.DebugAssertSuccess();
         }
@@ -113,27 +113,27 @@ public class GlStereoRenderer : IDisposable
 
         _shader.SetUniform("uTexture0", 0);
         _shader.SetUniform("uColor", color.x, color.y, color.z, alpha);
-        
+
         for (var eye = 0; eye < 2; eye++)
         {
             ref var rect = ref _viewRects[eye];
-            
+
             _gl.Viewport(rect.Offset.X, rect.Offset.Y, (uint)rect.Extent.Width, (uint)rect.Extent.Height);
             _gl.DebugAssertSuccess();
-            
+
             var mvp = _pvMatrices[eye] * tModel;
-            
+
             for (var i = 0; i < 4; i++)
-            for (var j = 0; j < 3; j++)
-                _projectionMatrix[i * 4 + j] = mvp[i, j];
-            
+                for (var j = 0; j < 3; j++)
+                    _projectionMatrix[i * 4 + j] = mvp[i, j];
+
             _shader.SetUniformM4("projection", _projectionMatrix);
-            
+
             _gl.DrawElements(PrimitiveType.Triangles, (uint)_indices.Length, DrawElementsType.UnsignedInt, null);
             _gl.DebugAssertSuccess();
         }
     }
-    
+
     public void Clear()
     {
         foreach (var framebuffer in _fbs)
@@ -143,7 +143,7 @@ public class GlStereoRenderer : IDisposable
             _gl.DebugAssertSuccess();
         }
     }
-    
+
     public void End()
     {
         _gl.BindFramebuffer(FramebufferTarget.Framebuffer, 0);
@@ -154,7 +154,7 @@ public class GlStereoRenderer : IDisposable
             _fbs[i] = null;
         }
     }
-    
+
     public void Dispose()
     {
         _ebo.Dispose();

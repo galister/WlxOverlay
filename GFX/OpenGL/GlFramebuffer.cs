@@ -16,7 +16,7 @@ public class GlFramebuffer : IDisposable
         _handle = _gl.GenFramebuffer();
         _gl.DebugAssertSuccess();
     }
-    
+
     public GlFramebuffer(GL gl, GlTexture texture)
     {
         _gl = gl;
@@ -30,13 +30,13 @@ public class GlFramebuffer : IDisposable
     {
         _gl.BindFramebuffer(FramebufferTarget.Framebuffer, _handle);
         _gl.DebugAssertSuccess();
-        
+
         _gl.FramebufferTexture(FramebufferTarget.Framebuffer, FramebufferAttachment.ColorAttachment0, _texture, 0);
         _gl.DebugAssertSuccess();
-        
+
         _gl.DrawBuffers(1, DrawBufferMode.ColorAttachment0);
         _gl.DebugAssertSuccess();
-        
+
         _gl.CheckFramebufferStatus(FramebufferTarget.Framebuffer).Assert(GLEnum.FramebufferComplete);
         _gl.DebugAssertSuccess();
     }

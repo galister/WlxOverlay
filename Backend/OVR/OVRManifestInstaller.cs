@@ -56,7 +56,7 @@ public static class OVRManifestInstaller
             Console.WriteLine($"Manifest installed to {ManifestPath}");
 
     }
-    
+
     public static void EnsureUninstalled()
     {
         if (OpenVR.Applications.IsApplicationInstalled(AppKey))

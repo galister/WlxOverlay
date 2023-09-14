@@ -14,12 +14,12 @@ public class GlShader : IDisposable
         var fragment = LoadShader(ShaderType.FragmentShader, fragmentPath);
         _handle = _gl.CreateProgram();
         _gl.DebugAssertSuccess();
-        
+
         _gl.AttachShader(_handle, vertex);
         _gl.AttachShader(_handle, fragment);
         _gl.LinkProgram(_handle);
         _gl.DebugAssertSuccess();
-        
+
         _gl.GetProgram(_handle, GLEnum.LinkStatus, out var status);
         if (status == 0)
         {
@@ -94,13 +94,13 @@ public class GlShader : IDisposable
         var src = File.ReadAllText(path);
         var handle = _gl.CreateShader(type);
         _gl.DebugAssertSuccess();
-        
+
         _gl.ShaderSource(handle, src);
         _gl.DebugAssertSuccess();
-        
+
         _gl.CompileShader(handle);
         _gl.DebugAssertSuccess();
-        
+
         var infoLog = _gl.GetShaderInfoLog(handle);
         if (!string.IsNullOrWhiteSpace(infoLog))
         {

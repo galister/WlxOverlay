@@ -12,12 +12,12 @@ public sealed class OVROverlay : IOverlay
     private string _key;
 
     private BaseOverlay _parent;
-    
+
     private Overlay? _overlay;
     private Overlay? _childOverlay;
-    
+
     private bool _created;
-    
+
     /// <summary>
     /// Transforms texture UV (rect) to overlay UV (square)
     /// </summary>
@@ -27,7 +27,7 @@ public sealed class OVROverlay : IOverlay
     /// Transforms overlay UV (square) to texture UV (rect) 
     /// </summary>
     private Transform2D InvInteractionTransform;
-    
+
     private static HmdMatrix34_t HmdMatrix;
     private static VROverlayIntersectionParams_t IntersectionParams = new() { eOrigin = ETrackingUniverseOrigin.TrackingUniverseStanding };
     private static VROverlayIntersectionResults_t IntersectionResults;
@@ -78,7 +78,7 @@ public sealed class OVROverlay : IOverlay
     }
 
     public void SetZOrder(uint zOrder)
-    {        
+    {
         if (_overlay == null)
             return;
         var err = OpenVR.Overlay.SetOverlaySortOrder(_overlay.Handle, zOrder);
@@ -105,7 +105,7 @@ public sealed class OVROverlay : IOverlay
 
         pointer.Transform.origin.CopyTo(ref IntersectionParams.vSource);
         (-pointer.Transform.basis.z).CopyTo(ref IntersectionParams.vDirection);
-        
+
         var wasHit = OpenVR.Overlay.ComputeOverlayIntersection(_childOverlay?.Handle ?? _overlay!.Handle, ref IntersectionParams, ref IntersectionResults);
         if (!wasHit || !TryTransformToLocal(IntersectionResults.vUVs.ToWlx(), out var localUv))
         {
@@ -165,7 +165,7 @@ public sealed class OVROverlay : IOverlay
     {
         if (_overlay == null || _parent.Texture == null)
             return;
-        
+
         UploadTexture(_overlay, _parent.Texture);
     }
 
@@ -184,7 +184,7 @@ public sealed class OVROverlay : IOverlay
     {
         if (!_created)
             return;
-        
+
         if (_parent.Texture!.IsDynamic())
         {
             _overlay!.Destroy();
@@ -195,7 +195,7 @@ public sealed class OVROverlay : IOverlay
             _overlay!.Hide();
         _childOverlay?.Hide();
     }
-    
+
     private void UpdateInteractionTransform()
     {
         if (_parent.Texture == null)
@@ -225,7 +225,7 @@ public sealed class OVROverlay : IOverlay
                 };
                 UploadTexture(_childOverlay, GraphicsEngine.Instance.EmptyTexture(1, 1));
             }
-            
+
             InteractionTransform.x *= w / (float)h;
             InteractionTransform.origin = Vector2.Right * ((h - w) * 0.5f / h);
         }

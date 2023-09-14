@@ -109,7 +109,7 @@ public class KeyboardOverlay : BaseOverlay, IInteractable, IGrabbable
 
     public void OnPointerHover(PointerHit hitData)
     {
-        if (hitData.isPrimary && KeyButton.Mode != (int) hitData.modifier)
+        if (hitData.isPrimary && KeyButton.Mode != (int)hitData.modifier)
         {
             KeyButton.Mode = (int)hitData.modifier;
             _canvas.MarkDirty();

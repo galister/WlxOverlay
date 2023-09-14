@@ -41,7 +41,7 @@ public class DesktopOverlay : BaseOverlay, IInteractable, IGrabbable
     protected override void Initialize()
     {
         _capture.Initialize();
-        
+
         var hmd = XrBackend.Current.Input.HmdTransform;
         var centerPoint = hmd.TranslatedLocal(SpawnPosition);
 
@@ -130,7 +130,7 @@ public class DesktopOverlay : BaseOverlay, IInteractable, IGrabbable
     private bool MoveMouse(PointerHit hitData)
     {
         var pos = Screen.Transform * hitData.uv;
-        
+
         var rectSize = BaseOutput.OutputRect.Size;
         var mulX = UInput.Extent / rectSize.x;
         var mulY = UInput.Extent / rectSize.y;
@@ -170,7 +170,7 @@ public class DesktopOverlay : BaseOverlay, IInteractable, IGrabbable
         base.UploadTransform();
         Transform = oldTransform;
     }
-    
+
     public override string ToString()
     {
         return Screen.Name;

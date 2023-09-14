@@ -42,7 +42,7 @@ public class OVRInput : IXrInput, IDisposable
 
     private readonly TrackedDevice[] _controllers = new TrackedDevice[2];
     private TrackedDevice _hmd;
-    
+
     private DateTime _nextDevicesUpdate = DateTime.MinValue;
 
     internal OVRInput()
@@ -52,12 +52,12 @@ public class OVRInput : IXrInput, IDisposable
         _poseActionDataSize = (uint)Marshal.SizeOf(typeof(InputPoseActionData_t));
 
         _activeActionSetsSize = (uint)Marshal.SizeOf(typeof(VRActiveActionSet_t));
-        
+
         var error = EVRInitError.None;
         OpenVR.GetGenericInterface(OpenVR.IVRInput_Version, ref error);
         if (error.TryPrint())
             Environment.Exit(1);
-        
+
         Console.WriteLine($"{OpenVR.IVRInput_Version}: pass");
 
         LoadActionSets();
@@ -129,7 +129,7 @@ public class OVRInput : IXrInput, IDisposable
             var path = _inputSources[i];
             var handle = 0UL;
             var err = OpenVR.Input.GetInputSourceHandle(path, ref handle);
-            if(err.TryPrint("GetInputSources", path))
+            if (err.TryPrint("GetInputSources", path))
                 continue;
 
             _inputSourceHandles[i] = handle;
@@ -141,7 +141,7 @@ public class OVRInput : IXrInput, IDisposable
             var path = $"/actions/default/out/Haptics{hand}";
 
             var err = OpenVR.Input.GetActionHandle(path, ref handle);
-            if(err.TryPrint("GetActionHandle", path))
+            if (err.TryPrint("GetActionHandle", path))
                 continue;
 
             _hapticsHandles[(int)hand] = handle;
@@ -187,7 +187,7 @@ public class OVRInput : IXrInput, IDisposable
         {
             _ = Task.Run(UpdateDeviceStates);
         }
-        
+
         var cErr = OpenVR.Compositor.GetLastPoses(_poses, _gamePoses);
         if (cErr.TryPrint("GetLastPoses"))
             return;
@@ -212,7 +212,7 @@ public class OVRInput : IXrInput, IDisposable
         var err = OpenVR.Input.UpdateActionState(_activeActionSets, _activeActionSetsSize);
         if (err.TryPrint("UpdateActionState", _actionSet!))
             return;
-        
+
         foreach (var inputAction in _inputActions)
         {
             if (inputAction.Type == OpenVrInputActionType.Pose)
@@ -315,7 +315,7 @@ public class OVRInput : IXrInput, IDisposable
         }
 
         DeviceStates.Sort((a, b) => a.Role.CompareTo(b.Role) * 2 + a.Index.CompareTo(b.Index));
-        
+
         BatteryStatesUpdated?.Invoke(this, EventArgs.Empty);
         _nextDevicesUpdate = DateTime.UtcNow + TimeSpan.FromSeconds(10);
     }
@@ -323,7 +323,7 @@ public class OVRInput : IXrInput, IDisposable
     public void InputState(LeftRight hand, ref InputState state)
     {
         var h = (int)hand;
-        
+
         if (BooleanState.TryGetValue("Click", out var hands))
             state.Click = hands[h];
         if (BooleanState.TryGetValue("Grab", out hands))
@@ -359,8 +359,8 @@ public class OVRInput : IXrInput, IDisposable
     public Transform3D HmdTransform { get; private set; }
 
     public Transform3D HandTransform(LeftRight hand) => PoseState[Hands[(uint)hand]];
-    
-    
+
+
     private static readonly StringBuilder PropertySb = new((int)OpenVR.k_unMaxPropertyStringSize);
     private static bool TryTrackedDeviceFromIndex(uint deviceIdx, out TrackedDevice device)
     {

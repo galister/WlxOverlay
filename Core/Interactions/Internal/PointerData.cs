@@ -8,23 +8,23 @@ namespace WlxOverlay.Core.Interactions.Internal;
 internal class PointerData
 {
     public readonly IPointer Pointer;
-    
+
     public readonly Queue<Action> ReleaseActions = new();
 
     public InputState Now;
     public InputState Before;
 
     public PointerMode Mode;
-    
+
     private InteractionData? _grabbedTarget;
 
     private InteractionData? _lastData;
-    
+
     internal PointerData(IPointer pointer)
     {
         Pointer = pointer;
     }
-    
+
     internal void UpdateState()
     {
         Before = Now;
@@ -48,7 +48,7 @@ internal class PointerData
         if (Before.ClickModifierRight != Now.ClickModifierRight)
             Console.WriteLine($"[Dbg] {Pointer.Hand} ClickModifierRight {Before.ClickModifierRight} -> {Now.ClickModifierRight}");
 #endif
-        
+
         // Recalculate Mode
         if (Now.ClickModifierRight)
         {
@@ -77,7 +77,7 @@ internal class PointerData
         else if (Mode == PointerMode.Right && !Config.Instance.RightClickOrientation)
             Mode = PointerMode.Left;
     }
-    
+
     internal void HandlePointerHit(PointerHit hitData, InteractionData data)
     {
         if (_grabbedTarget != null)
@@ -85,20 +85,20 @@ internal class PointerData
             HandleGrabbedInteractions();
             return;
         }
-        
+
         if (_lastData?.Overlay != data.Overlay)
         {
             _lastData?.OnPointerLeft(Pointer.Hand);
             _lastData = data;
         }
-        
+
         if (Now.Grab && !Before.Grab && data.Overlay is IGrabbable)
         {
             data.OnGrabbed(this, hitData);
             _grabbedTarget = data;
             return;
         }
-        
+
         data.OnPointerHover(this, hitData);
 
         if (Now.Click && !Before.Click)
@@ -114,11 +114,11 @@ internal class PointerData
     {
         if (_lastData == null)
             return;
-        
+
         _lastData.OnPointerLeft(Pointer.Hand);
         _lastData = null;
     }
-    
+
     internal void HandleRelease()
     {
         while (ReleaseActions.TryDequeue(out var action))

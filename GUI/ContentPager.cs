@@ -8,15 +8,15 @@ namespace WlxOverlay.GUI;
 /// </summary>
 public class ContentPager
 {
-    private Canvas _canvas;  
+    private Canvas _canvas;
 
     private List<List<Control>> _pages = new();
     private int _curPage = -1;
 
     public ContentPager(Canvas canvas)
     {
-        _canvas = canvas; 
-    } 
+        _canvas = canvas;
+    }
 
     public int NewPage()
     {
@@ -37,8 +37,8 @@ public class ContentPager
             return;
 
         if (_curPage >= 0)
-          foreach (var control in _pages[_curPage])
-              _canvas.RemoveControl(control);
+            foreach (var control in _pages[_curPage])
+                _canvas.RemoveControl(control);
 
         foreach (var control in _pages[newPage])
             _canvas.AddControl(control);

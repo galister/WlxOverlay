@@ -6,17 +6,17 @@ using WlxOverlay.GFX;
 
 namespace WlxOverlay.Capture;
 
-public class WlrCapture<T> : IDesktopCapture where T: IWlrFrame
+public class WlrCapture<T> : IDesktopCapture where T : IWlrFrame
 {
     private readonly TimeSpan RoundTripSleepTime = TimeSpan.FromMilliseconds(1);
 
     private readonly WaylandOutput _screen;
     private readonly WlDisplay _display;
     private readonly WlrCaptureData _data;
-    
+
     private IWlrFrame? _frame;
     private IWlrFrame? _lastFrame;
-    
+
     private readonly CancellationTokenSource _cancel = new();
     private Task? _worker;
 
@@ -32,7 +32,7 @@ public class WlrCapture<T> : IDesktopCapture where T: IWlrFrame
         {
             if (e.Interface == WlInterface.WlOutput.Name)
             {
-                if (e.Name == output.IdName) 
+                if (e.Name == output.IdName)
                     _data.Output = reg.Bind<WlOutput>(e.Name, e.Interface, e.Version);
             }
             else if (e.Interface == WlInterface.WlShm.Name)
@@ -49,7 +49,7 @@ public class WlrCapture<T> : IDesktopCapture where T: IWlrFrame
                 Dispose();
         };
 
-        _display.Roundtrip();        
+        _display.Roundtrip();
     }
 
     public void Initialize()
@@ -123,7 +123,7 @@ public class WlrCapture<T> : IDesktopCapture where T: IWlrFrame
         _display.Dispose();
         _data.Dispose();
     }
-    
+
     private void RequestNewFrame()
     {
         _lastFrame?.Dispose();

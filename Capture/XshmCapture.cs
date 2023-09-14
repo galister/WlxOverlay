@@ -11,16 +11,16 @@ public class XshmCapture : IDesktopCapture
     private static ITexture? _mouseTex;
     private static Vector2Int _mousePos;
     private static bool _mousePosSet;
-    
+
     public static int NumScreens()
     {
         return wlxshm_num_screens();
     }
-    
+
     private readonly BaseOutput _screen;
     private readonly IntPtr _handle;
     private readonly uint _bufSize;
-    
+
     private bool _running;
 
     public XshmCapture(BaseOutput output)
@@ -38,12 +38,12 @@ public class XshmCapture : IDesktopCapture
 
         _bufSize = (uint)(size.X * size.Y * 4U);
     }
-    
+
     public void Initialize()
     {
         _mouseTex ??= GraphicsEngine.Instance.TextureFromFile(
             Path.Combine(Config.ResourcesFolder, "arrow.png"));
-        
+
         wlxshm_capture_start(_handle);
         _running = true;
     }
@@ -72,7 +72,7 @@ public class XshmCapture : IDesktopCapture
             var h = _mouseTex.GetHeight() * (_screen.Size.X / 4096f);
             var x = mouse.X - w * 0.5f;
             var y = mouse.Y - h * 0.5f;
-            
+
             GraphicsEngine.Renderer.Begin(texture);
             GraphicsEngine.Renderer.DrawSprite(_mouseTex, x, y, w, h);
             GraphicsEngine.Renderer.End();
@@ -98,13 +98,13 @@ public class XshmCapture : IDesktopCapture
         wlxshm_capture_start(_handle);
         _running = true;
     }
-    
+
     public void Dispose()
     {
         Pause();
         wlxshm_destroy(_handle);
     }
-    
+
     [DllImport("libwlxshm.so", CallingConvention = CallingConvention.Cdecl)]
     private static extern IntPtr wlxshm_create(int screen, ref Vector2Int size, ref Vector2Int pos);
 

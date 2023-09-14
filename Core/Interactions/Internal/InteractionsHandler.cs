@@ -7,15 +7,15 @@ internal static class InteractionsHandler
 {
     private static readonly List<PointerData> _pointers = new(2);
     private static readonly List<PointerData> _handPointers = new(2) { null!, null! };
-    
+
     private static readonly List<InteractionData> _interactables = new();
     private static readonly List<InteractionData> _workInteractables = new();
     private static readonly object _interactableLock = new();
-    
-    private static readonly Dictionary<string,Func<InteractionArgs, InteractionResult>> _customInteractions = new();
+
+    private static readonly Dictionary<string, Func<InteractionArgs, InteractionResult>> _customInteractions = new();
     private static readonly List<Func<InteractionArgs, InteractionResult>> _workInteractions = new();
     private static readonly object _interactionLock = new();
-    
+
     private static bool _showHideState;
 
     /// <summary>
@@ -28,19 +28,19 @@ internal static class InteractionsHandler
         foreach (var pointer in _pointers)
             _handPointers[(int)pointer.Pointer.Hand] = pointer;
     }
-    
+
     internal static void RegisterCustomInteraction(string name, Func<InteractionArgs, InteractionResult> interaction)
     {
         lock (_interactionLock)
             _customInteractions.Add(name, interaction);
     }
-    
+
     internal static void UnregisterCustomInteraction(string name)
     {
         lock (_interactionLock)
             _customInteractions.Remove(name);
     }
-    
+
     internal static void TryRegister(BaseOverlay overlay)
     {
         if (overlay is not (IInteractable or IGrabbable)) return;
@@ -53,7 +53,7 @@ internal static class InteractionsHandler
         lock (_interactableLock)
             _interactables.RemoveAll(x => x.Overlay == overlay);
     }
-    
+
     internal static void Update()
     {
         _workInteractables.Clear();
@@ -109,23 +109,23 @@ internal static class InteractionsHandler
         _workInteractions.Clear();
         lock (_interactionLock)
             _workInteractions.AddRange(_customInteractions.Values);
-        
+
         foreach (var func in _workInteractions)
         {
             var args = new InteractionArgs
             {
-                Hand = data.Pointer.Hand, 
-                Mode = data.Mode, 
-                HandTransform = data.Pointer.Transform, 
+                Hand = data.Pointer.Hand,
+                Mode = data.Mode,
+                HandTransform = data.Pointer.Transform,
                 Now = data.Now,
                 Before = data.Before
             };
-            
+
             var result = func.Invoke(args);
             if (!result.Handled)
                 continue;
 
-            if (result.Length > float.Epsilon) 
+            if (result.Length > float.Epsilon)
                 data.Pointer.SetLength(result.Length);
             if (result.Color.Length() > float.Epsilon)
                 data.Pointer.SetColor(result.Color);

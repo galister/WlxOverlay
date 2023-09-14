@@ -22,23 +22,23 @@ public class AudioManager
     {
         var values = Environment.GetEnvironmentVariable("PATH");
         if (values != null)
-          foreach (var path in values!.Split(Path.PathSeparator))
-          {
-              if (!Directory.Exists(path))
-                  continue;
+            foreach (var path in values!.Split(Path.PathSeparator))
+            {
+                if (!Directory.Exists(path))
+                    continue;
 
-              for (var p = 0; p < _playerNames.Length; p++)
-                  foreach (var fPath in Directory.EnumerateFiles(path))
-                  {
-                      var fName = Path.GetFileName(fPath);
-                      if (fName != _playerNames[p])
-                          continue;
+                for (var p = 0; p < _playerNames.Length; p++)
+                    foreach (var fPath in Directory.EnumerateFiles(path))
+                    {
+                        var fName = Path.GetFileName(fPath);
+                        if (fName != _playerNames[p])
+                            continue;
 
-                      _player = (AudioPlayer)Activator.CreateInstance(_playerTypes[p])!;
-                      Console.WriteLine($"Using {_playerNames[p]} for audio output.");
-                      return;
-                  }
-          }
+                        _player = (AudioPlayer)Activator.CreateInstance(_playerTypes[p])!;
+                        Console.WriteLine($"Using {_playerNames[p]} for audio output.");
+                        return;
+                    }
+            }
         Console.WriteLine("WARN: No audio player found! Install either of the following if you need audio output: \n");
         Console.WriteLine("WARN: " + string.Join(", ", _playerNames));
     }
