@@ -72,8 +72,11 @@ public class KeyboardLayout
 
     public string[] LabelForKey(string key, bool shift = false)
     {
-        if (Labels.TryGetValue(key, out var label))
+        if (Labels.TryGetValue(key, out var label)) {
+            if (label != null && label.Length > 2)
+                return shift ? label[2..] : label[0..1];
             return label!;
+        }
 
         if (key.Length == 1)
             return new[] { shift ? key.ToUpperInvariant() : key.ToLowerInvariant() };
