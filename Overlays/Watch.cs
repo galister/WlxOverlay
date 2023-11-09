@@ -36,9 +36,9 @@ public class Watch : BaseOverlay, IInteractable
         var relative_pos = Config.Instance.WatchPosition ?? new[] { -0.05f, -0.05f, 0.15f };
         if (relative_pos.Length != 3)
             throw new InvalidOperationException("watch_position must be an array of 3 floats!");
-        
+
         Vec3RelToHand = new Vector3(relative_pos[0], relative_pos[1], relative_pos[2]);
-        
+
         Hand = Config.Instance.WatchHand;
         if (Config.Instance.WatchHand == LeftRight.Right)
         {
