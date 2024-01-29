@@ -43,7 +43,7 @@ internal class XdgScreenData : IDisposable
         {
             var psi = new ProcessStartInfo("notify-send")
             {
-                ArgumentList = { "-u", "critical", "-t", "120000", "-w", "WlxOverlay", $"Now select: {_output.Model} @ {_output.Name}" }
+                ArgumentList = { "-u", "critical", "-t", "120000", "-w", "WlxOverlay", $"Now select: {_output.Model} @ {_output.Name}, {_output.Size.X}x{_output.Size.Y}" }
             };
             return Process.Start(psi);
 
@@ -129,7 +129,7 @@ internal class XdgScreenData : IDisposable
             },
             false);
 
-        var _ = _screenCast.CreateSessionAsync(options);
+        await _screenCast.CreateSessionAsync(options);
 
         long val;
         while ((val = Interlocked.Read(ref state)) <= 0)
@@ -148,8 +148,12 @@ internal class XdgScreenData : IDisposable
             ["persist_mode"] = 2U, // persistent
         };
 
+        Console.WriteLine($"If popup shows, select: {_output.Model} @ {_output.Name}, {_output.Size.X}x{_output.Size.Y}");
+        Process? p = null;
         if (Config.TryGetFile($"screen-{_output.Name}.token", out var file))
             options.Add("restore_token", (await File.ReadAllLinesAsync(file))[0]);
+        else
+            p = ShowNotification();
 
         var state = 0L;
         var watcher = await _screenCast.WatchSignalAsync("org.freedesktop.portal.Desktop",
@@ -188,20 +192,12 @@ internal class XdgScreenData : IDisposable
             },
             false);
 
-        var _ = _screenCast.SelectSourcesAsync(_sessionPath!, options);
+        await _screenCast.SelectSourcesAsync(_sessionPath!, options);
 
         long val;
-        var waited = 0;
-        var notified = false;
-        Process? p = null;
         while ((val = Interlocked.Read(ref state)) <= 0)
         {
             await Task.Delay(100);
-            if (waited++ > 2 && !notified)
-            {
-                p = ShowNotification();
-                notified = true;
-            }
         }
         HideNotification(p);
         watcher.Dispose();
@@ -283,7 +279,7 @@ internal class XdgScreenData : IDisposable
             },
             false);
 
-        var _ = _screenCast.StartAsync(_sessionPath!, "", options);
+        await _screenCast.StartAsync(_sessionPath!, "", options);
 
         long val;
         while ((val = Interlocked.Read(ref state)) <= 0)
