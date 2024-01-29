@@ -129,7 +129,7 @@ internal class XdgScreenData : IDisposable
             },
             false);
 
-        await _screenCast.CreateSessionAsync(options);
+        var _ = _screenCast.CreateSessionAsync(options);
 
         long val;
         while ((val = Interlocked.Read(ref state)) <= 0)
@@ -188,7 +188,7 @@ internal class XdgScreenData : IDisposable
             },
             false);
 
-        await _screenCast.SelectSourcesAsync(_sessionPath!, options);
+        var _ = _screenCast.SelectSourcesAsync(_sessionPath!, options);
 
         long val;
         var waited = 0;
@@ -283,7 +283,7 @@ internal class XdgScreenData : IDisposable
             },
             false);
 
-        await _screenCast.StartAsync(_sessionPath!, "", options);
+        var _ = _screenCast.StartAsync(_sessionPath!, "", options);
 
         long val;
         while ((val = Interlocked.Read(ref state)) <= 0)
