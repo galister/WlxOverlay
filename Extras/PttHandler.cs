@@ -21,13 +21,13 @@ public static class PttHandler
 
             if (!args.Before.AltClick && args.Now.AltClick)
             {
-                if (upStart != null)
-                    Process.Start(upStart);
+                if (dnStart != null)
+                    Process.Start(dnStart);
             }
             else if (args.Before.AltClick && !args.Now.AltClick)
             {
-                if (dnStart != null)
-                    Process.Start(dnStart);
+                if (upStart != null)
+                    Process.Start(upStart);
             }
 
             return InteractionResult.OK;
