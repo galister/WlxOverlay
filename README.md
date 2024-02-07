@@ -5,7 +5,7 @@ Primarily made this because I couldn't find a proper desktop overlay for Linux.
 
 Formerly known as X11Overlay
 
-For the OpenXR overlay, see [WlxOverlay X](https://github.com/galister/wlx-overlay-x).
+For the newer version that supports both SteamVR and Monado, see [WlxOverlay S](https://github.com/galister/wlx-overlay-s).
 
 Features:
 - Access your screens from within OpenVR / SteamVR
