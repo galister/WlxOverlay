@@ -1,11 +1,14 @@
+# Superceded by WlxOverlay-S
+
+For the newer version that supports both SteamVR and Monado, see [WlxOverlay S](https://github.com/galister/wlx-overlay-s).
+
+
 # WlxOverlay
 A lightweight OpenVR overlay for Wayland and X11 desktops, inspired by XSOverlay.
 
 Primarily made this because I couldn't find a proper desktop overlay for Linux.
 
-Formerly known as X11Overlay
-
-For the newer version that supports both SteamVR and Monado, see [WlxOverlay S](https://github.com/galister/wlx-overlay-s).
+Formerly known as X11Overlay.
 
 Features:
 - Access your screens from within OpenVR / SteamVR
