@@ -1,7 +1,4 @@
-# Superceded by WlxOverlay-S
-
-For the newer version that supports both SteamVR and Monado, see [WlxOverlay S](https://github.com/galister/wlx-overlay-s).
-
+# Please use [WlxOverlay-S](https://github.com/galister/wlx-overlay-s) instead.
 
 # WlxOverlay
 A lightweight OpenVR overlay for Wayland and X11 desktops, inspired by XSOverlay.
